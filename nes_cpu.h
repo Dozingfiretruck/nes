@@ -63,9 +63,11 @@ typedef struct nes_cpu6502{
 
 typedef struct nes_opcode{
     void (*instruction)(void);      //instructions 
-    void (*addressing_mode)(void);  //addressing_mode
+    uint16_t (*addressing_mode)(void);  //addressing_mode
     uint8_t	ticks;
 } nes_opcode_t;
+
+static nes_opcode_t nes_opcode_table[256] ;
 
 uint8_t nes_read_cpu(uint16_t address);
 void nes_write_cpu(uint16_t address, uint8_t data);
