@@ -37,7 +37,7 @@ static uint16_t nes_imm(void){
 static uint16_t nes_rel(void){
     uint16_t address = nes_read_cpu(nes_cpu.PC++);
     if(address & 0x80)address-=0x100;
-    if((address>>8)!=(nes_cpu.PC>>8))nes_cpu.cycles++;
+    if(((uint16_t)(address+nes_cpu.PC)>>8)!=(nes_cpu.PC>>8))nes_cpu.cycles++;
     return address;
 }
 
@@ -559,50 +559,66 @@ static void nes_php(void){
 
 // branch on N=0
 static void nes_bpl(void){
-    if (nes_cpu.P.N==0)nes_cpu.PC += nes_opcode_table[nes_cpu.opcode].addressing_mode();
-    else nes_cpu.PC ++;
+    if (nes_cpu.P.N==0){
+        nes_cpu.PC += nes_opcode_table[nes_cpu.opcode].addressing_mode();
+        nes_cpu.cycles++;
+    }else nes_cpu.PC ++;
 }
 
 // branch on N=1
 static void nes_bmi(void){
-    if (nes_cpu.P.N)nes_cpu.PC += nes_opcode_table[nes_cpu.opcode].addressing_mode();
-    else nes_cpu.PC ++;
+    if (nes_cpu.P.N){
+        nes_cpu.PC += nes_opcode_table[nes_cpu.opcode].addressing_mode();
+        nes_cpu.cycles++;
+    }else nes_cpu.PC ++;
 }
 
 // branch on V=0
 static void nes_bvc(void){
-    if (nes_cpu.P.V==0)nes_cpu.PC += nes_opcode_table[nes_cpu.opcode].addressing_mode();
-    else nes_cpu.PC ++;
+    if (nes_cpu.P.V==0){
+        nes_cpu.PC += nes_opcode_table[nes_cpu.opcode].addressing_mode();
+        nes_cpu.cycles++;
+    }else nes_cpu.PC ++;
 }
 
 // branch on V=1
 static void nes_bvs(void){
-    if (nes_cpu.P.V)nes_cpu.PC += nes_opcode_table[nes_cpu.opcode].addressing_mode();
-    else nes_cpu.PC ++;
+    if (nes_cpu.P.V){
+        nes_cpu.PC += nes_opcode_table[nes_cpu.opcode].addressing_mode();
+        nes_cpu.cycles++;
+    }else nes_cpu.PC ++;
 }
 
 // branch on C=0
 static void nes_bcc(void){
-    if (nes_cpu.P.C==0)nes_cpu.PC += nes_opcode_table[nes_cpu.opcode].addressing_mode();
-    else nes_cpu.PC ++;
+    if (nes_cpu.P.C==0){
+        nes_cpu.PC += nes_opcode_table[nes_cpu.opcode].addressing_mode();
+        nes_cpu.cycles++;
+    }else nes_cpu.PC ++;
 }
 
 // branch on C=1
 static void nes_bcs(void){
-    if (nes_cpu.P.C)nes_cpu.PC += nes_opcode_table[nes_cpu.opcode].addressing_mode();
-    else nes_cpu.PC ++;
+    if (nes_cpu.P.C){
+        nes_cpu.PC += nes_opcode_table[nes_cpu.opcode].addressing_mode();
+        nes_cpu.cycles++;
+    }else nes_cpu.PC ++;
 }
 
 // branch on Z=0
 static void nes_bne(void){
-    if (nes_cpu.P.Z==0)nes_cpu.PC += nes_opcode_table[nes_cpu.opcode].addressing_mode();
-    else nes_cpu.PC ++;
+    if (nes_cpu.P.Z==0){
+        nes_cpu.PC += nes_opcode_table[nes_cpu.opcode].addressing_mode();
+        nes_cpu.cycles++;
+    }else nes_cpu.PC ++;
 }
 
 // branch on Z=1
 static void nes_beq(void){
-    if (nes_cpu.P.Z)nes_cpu.PC += nes_opcode_table[nes_cpu.opcode].addressing_mode();
-    else nes_cpu.PC ++;
+    if (nes_cpu.P.Z){
+        nes_cpu.PC += nes_opcode_table[nes_cpu.opcode].addressing_mode();
+        nes_cpu.cycles++;
+    }else nes_cpu.PC ++;
 }
 
 // (S)-:=PC,P PC:=($FFFE)
@@ -1238,7 +1254,7 @@ static nes_opcode_t nes_opcode_table[] = {
     {nes_adc,	nes_abx,	4   },      // 0x7D     ADC     abx     4*
     {nes_ror,	nes_abx,	7   },      // 0x7E     ROR     abx     7
     {nes_rra,	nes_abx,	7   },      // 0x7F     RRA     abx     7
-    {nes_nop,	nes_rel,   	2   },      // 0x80     NOP     imm     2
+    {nes_nop,	nes_imm,   	2   },      // 0x80     NOP     imm     2
     {nes_sta,   nes_izx,    6   },      // 0x81     STA     izx     6
     {nes_nop,   nes_imm,	2   },      // 0x82     NOP     imm     2
     {nes_sax,	nes_izx,	6   },      // 0x83     SAX     izx     6
@@ -1374,7 +1390,7 @@ void nes_opcode_test(uint16_t opcode){
     nes_printf("%04d PC: $%04X opcode:%02X    ;   ",line++,nes_cpu.PC-1,opcode);
     nes_printf("A:%02X X:%02X Y:%02X P:%02X SP:%02X CYC:%d\n",
                 nes_cpu.A,nes_cpu.X,nes_cpu.Y,nes_cpu.P,nes_cpu.SP, nes_cpu.cycles);
-    if (line == 5039)
+    if (line == 5072)
         printf("%d\r\n",line);
     nes_opcode_table[nes_cpu.opcode].instruction();
     nes_cpu.cycles = nes_cpu.cycles + nes_opcode_table[nes_cpu.opcode].ticks;
