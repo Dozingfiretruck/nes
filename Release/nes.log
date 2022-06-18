@@ -1,0 +1,9 @@
+﻿  nes_port.c
+E:\code\codeup\nes\nes_port.c(39,12): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+E:\code\codeup\nes\nes_port.c(133,17): warning C4101: “threadReturnValue”: 未引用的局部变量
+  正在生成代码
+  4 of 111 functions ( 3.6%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    1 functions had inline decision re-evaluated but remain unchanged
+  已完成代码的生成
+  nes.vcxproj -> E:\code\codeup\nes\Release\nes.exe

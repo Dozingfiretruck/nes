@@ -24,10 +24,10 @@ nes_cpu6502_t nes_cpu = {
 
 /* Adressing modes */
 
-/* Implied */
-static uint16_t nes_implied(void){
-    return 0;
-}
+// /* Implied */
+// static uint16_t nes_implied(void){
+//     return 0;
+// }
 
 //#Immediate
 static uint16_t nes_imm(void){
@@ -117,6 +117,9 @@ static uint16_t nes_ind(void){
 /* Logical and arithmetic commands: */
 
 // A :=A or {adr}
+// N  V  U  B  D  I  Z  C
+// *                 *
+
 static void nes_ora(void){
     nes_cpu.A |= nes_read_cpu(nes_opcode_table[nes_cpu.opcode].addressing_mode());
     if (nes_cpu.A) nes_cpu.P.Z = 0;
@@ -126,6 +129,8 @@ static void nes_ora(void){
 }
 
 // A:=A&{adr}
+// N  V  U  B  D  I  Z  C
+// *                 *
 static void nes_and(void){
     nes_cpu.A &= nes_read_cpu(nes_opcode_table[nes_cpu.opcode].addressing_mode());
     if (nes_cpu.A) nes_cpu.P.Z = 0;
@@ -135,6 +140,8 @@ static void nes_and(void){
 }
 
 // A:=A exor {adr}
+// N  V  U  B  D  I  Z  C
+// *                 *
 static void nes_eor(void){
     nes_cpu.A ^= nes_read_cpu(nes_opcode_table[nes_cpu.opcode].addressing_mode());
     if (nes_cpu.A) nes_cpu.P.Z = 0;
@@ -144,6 +151,8 @@ static void nes_eor(void){
 }
 
 // A:=A+{adr}
+// N  V  U  B  D  I  Z  C
+// *  *              *  *
 static void nes_adc(void){
     const uint8_t src = nes_read_cpu(nes_opcode_table[nes_cpu.opcode].addressing_mode());
     const uint16_t result16 = nes_cpu.A + src + nes_cpu.P.C;
@@ -158,6 +167,14 @@ static void nes_adc(void){
 }
 
 // A:=A-{adr}
+
+// EB
+// SBC (SBC) [SBC]
+// The same as the legal opcode $E9 (SBC #byte)
+// Status flags: N,V,Z,C
+
+// N  V  U  B  D  I  Z  C
+// *  *              *  *
 static void nes_sbc(void){
     const uint8_t src = nes_read_cpu(nes_opcode_table[nes_cpu.opcode].addressing_mode());
     const uint16_t result16 = nes_cpu.A - src - !nes_cpu.P.C;
@@ -172,6 +189,8 @@ static void nes_sbc(void){
 }
 
 // A-{adr}
+// N  V  U  B  D  I  Z  C
+// *                 *  *
 static void nes_cmp(void){
     const uint16_t value = (uint16_t)nes_cpu.A - (uint16_t)nes_read_cpu(nes_opcode_table[nes_cpu.opcode].addressing_mode());
     if (!(value & 0x8000))nes_cpu.P.C = 1;
@@ -183,6 +202,8 @@ static void nes_cmp(void){
 }
 
 // X-{adr}
+// N  V  U  B  D  I  Z  C
+// *                 *  *
 static void nes_cpx(void){
     const uint16_t value = (uint16_t)nes_cpu.X - (uint16_t)nes_read_cpu(nes_opcode_table[nes_cpu.opcode].addressing_mode());
     if (!(value & 0x8000))nes_cpu.P.C = 1;
@@ -194,6 +215,8 @@ static void nes_cpx(void){
 }
 
 // Y-{adr}
+// N  V  U  B  D  I  Z  C
+// *                 *  *
 static void nes_cpy(void){
     const uint16_t value = (uint16_t)nes_cpu.Y - (uint16_t)nes_read_cpu(nes_opcode_table[nes_cpu.opcode].addressing_mode());
     if (!(value & 0x8000))nes_cpu.P.C = 1;
@@ -205,6 +228,8 @@ static void nes_cpy(void){
 }
 
 // {adr}:={adr}-1
+// N  V  U  B  D  I  Z  C
+// *                 *  
 static void nes_dec(void){
     uint16_t address = nes_opcode_table[nes_cpu.opcode].addressing_mode();
     uint8_t data = nes_read_cpu(address);
@@ -217,6 +242,8 @@ static void nes_dec(void){
 }
 
 // X:=X-1
+// N  V  U  B  D  I  Z  C
+// *                 *  
 static void nes_dex(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode) nes_opcode_table[nes_cpu.opcode].addressing_mode();
     if (--nes_cpu.X) nes_cpu.P.Z = 0;
@@ -226,6 +253,8 @@ static void nes_dex(void){
 }
 
 // Y:=Y-1
+// N  V  U  B  D  I  Z  C
+// *                 *  
 static void nes_dey(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode) nes_opcode_table[nes_cpu.opcode].addressing_mode();
     if (--nes_cpu.Y) nes_cpu.P.Z = 0;
@@ -235,6 +264,8 @@ static void nes_dey(void){
 }
 
 // {adr}:={adr}+1
+// N  V  U  B  D  I  Z  C
+// *                 *  
 static void nes_inc(void){
     uint16_t address = nes_opcode_table[nes_cpu.opcode].addressing_mode();
     uint8_t data = nes_read_cpu(address);
@@ -248,6 +279,8 @@ static void nes_inc(void){
 }
 
 // X:=X+1
+// N  V  U  B  D  I  Z  C
+// *                 *  
 static void nes_inx(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode) nes_opcode_table[nes_cpu.opcode].addressing_mode();
     if (++nes_cpu.X) nes_cpu.P.Z = 0;
@@ -257,6 +290,8 @@ static void nes_inx(void){
 }
 
 // Y:=Y+1
+// N  V  U  B  D  I  Z  C
+// *                 *  
 static void nes_iny(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode) nes_opcode_table[nes_cpu.opcode].addressing_mode();
     if (++nes_cpu.Y) nes_cpu.P.Z = 0;
@@ -266,6 +301,8 @@ static void nes_iny(void){
 }
 
 // {adr}:={adr}*2
+// N  V  U  B  D  I  Z  C
+// *                 *  *
 static void nes_asl(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode){
         uint16_t address = nes_opcode_table[nes_cpu.opcode].addressing_mode();
@@ -290,6 +327,8 @@ static void nes_asl(void){
 }
 
 // {adr}:={adr}*2+C
+// N  V  U  B  D  I  Z  C
+// *                 *  *
 static void nes_rol(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode){
         uint16_t address = nes_opcode_table[nes_cpu.opcode].addressing_mode();
@@ -316,6 +355,8 @@ static void nes_rol(void){
 }
 
 // {adr}:={adr}/2
+// N  V  U  B  D  I  Z  C
+// *                 *  *
 static void nes_lsr(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode){
         uint16_t address = nes_opcode_table[nes_cpu.opcode].addressing_mode();
@@ -341,6 +382,8 @@ static void nes_lsr(void){
 }
 
 // {adr}:={adr}/2+C*128
+// N  V  U  B  D  I  Z  C
+// *                 *  *
 static void nes_ror(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode) {
         uint16_t address = nes_opcode_table[nes_cpu.opcode].addressing_mode();
@@ -369,6 +412,8 @@ static void nes_ror(void){
 /* Move commands: */
 
 // A:={adr}
+// N  V  U  B  D  I  Z  C
+// *                 *  
 static void nes_lda(void){
     nes_cpu.A = nes_read_cpu(nes_opcode_table[nes_cpu.opcode].addressing_mode());
     if (nes_cpu.A) nes_cpu.P.Z = 0;
@@ -383,6 +428,8 @@ static void nes_sta(void){
 }
 
 // X:={adr}
+// N  V  U  B  D  I  Z  C
+// *                 *  
 static void nes_ldx(void){
     nes_cpu.X = nes_read_cpu(nes_opcode_table[nes_cpu.opcode].addressing_mode());
     nes_cpu.P.Z = nes_cpu.X==0;
@@ -395,6 +442,8 @@ static void nes_stx(void){
 }
 
 // Y:={adr}
+// N  V  U  B  D  I  Z  C
+// *                 *  
 static void nes_ldy(void){
     nes_cpu.Y = nes_read_cpu(nes_opcode_table[nes_cpu.opcode].addressing_mode());
     nes_cpu.P.Z = nes_cpu.Y==0;
@@ -407,6 +456,8 @@ static void nes_sty(void){
 }
 
 // X:=A
+// N  V  U  B  D  I  Z  C
+// *                 *  
 static void nes_tax(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode) nes_opcode_table[nes_cpu.opcode].addressing_mode();
     nes_cpu.X=nes_cpu.A;
@@ -417,6 +468,8 @@ static void nes_tax(void){
 }
 
 // A:=X
+// N  V  U  B  D  I  Z  C
+// *                 *  
 static void nes_txa(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode) nes_opcode_table[nes_cpu.opcode].addressing_mode();
     nes_cpu.A=nes_cpu.X;
@@ -427,6 +480,8 @@ static void nes_txa(void){
 }
 
 // Y:=A
+// N  V  U  B  D  I  Z  C
+// *                 *  
 static void nes_tay(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode) nes_opcode_table[nes_cpu.opcode].addressing_mode();
     nes_cpu.Y=nes_cpu.A;
@@ -437,6 +492,8 @@ static void nes_tay(void){
 }
 
 // A:=Y
+// N  V  U  B  D  I  Z  C
+// *                 *  
 static void nes_tya(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode) nes_opcode_table[nes_cpu.opcode].addressing_mode();
     nes_cpu.A=nes_cpu.Y;
@@ -447,6 +504,8 @@ static void nes_tya(void){
 }
 
 // X:=S
+// N  V  U  B  D  I  Z  C
+// *                 *  
 static void nes_tsx(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode) nes_opcode_table[nes_cpu.opcode].addressing_mode();
     nes_cpu.X=nes_cpu.SP;
@@ -463,6 +522,8 @@ static void nes_txs(void){
 }
 
 // A:=+(S)
+// N  V  U  B  D  I  Z  C
+// *                 *  
 static void nes_pla(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode) nes_opcode_table[nes_cpu.opcode].addressing_mode();
     NES_POP(nes_cpu.A);
@@ -479,6 +540,8 @@ static void nes_pha(void){
 }
 
 // P:=+(S)
+// N  V  U  B  D  I  Z  C
+// *  *        *  *  *  *
 static void nes_plp(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode) nes_opcode_table[nes_cpu.opcode].addressing_mode();
     NES_POP(nes_cpu.UP);
@@ -543,9 +606,21 @@ static void nes_beq(void){
 }
 
 // (S)-:=PC,P PC:=($FFFE)
-// BRK
+// N  V  U  B  D  I  Z  C
+//          1     1
+static void nes_brk(void){
+    nes_cpu.PC ++;
+    NES_PUSHW(nes_cpu.PC-1);
+    nes_cpu.P.B = 1;
+    NES_PUSH(nes_cpu.UP);
+    nes_cpu.P.I = 1;
+    nes_cpu.P.D = 0;
+    nes_cpu.PC = nes_read_cpu(NES_VERCTOR_IRQBRK)|(nes_read_cpu(NES_VERCTOR_IRQBRK+1)<<8);
+}
 
 // P,PC:=+(S)
+// N  V  U  B  D  I  Z  C
+// *  *        *  *  *  *
 static void nes_rti(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode) nes_opcode_table[nes_cpu.opcode].addressing_mode();
     nes_cpu.UP = NES_POP(nes_cpu.PC);
@@ -574,6 +649,8 @@ static void nes_jmp(void){
 }
 
 // N:=b7 V:=b6 Z:=A&{adr}
+// N  V  U  B  D  I  Z  C
+// *  *              *  
 static void nes_bit(void){
     const uint8_t value = nes_read_cpu(nes_opcode_table[nes_cpu.opcode].addressing_mode());
     if (value & nes_cpu.A) nes_cpu.P.Z = 0;
@@ -585,48 +662,64 @@ static void nes_bit(void){
 }
 
 // C:=0
+// N  V  U  B  D  I  Z  C
+//                      0
 static void nes_clc(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode) nes_opcode_table[nes_cpu.opcode].addressing_mode();
     nes_cpu.P.C=0;
 }
 
 // C:=1
+// N  V  U  B  D  I  Z  C
+//                      1
 static void nes_sec(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode) nes_opcode_table[nes_cpu.opcode].addressing_mode();
     nes_cpu.P.C=1;
 }
 
 // D:=0
+// N  V  U  B  D  I  Z  C
+//             0         
 static void nes_cld(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode) nes_opcode_table[nes_cpu.opcode].addressing_mode();
     nes_cpu.P.D=0;
 }
 
 // D:=1
+// N  V  U  B  D  I  Z  C
+//             1         
 static void nes_sed(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode) nes_opcode_table[nes_cpu.opcode].addressing_mode();
     nes_cpu.P.D=1;
 }
 
 // I:=0
+// N  V  U  B  D  I  Z  C
+//                0      
 static void nes_cli(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode) nes_opcode_table[nes_cpu.opcode].addressing_mode();
     nes_cpu.P.I=0;
 }
 
 // I:=1
+// N  V  U  B  D  I  Z  C
+//                1      
 static void nes_sei(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode) nes_opcode_table[nes_cpu.opcode].addressing_mode();
     nes_cpu.P.I=1;
 }
 
 // V:=0
+// N  V  U  B  D  I  Z  C
+//    0                  
 static void nes_clv(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode) nes_opcode_table[nes_cpu.opcode].addressing_mode();
     nes_cpu.P.V=0;
 }
 
-// nop
+// DOP (NOP) [SKB] TOP (NOP) [SKW]
+// No operation . The argument has no signifi-cance. Status
+// flags: -
 static void nes_nop(void){
     if (nes_opcode_table[nes_cpu.opcode].addressing_mode) nes_opcode_table[nes_cpu.opcode].addressing_mode();
 }
@@ -635,6 +728,11 @@ static void nes_nop(void){
 // Illegal opcodes:
 
 // {adr}:={adr}*2 A:=A or {adr}	
+// SLO (SLO) [ASO]
+// Shift left one bit in memory, then OR accumulator with memory. =
+// Status flags: N,Z,C
+// N  V  U  B  D  I  Z  C
+// *                 *  *
 static void nes_slo(void){
     uint16_t address = nes_opcode_table[nes_cpu.opcode].addressing_mode();
     uint8_t data = nes_read_cpu(address);
@@ -651,6 +749,11 @@ static void nes_slo(void){
 }
 
 // {adr}:={adr}rol A:=A and {adr}
+// RLA (RLA) [RLA]
+// Rotate one bit left in memory, then AND accumulator with memory. Status
+// flags: N,Z,C
+// N  V  U  B  D  I  Z  C
+// *                 *  *
 static void nes_rla(void){
     uint16_t address = nes_opcode_table[nes_cpu.opcode].addressing_mode();
     uint8_t saveflags=nes_cpu.P.C;
@@ -668,6 +771,11 @@ static void nes_rla(void){
 }
 
 // {adr}:={adr}/2 A:=A exor {adr}
+// SRE (SRE) [LSE]
+// Shift right one bit in memory, then EOR accumulator with memory. Status
+// flags: N,Z,C
+// N  V  U  B  D  I  Z  C
+// *                 *  *
 static void nes_sre(void){
     uint16_t address = nes_opcode_table[nes_cpu.opcode].addressing_mode();
     uint8_t data = nes_read_cpu(address);
@@ -684,6 +792,12 @@ static void nes_sre(void){
 }
 
 // {adr}:={adr}ror A:=A adc {adr}
+// RRA (RRA) [RRA]
+// Rotate one bit right in memory, then add memory to accumulator (with
+// carry).
+// Status flags: N,V,Z,C
+// N  V  U  B  D  I  Z  C
+// *  *              *  *
 static void nes_rra(void){
     uint16_t address = nes_opcode_table[nes_cpu.opcode].addressing_mode();
     uint8_t saveflags=nes_cpu.P.C;
@@ -705,11 +819,27 @@ static void nes_rra(void){
 }
 
 // {adr}:=A&X
+// AAX (SAX) [AXS]
+// AND X register with accumulator and store result in memory. Status
+// flags: N,Z
+
 static void nes_sax(void){
     nes_write_cpu(nes_opcode_table[nes_cpu.opcode].addressing_mode(),nes_cpu.A & nes_cpu.X);
 }
 
 // A,X:={adr}
+
+// AB
+// ATX (LXA) [OAL]
+// AND byte with accumulator, then transfer accumulator to X register.
+// Status flags: N,Z
+
+// A7
+// LAX (LAX) [LAX]
+// Load accumulator and X register with memory.
+// Status flags: N,Z
+// N  V  U  B  D  I  Z  C
+// *                 *  
 static void nes_lax(void){
     nes_cpu.A = nes_read_cpu(nes_opcode_table[nes_cpu.opcode].addressing_mode());
     nes_cpu.X = nes_cpu.A;
@@ -720,6 +850,11 @@ static void nes_lax(void){
 }
 
 // {adr}:={adr}-1 A-{adr}
+// DCP (DCP) [DCM]
+// Subtract 1 from memory (without borrow).
+// Status flags: C
+// N  V  U  B  D  I  Z  C
+// *                 *  *
 static void nes_dcp(void){
     uint16_t address = nes_opcode_table[nes_cpu.opcode].addressing_mode();
     uint8_t data = nes_read_cpu(address);
@@ -737,6 +872,11 @@ static void nes_dcp(void){
 }
 
 // {adr}:={adr}+1 A:=A-{adr}
+// ISC (ISB) [INS]
+// Increase memory by one, then subtract memory from accu-mulator (with
+// borrow). Status flags: N,V,Z,C
+// N  V  U  B  D  I  Z  C
+// *  *              *  *
 static void nes_isc(void){
     uint16_t address = nes_opcode_table[nes_cpu.opcode].addressing_mode();
     uint8_t data = nes_read_cpu(address);
@@ -755,76 +895,134 @@ static void nes_isc(void){
 }
 
 // A:=A&#{imm}
-// ANC
+// AAC (ANC) [ANC]
+// AND byte with accumulator. If result is negative then carry is set.
+// Status flags: N,Z,C
+// N  V  U  B  D  I  Z  C
+// *                 *  *
 static void nes_anc(void){
     nes_opcode_table[nes_cpu.opcode].addressing_mode();
 }
 
 // A:=(A&#{imm})/2
-// ALR
+// ASR (ASR) [ALR]
+// AND byte with accumulator, then shift right one bit in accumu-lator.
+// Status flags: N,Z,C
+// N  V  U  B  D  I  Z  C
+// *                 *  *
 static void nes_alr(void){
     nes_opcode_table[nes_cpu.opcode].addressing_mode();
 }
 
 // A:=(A&#{imm})/2
-// ARR
+// ARR (ARR) [ARR]
+// AND byte with accumulator, then rotate one bit right in accu-mulator and
+// check bit 5 and 6:
+// If both bits are 1: set C, clear V.
+// If both bits are 0: clear C and V.
+// If only bit 5 is 1: set V, clear C.
+// If only bit 6 is 1: set C and V.
+// Status flags: N,V,Z,C
+// alr
+// N  V  U  B  D  I  Z  C
+// *                 *  *
+// arr
+// N  V  U  B  D  I  Z  C
+// *  *              *  *
 static void nes_arr(void){
     nes_opcode_table[nes_cpu.opcode].addressing_mode();
 }
 
 // A:=X&#{imm}
-// XAA²
+// XAA (ANE) [XAA]
+// Exact operation unknown. Read the referenced documents for more
+// information and observations.
+// N  V  U  B  D  I  Z  C
+// *                 *  
 static void nes_xaa(void){
     nes_opcode_table[nes_cpu.opcode].addressing_mode();
 }
 
 // A,X:=#{imm}
 // LAX²
+// N  V  U  B  D  I  Z  C
+// *                 *  
 static void nes_lax2(void){
     nes_opcode_table[nes_cpu.opcode].addressing_mode();
 }
 
 // X:=A&X-#{imm}
-// AXS
+// AXS (SBX) [SAX]
+// AND X register with accumulator and store result in X regis-ter, then
+// subtract byte from X register (without borrow).
+// Status flags: N,Z,C
+// N  V  U  B  D  I  Z  C
+// *                 *  *
 static void nes_axs(void){
     nes_opcode_table[nes_cpu.opcode].addressing_mode();
 }
 
 // A:=A-#{imm}
 // SBC
+// N  V  U  B  D  I  Z  C
+// *  *              *  *
 static void nes_sbc2(void){
     nes_opcode_table[nes_cpu.opcode].addressing_mode();
 }
 
 // {adr}:=A&X&H
-// AHX¹
+// AXA (SHA) [AXA]
+// AND X register with accumulator then AND result with 7 and store in
+// memory. Status flags: -
 static void nes_ahx(void){
     nes_opcode_table[nes_cpu.opcode].addressing_mode();
 }
 
 // {adr}:=Y&H
-// SHY¹
+// SYA (SHY) [SAY]
+// AND Y register with the high byte of the target address of the argument
+// + 1. Store the result in memory.
+// M =3D Y AND HIGH(arg) + 1
+// Status flags: -
 static void nes_shy(void){
     nes_opcode_table[nes_cpu.opcode].addressing_mode();
 }
 
 // {adr}:=X&H
-// SHX¹
+// SXA (SHX) [XAS]
+// AND X register with the high byte of the target address of the argument
+// + 1. Store the result in memory.
+// M =3D X AND HIGH(arg) + 1
+// Status flags: -
 static void nes_shx(void){
     nes_opcode_table[nes_cpu.opcode].addressing_mode();
 }
 
 // S:=A&X {adr}:=S&H
-// TAS¹
+// XAS (SHS) [TAS]
+// AND X register with accumulator and store result in stack pointer, then
+// AND stack pointer with the high byte of the target address of the
+// argument + 1. Store result in memory.
+// S =3D X AND A, M =3D S AND HIGH(arg) + 1
+// Status flags: -
 static void nes_tas(void){
     nes_opcode_table[nes_cpu.opcode].addressing_mode();
 }
 
 // A,X,S:={adr}&S
-// LAS
+// LAR (LAE) [LAS]
+// AND memory with stack pointer, transfer result to accu-mulator, X
+// register and stack pointer.
+// Status flags: N,Z
+// N  V  U  B  D  I  Z  C
+// *                 *  
 static void nes_las(void){
     nes_opcode_table[nes_cpu.opcode].addressing_mode();
 }
+
+// KIL (JAM) [HLT]
+// Stop program counter (processor lock up).
+// Status flags: -
 
 uint8_t nes_read_cpu(uint16_t address){
     switch (address >> 13){
@@ -859,11 +1057,11 @@ void nes_write_cpu(uint16_t address, uint8_t data){
             return;
         case 1:
             // 高三位为1, [$2000, $4000): PPU寄存器, 8字节步进镜像
-            nes_printf("NOT IMPL\n");
+            nes_printf("PPU %04X\n",address);
             return;
         case 2:
             // 高三位为2, [$4000, $6000): pAPU寄存器 扩展ROM区
-            nes_printf("NOT IMPL\n");
+            nes_printf("APU %04X\n",address);
             return;
         case 3:
             // 高三位为3, [$6000, $8000): 存档 SRAM区
@@ -912,8 +1110,7 @@ void nes_cpu_reset(void){
 }
 
 static nes_opcode_t nes_opcode_table[] = {
-
-    {NULL,	    NULL,	    7   },      // 0x00     BRK             7--
+    {nes_brk,	NULL,	    7   },      // 0x00     BRK             7
     {nes_ora,   nes_izx,    6   },      // 0x01     ORA     izx     6
     {NULL,	    NULL,	    NULL},      // 0x02     KIL
     {nes_slo,	nes_izx,	8   },      // 0x03     SLO     izx     8
@@ -923,13 +1120,12 @@ static nes_opcode_t nes_opcode_table[] = {
     {nes_slo,	nes_zp,	    5   },      // 0x07     SLO     zp      5
     {nes_php,	NULL,	    3   },      // 0x08     PHP             3
     {nes_ora,	nes_imm,	2   },      // 0x09     ORA     imm     2
-    {nes_asl,	NULL,	    2   },      // 0x0A     ASL             2--
+    {nes_asl,	NULL,	    2   },      // 0x0A     ASL             2
     {nes_anc,	nes_imm,	2   },      // 0x0B     ANC     imm     2
     {nes_nop,	nes_abs,	4   },      // 0x0C     NOP     abs     4
     {nes_ora,	nes_abs,	4   },      // 0x0D     ORA     abs     4
     {nes_asl,	nes_abs,	6   },      // 0x0E     ASL     abs     6
     {nes_slo,	nes_abs,	6   },      // 0x0F     SLO     abs     6
-
     {nes_bpl,	nes_rel,	2   },      // 0x10     BPL     rel     2*
     {nes_ora,   nes_izy,    5   },      // 0x11     ORA     izy     5*
     {NULL,      NULL,	    NULL},      // 0x12     KIL
@@ -946,7 +1142,6 @@ static nes_opcode_t nes_opcode_table[] = {
     {nes_ora,	nes_abx,	4   },      // 0x1D     ORA     abx     4*
     {nes_asl,	nes_abx,	7   },      // 0x1E     ASL     abx     7
     {nes_slo,	nes_abx,	7   },      // 0x1F     SLO     abx     7
-
     {nes_jsr,	nes_abs,	6   },      // 0x20     JSR     abs     6
     {nes_and,   nes_izx,    6   },      // 0x21     AND     izx     6
     {NULL,      NULL,	    NULL},      // 0x22     KIL
@@ -957,13 +1152,12 @@ static nes_opcode_t nes_opcode_table[] = {
     {nes_rla,	nes_zp,     5   },      // 0x27     RLA     zp      5
     {nes_plp,	NULL,	    4   },      // 0x28     PLP             4
     {nes_and,	nes_imm,	2   },      // 0x29     AND     imm     2
-    {nes_rol,	NULL,	    2   },      // 0x2A     ROL             2 --
+    {nes_rol,	NULL,	    2   },      // 0x2A     ROL             2
     {nes_anc,	nes_imm,	2   },      // 0x2B     ANC     imm     2
     {nes_bit,	nes_abs,	4   },      // 0x2C     BIT     abs     4
     {nes_and,	nes_abs,	4   },      // 0x2D     AND     abs     4
     {nes_rol,	nes_abs,	6   },      // 0x2E     ROL     abs     6
     {nes_rla,	nes_abs,	6   },      // 0x2F     RLA     abs     6
-
     {nes_bmi,	nes_rel,	2   },      // 0x30     BMI     rel     2*
     {nes_and,   nes_izy,    5   },      // 0x31     AND     izy     5*
     {NULL,      NULL,	    NULL},      // 0x32     KIL
@@ -980,7 +1174,6 @@ static nes_opcode_t nes_opcode_table[] = {
     {nes_and,	nes_abx,	4   },      // 0x3D     AND     abx     4*
     {nes_rol,	nes_abx,	7   },      // 0x3E     ROL     abx     7
     {nes_rla,	nes_abx,	7   },      // 0x3F     RLA     abx     7
-    
     {nes_rti,	NULL,	    6   },      // 0x40     RTI             6
     {nes_eor,   nes_izx,    6   },      // 0x41     EOR     izx     6
     {NULL,      NULL,	    NULL},      // 0x42     KIL
@@ -991,13 +1184,12 @@ static nes_opcode_t nes_opcode_table[] = {
     {nes_sre,	nes_zp,     5   },      // 0x47     SRE     zp      5
     {nes_pha,	NULL,	    3   },      // 0x48     PHA             3
     {nes_eor,	nes_imm,	2   },      // 0x49     EOR     imm     2
-    {nes_lsr,	NULL,	    2   },      // 0x4A     LSR             2--
+    {nes_lsr,	NULL,	    2   },      // 0x4A     LSR             2
     {nes_alr,	nes_imm,	2   },      // 0x4B     ALR     imm     2
     {nes_jmp,	nes_abs,	3   },      // 0x4C     JMP     abs     3
     {nes_eor,	nes_abs,	4   },      // 0x4D     EOR     abs     4
     {nes_lsr,	nes_abs,	6   },      // 0x4E     LSR     abs     6
     {nes_sre,	nes_abs,	6   },      // 0x4F     SRE     abs     6
-
     {nes_bvc,	nes_rel,	2   },      // 0x50     BVC     rel     2*
     {nes_eor,   nes_izy,    5   },      // 0x51     EOR     izy     5*
     {NULL,      NULL,	    NULL},      // 0x52     KIL
@@ -1014,7 +1206,6 @@ static nes_opcode_t nes_opcode_table[] = {
     {nes_eor,	nes_abx,	4   },      // 0x5D     EOR     abx     4*
     {nes_lsr,	nes_abx,	7   },      // 0x5E     LSR     abx     7
     {nes_sre,	nes_abx,	7   },      // 0x5F     SRE     abx     7
-
     {nes_rts,	NULL,   	6   },      // 0x60     RTS             6
     {nes_adc,   nes_izx,    6   },      // 0x61     ADC     izx     6
     {NULL,      NULL,	    NULL},      // 0x62     KIL
@@ -1031,7 +1222,6 @@ static nes_opcode_t nes_opcode_table[] = {
     {nes_adc,	nes_abs,	4   },      // 0x6D     ADC     abs     4
     {nes_ror,	nes_abs,	6   },      // 0x6E     ROR     abs     6
     {nes_rra,	nes_abs,	6   },      // 0x6F     RRA     abs     6
-
     {nes_bvs,	nes_rel,   	2   },      // 0x70     BVS     rel     2*
     {nes_adc,   nes_izy,    5   },      // 0x71     ADC     izy     5*
     {NULL,      NULL,	    NULL},      // 0x72     KIL
@@ -1048,7 +1238,6 @@ static nes_opcode_t nes_opcode_table[] = {
     {nes_adc,	nes_abx,	4   },      // 0x7D     ADC     abx     4*
     {nes_ror,	nes_abx,	7   },      // 0x7E     ROR     abx     7
     {nes_rra,	nes_abx,	7   },      // 0x7F     RRA     abx     7
-
     {nes_nop,	nes_rel,   	2   },      // 0x80     NOP     imm     2
     {nes_sta,   nes_izx,    6   },      // 0x81     STA     izx     6
     {nes_nop,   nes_imm,	2   },      // 0x82     NOP     imm     2
@@ -1065,7 +1254,6 @@ static nes_opcode_t nes_opcode_table[] = {
     {nes_sta,	nes_abs,	4   },      // 0x8D     STA     abs     4
     {nes_stx,	nes_abs,	4   },      // 0x8E     STX     abs     4
     {nes_sax,	nes_abs,	4   },      // 0x8F     SAX     abs     4
-
     {nes_bcc,	nes_rel,   	2   },      // 0x90     BCC     rel     2*
     {nes_sta,   nes_izy,    6   },      // 0x91     STA     izy     6
     {NULL,      NULL,	    NULL},      // 0x92     KIL
@@ -1082,7 +1270,6 @@ static nes_opcode_t nes_opcode_table[] = {
     {nes_sta,	nes_abx,	5   },      // 0x9D     STA     abx     5
     {nes_shx,	nes_aby,	5   },      // 0x9E     SHX     aby     5
     {nes_ahx,	nes_aby,	5   },      // 0x9F     AHX     aby     5
-
     {nes_ldy,	nes_imm,   	2   },      // 0xA0     LDY     imm     2
     {nes_lda,   nes_izx,    6   },      // 0xA1     LDA     izx     6
     {nes_ldx,   nes_imm,	2   },      // 0xA2     LDX     imm     2
@@ -1099,7 +1286,6 @@ static nes_opcode_t nes_opcode_table[] = {
     {nes_lda,	nes_abs,	4   },      // 0xAD     LDA     abs     4
     {nes_ldx,	nes_abs,	4   },      // 0xAE     LDX     abs     4
     {nes_lax,	nes_abs,	4   },      // 0xAF     LAX     abs     4
-
     {nes_bcs,	nes_rel,   	2   },      // 0xB0     BCS     rel     2*
     {nes_lda,   nes_izy,    5   },      // 0xB1     LDA     izy     5*
     {NULL,      NULL,	    NULL},      // 0xB2     KIL
@@ -1116,7 +1302,6 @@ static nes_opcode_t nes_opcode_table[] = {
     {nes_lda,	nes_abx,	4   },      // 0xBD     LDA     abx     4*
     {nes_ldx,	nes_aby,	4   },      // 0xBE     LDX     aby     4*
     {nes_lax,	nes_aby,	4   },      // 0xBF     LAX     aby     4*
-
     {nes_cpy,	nes_imm,   	2   },      // 0xC0     CPY     imm     2
     {nes_cmp,   nes_izx,    6   },      // 0xC1     CMP     izx     6
     {nes_nop,   nes_imm,	2   },      // 0xC2     NOP     imm     2
@@ -1133,7 +1318,6 @@ static nes_opcode_t nes_opcode_table[] = {
     {nes_cmp,	nes_abs,	4   },      // 0xCD     CMP     abs     4
     {nes_dec,	nes_abs,	6   },      // 0xCE     DEC     abs     6
     {nes_dcp,	nes_abs,	6   },      // 0xCF     DCP     abs     6
-
     {nes_bne,	nes_rel,   	2   },      // 0xD0     BNE     rel     2*
     {nes_cmp,   nes_izy,    5   },      // 0xD1     CMP     izy     5*
     {NULL,      NULL,	    NULL},      // 0xD2     KIL
@@ -1150,7 +1334,6 @@ static nes_opcode_t nes_opcode_table[] = {
     {nes_cmp,	nes_abx,	4   },      // 0xDD     CMP     abx     4*
     {nes_dec,	nes_abx,	7   },      // 0xDE     DEC     abx     7
     {nes_dcp,	nes_abx,	7   },      // 0xDF     DCP     abx     7
-
     {nes_cpx,	nes_imm,   	2   },      // 0xE0     CPX     imm     2
     {nes_sbc,   nes_izx,    6   },      // 0xE1     SBC     izx     6
     {nes_nop,   nes_imm,	2   },      // 0xE2     NOP     imm     2
@@ -1167,7 +1350,6 @@ static nes_opcode_t nes_opcode_table[] = {
     {nes_sbc,	nes_abs,	4   },      // 0xED     SBC     abs     4
     {nes_inc,	nes_abs,	6   },      // 0xEE     INC     abs     6
     {nes_isc,	nes_abs,	6   },      // 0xEF     ISC     abs     6
-    
     {nes_beq,	nes_rel,   	2   },      // 0xF0     BEQ     rel     2*
     {nes_sbc,   nes_izy,    5   },      // 0xF1     SBC     izy     5*
     {NULL,      NULL,	    NULL},      // 0xF2     KIL
@@ -1184,8 +1366,6 @@ static nes_opcode_t nes_opcode_table[] = {
     {nes_sbc,	nes_abx,	4   },      // 0xFD     SBC     abx     4*
     {nes_inc,	nes_abx,	7   },      // 0xFE     INC     abx     7
     {nes_isc,	nes_abx,	7   },      // 0xFF     ISC     abx     7
-
-
 };
 
 int line = 1;
