@@ -1,1 +1,1 @@
-E:\code\codeup\nes\Release\nes.exe
+E:\code\codeup\nes1\Release\nes.exe
