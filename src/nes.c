@@ -218,11 +218,11 @@ void nes_run(nes_t* nes){
             }
 
             if (nes->nes_ppu.MASK_b){
-                if ((nes->nes_ppu.v.fine_y) < 0x07) {
+                if ((nes->nes_ppu.v.fine_y) < 7) {
                     nes->nes_ppu.v.fine_y++;
                 }else {
                     nes->nes_ppu.v.fine_y = 0;
-                    uint16_t y = nes->nes_ppu.v.coarse_y;
+                    uint8_t y = nes->nes_ppu.v.coarse_y;
                     if (y == 29) {
                         y = 0;
                         nes->nes_ppu.v_reg ^= 0x0800;
@@ -234,8 +234,7 @@ void nes_run(nes_t* nes){
                     nes->nes_ppu.v.coarse_y = y;
                 }
                 // v: ....A.. ...BCDEF <- t: ....A.. ...BCDEF
-                nes->nes_ppu.v.coarse_x = nes->nes_ppu.t.coarse_x;
-                nes->nes_ppu.v.nametable = (nes->nes_ppu.v.nametable & 0x02) | (nes->nes_ppu.t.nametable & 0x01);
+                nes->nes_ppu.v_reg = (nes->nes_ppu.v_reg & (uint16_t)0xFBE0) | (nes->nes_ppu.t_reg & (uint16_t)0x041F);
             }
             
 #if (NES_RAM_LACK == 1)
@@ -259,18 +258,11 @@ void nes_run(nes_t* nes){
             nes_nmi(nes);
         }
         // nes_vblank_end(nes);
-        // nes->nes_ppu.STATUS_V = 0;
-        // nes->nes_ppu.STATUS_S = 0;
-        // nes->nes_ppu.STATUS_O = 0;
-
-        nes->nes_ppu.ppu_status = 0;
+        nes->nes_ppu.ppu_status &= 0x10;
 
         nes_opcode(nes,NES_PPU_CPU_CLOCKS); //261 Pre-render line
         if (nes->nes_ppu.MASK_b){
             // v: GHIA.BC DEF..... <- t: GHIA.BC DEF.....
-            // nes->nes_ppu.v.coarse_y = nes->nes_ppu.t.coarse_y;
-            // nes->nes_ppu.v.nametable = nes->nes_ppu.t.nametable;
-            // nes->nes_ppu.v.fine_y = nes->nes_ppu.t.fine_y;
             nes->nes_ppu.v_reg = (nes->nes_ppu.v_reg & (uint16_t)0x841F) | (nes->nes_ppu.t_reg & (uint16_t)0x7BE0);
         }
         nes_wait(10);

@@ -106,7 +106,7 @@ void nes_write_ppu_register(nes_t* nes,uint16_t address, uint8_t data){
                 // x:              FGH <- d: .....FGH
                 // w:                  <- 1
                 nes->nes_ppu.t.coarse_x = (data & 0xF8)>>3;
-                nes->nes_ppu.x = (data & 0x03);
+                nes->nes_ppu.x = (data & 0x07);
                 nes->nes_ppu.w = 1;
             }
             break;
