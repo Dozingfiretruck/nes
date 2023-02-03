@@ -53,7 +53,7 @@ static inline void nes_write_ppu_memory(nes_t* nes,uint8_t data){
 
 // https://www.nesdev.org/wiki/PPU_registers
 uint8_t nes_read_ppu_register(nes_t* nes,uint16_t address){
-    uint8_t data;
+    uint8_t data = 0;
     switch (address & (uint16_t)0x07){
         case 2://Status ($2002) < read
             // w:                  <- 0

@@ -1392,12 +1392,12 @@ static nes_opcode_t nes_opcode_table[] = {
 
 
 void nes_opcode(nes_t* nes,uint16_t ticks){
-    // while (ticks > nes->nes_cpu.cycles){
+    while (ticks > nes->nes_cpu.cycles){
         nes->nes_cpu.opcode = nes_read_cpu(nes,nes->nes_cpu.PC++);
         nes_opcode_table[nes->nes_cpu.opcode].instruction(nes);
         nes->nes_cpu.cycles += nes_opcode_table[nes->nes_cpu.opcode].ticks;
-    // }
-    // nes->nes_cpu.cycles -= ticks;
+    }
+    nes->nes_cpu.cycles -= ticks;
 }
 
 
