@@ -1,5 +1,6 @@
+#include "nes_port.h"
+#include "nes_ppu.h"
 #include "nes.h"
-
 
 //https://www.nesdev.org/pal.txt
 #if (NES_COLOR_DEPTH == 32)
@@ -135,14 +136,6 @@ void nes_write_ppu_register(nes_t* nes,uint16_t address, uint8_t data){
             nes_printf("nes_write_ppu_register error %04X %02X\n",address,data);
             return;
     }
-}
-
-void nes_vblank_start(nes_t* nes){
-    nes->nes_ppu.STATUS_V = 1;
-}
-
-void nes_vblank_end(nes_t* nes){
-    nes->nes_ppu.STATUS_V = 0;
 }
 
 void nes_ppu_init(nes_t *nes){

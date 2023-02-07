@@ -1,5 +1,12 @@
+#include <string.h>
 
+#include "nes_port.h"
+#include "nes_rom.h"
 #include "nes.h"
+
+#if (NES_USE_SRAM == 1)
+    #define SRAM_SIZE           (0x2000)
+#endif
 
 nes_t* nes_load_rom(const char* file_path ){
     nes_header_info_t nes_header_info = {0};
@@ -49,10 +56,11 @@ nes_t* nes_load_rom(const char* file_path ){
         if (nes->nes_rom.chr_rom == NULL) {
             goto error;
         }
-        if (nes_fread(nes->nes_rom.chr_rom, CHR_ROM_UNIT_SIZE, (nes->nes_rom.chr_rom_size ? nes->nes_rom.chr_rom_size : 1), nes_file)==0){
-            goto error;
+        if (nes->nes_rom.chr_rom_size){
+            if (nes_fread(nes->nes_rom.chr_rom, CHR_ROM_UNIT_SIZE, (nes->nes_rom.chr_rom_size), nes_file)==0){
+                goto error;
+            }
         }
-        
     }else{
         goto error;
     }

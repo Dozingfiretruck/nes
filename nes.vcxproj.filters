@@ -53,5 +53,20 @@
     <ClInclude Include="inc\nes_cpu.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="port\nes_port.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\nes_conf.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\nes_ppu.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\nes_rom.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\nes_mapper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -76,7 +76,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINDOWS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\SDL2\include;.\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\SDL2\include;.\inc;E:\code\codeup\nes\port;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard_C>stdc11</LanguageStandard_C>
       <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
       <DisableSpecificWarnings>4819</DisableSpecificWarnings>
@@ -100,7 +100,7 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\SDL2\include;.\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\SDL2\include;.\inc;E:\code\codeup\nes\port;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
       <LanguageStandard_C>stdc11</LanguageStandard_C>
       <DisableSpecificWarnings>4819</DisableSpecificWarnings>
@@ -124,7 +124,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINDOWS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\SDL2\include;.\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\SDL2\include;.\inc;E:\code\codeup\nes\port;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard_C>stdc11</LanguageStandard_C>
       <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
       <DisableSpecificWarnings>4819</DisableSpecificWarnings>
@@ -148,7 +148,7 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\SDL2\include;.\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\SDL2\include;.\inc;E:\code\codeup\nes\port;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
       <LanguageStandard_C>stdc11</LanguageStandard_C>
       <DisableSpecificWarnings>4819</DisableSpecificWarnings>
@@ -179,7 +179,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\nes.h" />
+    <ClInclude Include="inc\nes_conf.h" />
     <ClInclude Include="inc\nes_cpu.h" />
+    <ClInclude Include="inc\nes_mapper.h" />
+    <ClInclude Include="inc\nes_ppu.h" />
+    <ClInclude Include="inc\nes_rom.h" />
+    <ClInclude Include="port\nes_port.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,3 +1,4 @@
+#include "nes_port.h"
 #include "nes.h"
 
 int nes_mapper0_init(nes_t* nes){

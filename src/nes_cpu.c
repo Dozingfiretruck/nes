@@ -1,7 +1,10 @@
+#include <stdbool.h>
+#include <string.h>
 
+#include "nes_port.h"
+#include "nes_cpu.h"
+#include "nes_ppu.h"
 #include "nes.h"
-// #include "nes_cpu.h"
-
 
 typedef struct {
     void (*instruction)(nes_t* nes);      //instructions 
@@ -1120,8 +1123,11 @@ static void nes_irq(nes_t* nes){
 
 void nes_cpu_reset(nes_t* nes){
     nes->nes_cpu.A = nes->nes_cpu.X = nes->nes_cpu.Y = nes->nes_cpu.P = 0;
-    nes->nes_cpu.U = 1;
-    nes->nes_cpu.B = 1;
+    // nes->nes_cpu.U = 1;
+    // nes->nes_cpu.B = 1;
+    
+    nes->nes_cpu.P = 0x34;
+
     nes->nes_cpu.SP = 0xFD;
     nes->nes_cpu.PC = nes_read_cpu_word(nes,NES_VERCTOR_RESET);
     nes->nes_cpu.cycles = 7;

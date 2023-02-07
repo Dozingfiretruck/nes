@@ -23,6 +23,7 @@ target("nes", function ()
     -- add_files("SDL2/lib/x86/SDL2.lib")
     
     add_includedirs("inc")
+    add_includedirs("port")
     add_files("src/**.c")
     add_files("port/*.c")
     

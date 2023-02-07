@@ -1,8 +1,9 @@
-#include "nes.h"
 #include <stdarg.h>
-
 #include <SDL.h>
+#include <string.h>
 
+#include "nes_port.h"
+#include "nes.h"
 
 /* memory */
 void *nes_malloc(int num){
@@ -220,6 +221,9 @@ int nes_deinitex(nes_t *nes){
 }
 
 int nes_draw(size_t x1, size_t y1, size_t x2, size_t y2, nes_color_t* color_data){
+    if (screen == NULL){
+        return -1;
+    }
     int i = 0;
     for (size_t y = 0; y < y2-y1+1; y++){
         for (size_t x = 0; x < x2-x1+1; x++){
