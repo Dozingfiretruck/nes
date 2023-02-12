@@ -1,4 +1,3 @@
-#include <stdbool.h>
 #include <string.h>
 
 #include "nes_port.h"
@@ -140,7 +139,7 @@ static void nes_write_cpu_word(nes_t* nes,uint16_t address, uint16_t data){
 #define NES_POP(nes,a)    a = nes_read_cpu(nes, 0x100 + ++(nes->nes_cpu.SP) )
 #define NES_POPW(nes,a)   NES_POP(nes,a); a |= ( nes_read_cpu( nes,0x100 + ++(nes->nes_cpu.SP) ) << 8 )
 
-#define NES_CHECK_N(x)   nes->nes_cpu.N = (bool)((x) & 0x80)
+#define NES_CHECK_N(x)   nes->nes_cpu.N = ((x) & 0x80)>>7
 #define NES_CHECK_Z(x)   nes->nes_cpu.Z = ((x) == 0)
 
 // #define NES_SET_(a)   NES_POP(a); a |= ( nes_read_cpu( 0x100 + ++nes->nes_cpu.SP ) << 8 )
@@ -741,12 +740,10 @@ static void nes_jmp(nes_t* nes){
 // *  *              *  
 static void nes_bit(nes_t* nes){
     const uint8_t value = nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
-    if (value & nes->nes_cpu.A) nes->nes_cpu.Z = 0;
-    else nes->nes_cpu.Z = 1;
+    NES_CHECK_Z(value & nes->nes_cpu.A);
     if (value & (uint8_t)(1 << 6)) nes->nes_cpu.V = 1;
     else nes->nes_cpu.V = 0;
-    if (value & (uint8_t)(1 << 7)) nes->nes_cpu.N = 1;
-    else nes->nes_cpu.N = 0;
+    NES_CHECK_N(value);
 }
 
 // C:=0
@@ -968,8 +965,8 @@ static void nes_isc(nes_t* nes){
     if (((nes->nes_cpu.A ^ data) & 0x80) && ((nes->nes_cpu.A ^ result8) & 0x80)) nes->nes_cpu.V = 1;
     else nes->nes_cpu.V = 0;
     nes->nes_cpu.A = result8;
-    nes->nes_cpu.Z = nes->nes_cpu.A==0;
-    nes->nes_cpu.N = (bool)(nes->nes_cpu.A & 0x80);
+    NES_CHECK_Z(nes->nes_cpu.A);
+    NES_CHECK_N(nes->nes_cpu.A);
 }
 
 // A:=A&#{imm}

@@ -106,13 +106,13 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
 
         //todo flip and x16
         if (nes->nes_ppu.sprite_info[i].flip_v){
-            dy = sprite_size - dy;
+            dy = sprite_size - dy - 1;
         }
         
         const uint8_t sprite_bit0 = sprite_bit0_p[dy];
         const uint8_t sprite_bit1 = sprite_bit1_p[dy];
 
-        uint8_t p = nes->nes_ppu.sprite_info[i].x -1;
+        uint8_t p = nes->nes_ppu.sprite_info[i].x;
         if (nes->nes_ppu.sprite_info[i].flip_h){
             for (int8_t m = 0; m <= 7; m++){
                 uint8_t low_bit = ((sprite_bit0 >> m) & 0x01) | ((sprite_bit1 >> m)<<1 & 0x02);
@@ -166,7 +166,7 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
 
     //todo flip and x16
     if (nes->nes_ppu.sprite_info[0].flip_v){
-        dy = sprite_size - dy;
+        dy = sprite_size - dy - 1;
     }
     
     const uint8_t sprite_bit0 = sprite_bit0_p[dy];
@@ -188,7 +188,7 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
         }
     }
 
-    uint8_t p = nes->nes_ppu.sprite_info[0].x -1;
+    uint8_t p = nes->nes_ppu.sprite_info[0].x;
     if (nes->nes_ppu.sprite_info[0].flip_h){
         for (int8_t m = 0; m <= 7; m++){
             uint8_t low_bit = ((sprite_bit0 >> m) & 0x01) | ((sprite_bit1 >> m)<<1 & 0x02);
@@ -307,7 +307,7 @@ void nes_run(nes_t* nes){
             // v: GHIA.BC DEF..... <- t: GHIA.BC DEF.....
             nes->nes_ppu.v_reg = (nes->nes_ppu.v_reg & (uint16_t)0x841F) | (nes->nes_ppu.t_reg & (uint16_t)0x7BE0);
         }
-        nes_wait(5);
+        nes_wait(10);
     }
 }
 
