@@ -31,22 +31,6 @@ static inline void nes_palette_generate(nes_t* nes){
     }
 }
 
-static inline const uint16_t nes_sprite_overflow_line(nes_t* nes){
-    if (nes->nes_ppu.MASK_b | nes->nes_ppu.MASK_s){
-        uint8_t buffer[256 + 16] = {0};
-        memset(buffer, 0, 256);
-        const int sprite_size = nes->nes_ppu.CTRL_H ? 16 : 8; //Sprite size
-        for (int i = 0; i != 64; ++i) {
-            const uint8_t y = nes->nes_ppu.sprite_info[i].y;
-            for (int i = 0; i != sprite_size; ++i) buffer[y + i]++;
-        }
-        uint16_t line ;
-        for (line = 0; line != NES_HEIGHT; ++line) if (buffer[line] > 8) break;
-        return line;
-    }else
-        return NES_HEIGHT;
-}
-
 static void nes_render_background_line(nes_t* nes,uint16_t scanline,nes_color_t* draw_data){
     uint8_t p = 0;
     int8_t m = 7 - nes->nes_ppu.x;
@@ -113,8 +97,6 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
             nes->nes_ppu.STATUS_O = 1;
             return;
         }
-        // if (nes->nes_ppu.sprite_info[i].priority)
-        //     continue;
 
         const uint8_t tile_index_number = nes->nes_ppu.sprite_info[i].tile_index_number;
         const uint8_t* sprite_bit0_p = nes->nes_ppu.pattern_table[nes->nes_ppu.CTRL_H?((tile_index_number&1)?4:0):(nes->nes_ppu.CTRL_S?4:0)]+tile_index_number * 16;
@@ -205,8 +187,7 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
             nes->nes_ppu.STATUS_S = 1;
         }
     }
-    // if (nes->nes_ppu.sprite_info[0].priority)
-    //     return;
+
     uint8_t p = nes->nes_ppu.sprite_info[0].x -1;
     if (nes->nes_ppu.sprite_info[0].flip_h){
         for (int8_t m = 0; m <= 7; m++){
@@ -254,9 +235,7 @@ void nes_run(nes_t* nes){
     nes_runing = 1;
     while (nes_runing){
         frame_cnt++;
-
         nes_palette_generate(nes);
-        // const uint16_t sprite_overflow_line = nes_sprite_overflow_line(nes);
 
         if (nes->nes_ppu.MASK_b == 0){
             for (size_t i = 0; i < NES_HEIGHT * NES_WIDTH; i++){
@@ -328,7 +307,7 @@ void nes_run(nes_t* nes){
             // v: GHIA.BC DEF..... <- t: GHIA.BC DEF.....
             nes->nes_ppu.v_reg = (nes->nes_ppu.v_reg & (uint16_t)0x841F) | (nes->nes_ppu.t_reg & (uint16_t)0x7BE0);
         }
-        nes_wait(10);
+        nes_wait(5);
     }
 }
 

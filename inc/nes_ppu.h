@@ -137,7 +137,6 @@ typedef struct {
     };
     uint8_t buffer;                     /*  PPU internal buffer */
     uint8_t palette_indexes[0x20];      /*  $3F00-$3F1F Palette RAM indexes */
-
     union {
         struct {
             nes_color_t background_palette[0x10];

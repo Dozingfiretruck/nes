@@ -12,7 +12,7 @@ typedef struct {
     uint8_t	ticks;
 } nes_opcode_t;
 
-static nes_opcode_t nes_opcode_table[256] ;
+static nes_opcode_t nes_opcode_table[256];
 
 static inline uint8_t nes_read_joypad(nes_t* nes,uint16_t address){
     uint8_t state = 0;
@@ -126,7 +126,7 @@ static void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
     }
 }
 
-static uint16_t nes_read_cpu_word(nes_t* nes,uint16_t address){
+static inline uint16_t nes_read_cpu_word(nes_t* nes,uint16_t address){
     return nes_read_cpu(nes,address)|(uint16_t)nes_read_cpu(nes,address + 1) << 8;
 }
 
@@ -159,9 +159,8 @@ static uint16_t nes_imm(nes_t* nes){
 }
 
 static uint16_t nes_rel(nes_t* nes){
-    uint16_t address = nes_read_cpu(nes,nes->nes_cpu.PC++);
-    if(address & 0x80)address-=0x100;
-    if(((uint16_t)(address+nes->nes_cpu.PC)>>8)!=(nes->nes_cpu.PC>>8))nes->nes_cpu.cycles++;
+    const uint8_t data = nes_read_cpu(nes,nes->nes_cpu.PC++);
+    const uint16_t address = nes->nes_cpu.PC + (int8_t)data;
     return address;
 }
 
@@ -620,8 +619,7 @@ static void nes_pha(nes_t* nes){
 static void nes_plp(nes_t* nes){
     if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     NES_POP(nes,nes->nes_cpu.P);
-    nes->nes_cpu.U=1;
-    nes->nes_cpu.B=0;
+    // nes->nes_cpu.B=0;
 }
 
 // (S)-:=P
@@ -632,66 +630,66 @@ static void nes_php(nes_t* nes){
 
 // Jump/Flag commands:
 static inline void nes_branch(nes_t* nes) {
-    const uint16_t saved = nes->nes_cpu.PC;
-    nes->nes_cpu.PC += nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
+    const uint16_t pc_old = nes->nes_cpu.PC;
+    nes->nes_cpu.PC = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     nes->nes_cpu.cycles++;
-    nes->nes_cpu.cycles += (nes->nes_cpu.PC ^ saved) >> 8 & 1;
+    nes->nes_cpu.cycles += (nes->nes_cpu.PC ^ pc_old) >> 8 & 1;
 }
 
 // branch on N=0
 static void nes_bpl(nes_t* nes){
     if (nes->nes_cpu.N==0){
         nes_branch(nes);
-    }else nes->nes_cpu.PC ++;
+    } else nes->nes_cpu.PC++;
 }
 
 // branch on N=1
 static void nes_bmi(nes_t* nes){
     if (nes->nes_cpu.N){
         nes_branch(nes);
-    }else nes->nes_cpu.PC ++;
+    } else nes->nes_cpu.PC++;
 }
 
 // branch on V=0
 static void nes_bvc(nes_t* nes){
     if (nes->nes_cpu.V==0){
         nes_branch(nes);
-    }else nes->nes_cpu.PC ++;
+    } else nes->nes_cpu.PC++;
 }
 
 // branch on V=1
 static void nes_bvs(nes_t* nes){
     if (nes->nes_cpu.V){
         nes_branch(nes);
-    }else nes->nes_cpu.PC ++;
+    } else nes->nes_cpu.PC++;
 }
 
 // branch on C=0
 static void nes_bcc(nes_t* nes){
     if (nes->nes_cpu.C==0){
         nes_branch(nes);
-    }else nes->nes_cpu.PC ++;
+    } else nes->nes_cpu.PC++;
 }
 
 // branch on C=1
 static void nes_bcs(nes_t* nes){
     if (nes->nes_cpu.C){
         nes_branch(nes);
-    }else nes->nes_cpu.PC ++;
+    } else nes->nes_cpu.PC++;
 }
 
 // branch on Z=0
 static void nes_bne(nes_t* nes){
     if (nes->nes_cpu.Z==0){
         nes_branch(nes);
-    }else nes->nes_cpu.PC ++;
+    } else nes->nes_cpu.PC++;
 }
 
 // branch on Z=1
 static void nes_beq(nes_t* nes){
     if (nes->nes_cpu.Z){
         nes_branch(nes);
-    }else nes->nes_cpu.PC ++;
+    } else nes->nes_cpu.PC++;
 }
 
 // (S)-:=PC,P PC:=($FFFE)
@@ -699,12 +697,13 @@ static void nes_beq(nes_t* nes){
 //          1     1
 static void nes_brk(nes_t* nes){
     nes->nes_cpu.PC ++;
-    NES_PUSHW(nes,nes->nes_cpu.PC-1);
-    nes->nes_cpu.B = 1;
-    NES_PUSH(nes,nes->nes_cpu.P);
-    nes->nes_cpu.I = 1;
-    nes->nes_cpu.D = 0;
-    nes->nes_cpu.PC = nes_read_cpu(nes,NES_VERCTOR_IRQBRK)|(nes_read_cpu(nes,NES_VERCTOR_IRQBRK+1)<<8);
+    if (nes->nes_cpu.I==0){
+        NES_PUSHW(nes,nes->nes_cpu.PC-1);
+        NES_PUSH(nes,nes->nes_cpu.P);
+        // nes->nes_cpu.B = 1;
+        nes->nes_cpu.I = 1;
+        nes->nes_cpu.PC = nes_read_cpu_word(nes, NES_VERCTOR_IRQBRK);
+    }
 }
 
 // P,PC:=+(S)
@@ -1111,19 +1110,9 @@ void nes_nmi(nes_t* nes){
     nes->nes_cpu.cycles += 7;
 }
 
-static void nes_irq(nes_t* nes){
-    if (nes->nes_cpu.I==0){
-        NES_PUSHW(nes,nes->nes_cpu.PC-1);
-        NES_PUSH(nes,nes->nes_cpu.P);
-        nes->nes_cpu.I = 1;
-        nes->nes_cpu.PC = nes_read_cpu_word(nes, NES_VERCTOR_IRQBRK);
-        nes->nes_cpu.cycles += 7;
-    }
-}
-
 void nes_cpu_reset(nes_t* nes){
     nes->nes_cpu.A = nes->nes_cpu.X = nes->nes_cpu.Y = nes->nes_cpu.P = 0;
-    // nes->nes_cpu.U = 1;
+    nes->nes_cpu.U = 1;
     // nes->nes_cpu.B = 1;
     
     nes->nes_cpu.P = 0x34;
