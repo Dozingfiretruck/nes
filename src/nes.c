@@ -95,7 +95,6 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
         sprite_number ++;
         if(sprite_number > 8 ){
             nes->nes_ppu.STATUS_O = 1;
-            return;
         }
 
         const uint8_t tile_index_number = nes->nes_ppu.sprite_info[i].tile_index_number;
@@ -155,7 +154,6 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
     sprite_number ++;
     if(sprite_number > 8 ){
         nes->nes_ppu.STATUS_O = 1;
-        return;
     }
 
     const uint8_t tile_index_number = nes->nes_ppu.sprite_info[0].tile_index_number;
