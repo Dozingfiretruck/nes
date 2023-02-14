@@ -34,7 +34,11 @@
 #endif
 
 /* log */
+#ifdef __DEBUG__
 #define nes_printf(...)  printf(__VA_ARGS__)
+#else
+#define nes_printf(...)
+#endif
 
 /* memory */
 void *nes_malloc(int num);
