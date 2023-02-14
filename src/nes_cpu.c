@@ -1022,14 +1022,6 @@ static void nes_xaa(nes_t* nes){
     nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
 }
 
-// A,X:=#{imm}
-// LAX²
-// N  V  U  B  D  I  Z  C
-// *                 *  
-static void nes_lax2(nes_t* nes){
-    nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
-}
-
 // X:=A&X-#{imm}
 // AXS (SBX) [SAX]
 // AND X register with accumulator and store result in X regis-ter, then
@@ -1041,13 +1033,6 @@ static void nes_axs(nes_t* nes){
     nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
 }
 
-// A:=A-#{imm}
-// SBC
-// N  V  U  B  D  I  Z  C
-// *  *              *  *
-static void nes_sbc2(nes_t* nes){
-    nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
-}
 
 // {adr}:=A&X&H
 // AXA (SHA) [AXA]
