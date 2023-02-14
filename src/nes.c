@@ -202,8 +202,6 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
         uint32_t pattern_id = nes->nes_ppu.name_table[nametable_id][tile_x + (tile_y << 5)];
         const uint8_t* bit0_p = nes->nes_ppu.pattern_table[nes->nes_ppu.CTRL_B ? 4 : 0] + pattern_id * 16;
         const uint8_t* bit1_p = bit0_p + 8;
-        const uint8_t bit0 = bit0_p[dy];
-        const uint8_t bit1 = bit1_p[dy];
         uint8_t background_date = bit0_p[dy] | bit1_p[dy]<<1;
         if (sprite_date == background_date){
             nes->nes_ppu.STATUS_S = 1;
