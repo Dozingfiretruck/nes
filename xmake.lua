@@ -2,7 +2,7 @@ add_rules("mode.debug", "mode.release")
 
 set_project("nes")
 set_version("0.0.1")
-set_xmakever("2.7.6")
+-- set_xmakever("2.7.6")
 
 add_requires("llvm")
 set_toolchains("@llvm")
