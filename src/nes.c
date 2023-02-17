@@ -258,9 +258,15 @@ void nes_run(nes_t* nes){
         nes_palette_generate(nes);
 
         if (nes->nes_ppu.MASK_b == 0){
+#if (NES_RAM_LACK == 1)
+            for (size_t i = 0; i < NES_WIDTH; i++){
+                nes->nes_draw_data[i] = nes->nes_ppu.background_palette[0];
+            }
+#else
             for (size_t i = 0; i < NES_HEIGHT * NES_WIDTH; i++){
                 nes->nes_draw_data[i] = nes->nes_ppu.background_palette[0];
             }
+#endif
         }
         
         for(scanline = 0; scanline < 240; scanline++) { // 0-239 Visible frame
@@ -327,7 +333,7 @@ void nes_run(nes_t* nes){
             // v: GHIA.BC DEF..... <- t: GHIA.BC DEF.....
             nes->nes_ppu.v_reg = (nes->nes_ppu.v_reg & (uint16_t)0x841F) | (nes->nes_ppu.t_reg & (uint16_t)0x7BE0);
         }
-        nes_wait(10);
+        // nes_wait(10);
     }
 }
 
