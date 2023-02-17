@@ -18,7 +18,7 @@ jobs:
           sudo apt-get install git make gcc p7zip-full llvm-dev libsdl2-dev -y
           sudo add-apt-repository ppa:xmake-io/xmake -y
           sudo apt-get update
-          sudo apt-get upgrade
+          # sudo apt-get upgrade
           sudo apt install xmake -y
           xmake update
       - name: build
