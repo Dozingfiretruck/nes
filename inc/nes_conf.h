@@ -33,6 +33,7 @@
 
 #define NES_USE_SRAM            0
 #define NES_COLOR_DEPTH         32 
+#define NES_COLOR_SWAP          0
 #define NES_RAM_LACK            0
 
 #ifndef NES_FRAME_SKIP
@@ -43,6 +44,10 @@
 #define NES_DRAW_SIZE         (NES_WIDTH) 
 #else
 #define NES_DRAW_SIZE         (NES_WIDTH * NES_HEIGHT)
+#endif
+
+#ifndef NES_COLOR_SWAP
+#define NES_COLOR_SWAP         0
 #endif
 
 /* Color depth:
