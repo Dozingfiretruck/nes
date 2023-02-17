@@ -57,6 +57,7 @@
 #define nes_color_t uint32_t
 #elif (NES_COLOR_DEPTH == 16)
 #define nes_color_t uint16_t
+#else
 #error "no supprt color depth"
 #endif
 
