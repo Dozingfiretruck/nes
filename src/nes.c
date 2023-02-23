@@ -117,6 +117,7 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
         sprite_number ++;
         if(sprite_number > 8 ){
             nes->nes_ppu.STATUS_O = 1;
+            goto sprite0;
         }
 
         const uint8_t tile_index_number = nes->nes_ppu.sprite_info[i].tile_index_number;
@@ -170,7 +171,7 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
             }
         }
     }
-
+sprite0:
     // sprite 0
     if (nes->nes_ppu.sprite_info[0].y >= 0xEF)
         return;
@@ -209,7 +210,10 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
             nes->nes_ppu.STATUS_S = 1;
         }
     }
-
+    if (nes->nes_ppu.STATUS_O == 1){
+        return;
+    }
+    
     uint8_t p = nes->nes_ppu.sprite_info[0].x;
     if (nes->nes_ppu.sprite_info[0].flip_h){
         for (int8_t m = 0; m <= 7; m++){
