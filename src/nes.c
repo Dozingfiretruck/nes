@@ -147,6 +147,8 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
                         draw_data[p] = nes->nes_ppu.sprite_palette[palette_index];
                     }
                 }
+                if (p == 255)
+                    break;
                 p++;
             }
         }else{
@@ -162,6 +164,8 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
                         draw_data[p] = nes->nes_ppu.sprite_palette[palette_index];
                     }
                 }
+                if (p == 255)
+                    break;
                 p++;
             }
         }
@@ -220,6 +224,8 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
                     draw_data[p] = nes->nes_ppu.sprite_palette[palette_index];
                 }
             }
+            if (p == 255)
+                break;
             p++;
         }
     }else{
@@ -235,6 +241,8 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
                     draw_data[p] = nes->nes_ppu.sprite_palette[palette_index];
                 }
             }
+            if (p == 255)
+                break;
             p++;
         }
     }
