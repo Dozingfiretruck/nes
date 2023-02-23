@@ -29,8 +29,6 @@
 
 #define NES_PPU_CPU_CLOCKS		113
 
-static uint8_t nes_runing = 0;
-
 int nes_init(nes_t *nes){
     nes_initex(nes);
     nes_cpu_init(nes);
@@ -39,7 +37,7 @@ int nes_init(nes_t *nes){
 }
 
 int nes_deinit(nes_t *nes){
-    nes_runing = 0;
+    nes->nes_quit = 1;
     nes_deinitex(nes);
     return 0;
 }
@@ -252,8 +250,8 @@ void nes_run(nes_t* nes){
     // printf("nes->nes_cpu.PC %02X",nes->nes_cpu.PC);
     uint64_t frame_cnt = 0;
     uint16_t scanline = 0;
-    nes_runing = 1;
-    while (nes_runing){
+
+    while (!nes->nes_quit){
         frame_cnt++;
         nes_palette_generate(nes);
 

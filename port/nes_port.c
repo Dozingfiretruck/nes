@@ -73,13 +73,12 @@ void nes_wait(uint32_t ms){
 }
 
 static SDL_Window* window = NULL;
-static SDL_Renderer* renderer = NULL;
 static SDL_Surface *screen = NULL;
 
 static void sdl_event_loop(nes_t *nes) {
-    while (1) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
+    SDL_Event event;
+    while (!nes->nes_quit) {
+        if (SDL_PollEvent(&event)){
             switch (event.type) {
                 case SDL_KEYDOWN:
                     switch (event.key.keysym.scancode){
@@ -190,8 +189,11 @@ static void sdl_event_loop(nes_t *nes) {
                         }
                     break;
                 case SDL_QUIT:
+                    nes_deinit(nes);
                     return;
             }
+        }else{
+            //渲染
         }
     }
 }
@@ -212,16 +214,8 @@ static int NES_SDL(void *ptr){
         SDL_Log("Can not create window, %s", SDL_GetError());
         return 1;
     }
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
-    if (renderer == NULL) {
-        SDL_Log("Can not create renderer, %s", SDL_GetError());
-        return 1;
-    }
-
     screen = SDL_GetWindowSurface(window);
-
     sdl_event_loop(ptr);
-    nes_deinit(ptr);
     return 0;
 }
 
@@ -236,9 +230,6 @@ int nes_initex(nes_t *nes){
 }
 
 int nes_deinitex(nes_t *nes){
-    // SDL_DestroyTexture(framebuffer);
-
-    SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
     return 0;
@@ -248,12 +239,13 @@ int nes_draw(size_t x1, size_t y1, size_t x2, size_t y2, nes_color_t* color_data
     if (screen == NULL){
         return -1;
     }
+    SDL_LockSurface(screen);
     int i = 0;
     for (size_t y = 0; y < y2-y1+1; y++){
         for (size_t x = 0; x < x2-x1+1; x++){
             ((uint32_t *) (screen->pixels))[(y1+y) * NES_WIDTH + x1 + x] = color_data[i++];
         }
     }
-    SDL_UpdateWindowSurface(window);
-    return 0;
+    SDL_UnlockSurface(screen);	
+    return SDL_UpdateWindowSurface(window);
 }

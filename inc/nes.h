@@ -44,10 +44,11 @@
 
 
 typedef struct {
-    nes_color_t nes_draw_data[NES_DRAW_SIZE];
+    uint8_t nes_quit;
     nes_rom_info_t nes_rom;
     nes_cpu_t nes_cpu;
     nes_ppu_t nes_ppu;
+    nes_color_t nes_draw_data[NES_DRAW_SIZE];
 } nes_t;
 
 void nes_nmi(nes_t* nes);
