@@ -126,7 +126,7 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
 
         uint8_t dy = scanline - sprite_y;
 
-        //todo flip and x16
+        //todo x16
         if (nes->nes_ppu.sprite_info[i].flip_v){
             dy = sprite_size - dy - 1;
         }
@@ -189,7 +189,7 @@ sprite0:
 
     uint8_t dy = scanline - sprite_y;
 
-    //todo flip and x16
+    //todo x16
     if (nes->nes_ppu.sprite_info[0].flip_v){
         dy = sprite_size - dy - 1;
     }

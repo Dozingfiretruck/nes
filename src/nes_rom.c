@@ -91,6 +91,7 @@ nes_t* nes_load_rom(const char* file_path ){
     nes_fclose(nes_file);
     nes_init(nes);
     nes_load_mapper(nes);
+    nes->nes_mapper.mapper_init(nes);
     return nes;
 error:
     if (nes_file){

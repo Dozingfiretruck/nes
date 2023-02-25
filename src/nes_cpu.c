@@ -141,7 +141,8 @@ static void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
 #endif
             return;
         case 4: case 5: case 6: case 7:
-            nes->nes_cpu.prg_banks[(address >> 13)-4][address & (uint16_t)0x1fff] = data;
+            nes->nes_mapper.mapper_write(nes, address, data);
+            // nes->nes_cpu.prg_banks[(address >> 13)-4][address & (uint16_t)0x1fff] = data;
             return;
         default :
             nes_printf("nes_write_ppu_register error %04X %02X\n",address,data);

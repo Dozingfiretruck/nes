@@ -37,6 +37,8 @@ int nes_load_mapper(nes_t* nes){
     switch (nes->nes_rom.mapper_number){
         case 0 :
             return nes_mapper0_init(nes);
+        case 2 :
+            return nes_mapper2_init(nes);
         default :
             nes_printf("mapper:%03d is unsupported\n",nes->nes_rom.mapper_number);
             return NES_ERROR;
