@@ -28,7 +28,9 @@
 int main(int argc, char *argv[]){
 
     // nes_t* nes = nes_load_rom("nestest.nes");
-    nes_t* nes = nes_load_rom("super_mario.nes");
+    // nes_t* nes = nes_load_rom("super_mario.nes");
+    nes_t* nes = nes_load_rom("contra.nes");
+
 
     // nes_t* nes = nes_load_rom("color_test.nes");
 

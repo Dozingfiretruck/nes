@@ -120,13 +120,12 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
             goto sprite0;
         }
 
-        const uint8_t tile_index_number = nes->nes_ppu.sprite_info[i].tile_index_number;
-        const uint8_t* sprite_bit0_p = nes->nes_ppu.pattern_table[nes->nes_ppu.CTRL_H?((tile_index_number&1)?4:0):(nes->nes_ppu.CTRL_S?4:0)]+tile_index_number * 16;
-        const uint8_t* sprite_bit1_p = sprite_bit0_p + 8;
+        const uint8_t* sprite_bit0_p = nes->nes_ppu.pattern_table[nes->nes_ppu.CTRL_H?((nes->nes_ppu.sprite_info[i].pattern_8x16)?4:0):(nes->nes_ppu.CTRL_S?4:0)] \
+                                        + (nes->nes_ppu.CTRL_H?((nes->nes_ppu.sprite_info[i].tile_index_8x16 << 1 )* 32):(nes->nes_ppu.sprite_info[i].tile_index_number * 16));
+        const uint8_t* sprite_bit1_p = sprite_bit0_p + (nes->nes_ppu.CTRL_H?16:8);
 
         uint8_t dy = scanline - sprite_y;
 
-        //todo x16
         if (nes->nes_ppu.sprite_info[i].flip_v){
             dy = sprite_size - dy - 1;
         }
@@ -183,13 +182,12 @@ sprite0:
         nes->nes_ppu.STATUS_O = 1;
     }
 
-    const uint8_t tile_index_number = nes->nes_ppu.sprite_info[0].tile_index_number;
-    const uint8_t* sprite_bit0_p = nes->nes_ppu.pattern_table[nes->nes_ppu.CTRL_H?((tile_index_number&1)?4:0):(nes->nes_ppu.CTRL_S?4:0)]+tile_index_number * 16;
-    const uint8_t* sprite_bit1_p = sprite_bit0_p + 8;
+    const uint8_t* sprite_bit0_p = nes->nes_ppu.pattern_table[nes->nes_ppu.CTRL_H?((nes->nes_ppu.sprite_info[0].pattern_8x16)?4:0):(nes->nes_ppu.CTRL_S?4:0)] \
+                                    + (nes->nes_ppu.CTRL_H?((nes->nes_ppu.sprite_info[0].tile_index_8x16 << 1 ) * 32):(nes->nes_ppu.sprite_info[0].tile_index_number * 16));
+    const uint8_t* sprite_bit1_p = sprite_bit0_p + (nes->nes_ppu.CTRL_H?16:8);
 
     uint8_t dy = scanline - sprite_y;
 
-    //todo x16
     if (nes->nes_ppu.sprite_info[0].flip_v){
         dy = sprite_size - dy - 1;
     }
@@ -343,7 +341,7 @@ void nes_run(nes_t* nes){
             // v: GHIA.BC DEF..... <- t: GHIA.BC DEF.....
             nes->nes_ppu.v_reg = (nes->nes_ppu.v_reg & (uint16_t)0x841F) | (nes->nes_ppu.t_reg & (uint16_t)0x7BE0);
         }
-        // nes_wait(10);
+        nes_wait(5);
     }
 }
 
