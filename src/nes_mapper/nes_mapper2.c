@@ -26,7 +26,7 @@
 #include "nes.h"
 
 
-static nes_mapper_init(nes_t* nes){
+static void nes_mapper_init(nes_t* nes){
     const int mirror = nes->nes_rom.prg_rom_size * 2;
     nes_load_prgrom_8k(nes,0, 0);
     nes_load_prgrom_8k(nes,1, 1);
@@ -38,8 +38,8 @@ static nes_mapper_init(nes_t* nes){
     }
 }
 
-static void nes_mapper_write(nes_t* nes, uint16_t address, uint8_t value) {
-    const int bank = (value % nes->nes_rom.prg_rom_size) * 2;
+static void nes_mapper_write(nes_t* nes, uint16_t address, uint8_t date) {
+    const int bank = (date % nes->nes_rom.prg_rom_size) * 2;
     nes_load_prgrom_8k(nes, 0, bank + 0);
     nes_load_prgrom_8k(nes, 1, bank + 1);
 }

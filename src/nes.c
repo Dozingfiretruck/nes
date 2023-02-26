@@ -121,7 +121,7 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
         }
 
         const uint8_t* sprite_bit0_p = nes->nes_ppu.pattern_table[nes->nes_ppu.CTRL_H?((nes->nes_ppu.sprite_info[i].pattern_8x16)?4:0):(nes->nes_ppu.CTRL_S?4:0)] \
-                                        + (nes->nes_ppu.CTRL_H?((nes->nes_ppu.sprite_info[i].tile_index_8x16 << 1 )* 32):(nes->nes_ppu.sprite_info[i].tile_index_number * 16));
+                                        + (nes->nes_ppu.CTRL_H?(nes->nes_ppu.sprite_info[i].tile_index_8x16 << 1 ):(nes->nes_ppu.sprite_info[i].tile_index_number)) * 16;
         const uint8_t* sprite_bit1_p = sprite_bit0_p + 8;
 
         uint8_t dy = scanline - sprite_y;
@@ -201,7 +201,7 @@ sprite0:
     }
 
     const uint8_t* sprite_bit0_p = nes->nes_ppu.pattern_table[nes->nes_ppu.CTRL_H?((nes->nes_ppu.sprite_info[0].pattern_8x16)?4:0):(nes->nes_ppu.CTRL_S?4:0)] \
-                                    + (nes->nes_ppu.CTRL_H?((nes->nes_ppu.sprite_info[0].tile_index_8x16 << 1 ) * 32):(nes->nes_ppu.sprite_info[0].tile_index_number * 16));
+                                    + (nes->nes_ppu.CTRL_H?(nes->nes_ppu.sprite_info[0].tile_index_8x16 << 1 ):(nes->nes_ppu.sprite_info[0].tile_index_number)) * 16;
     const uint8_t* sprite_bit1_p = sprite_bit0_p + 8;
 
     uint8_t dy = scanline - sprite_y;
