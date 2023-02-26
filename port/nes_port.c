@@ -194,6 +194,7 @@ static void sdl_event_loop(nes_t *nes) {
             }
         }else{
             //渲染
+            SDL_UpdateWindowSurface(window);
         }
     }
 }
@@ -247,5 +248,5 @@ int nes_draw(size_t x1, size_t y1, size_t x2, size_t y2, nes_color_t* color_data
         }
     }
     SDL_UnlockSurface(screen);	
-    return SDL_UpdateWindowSurface(window);
+    return 0;
 }
