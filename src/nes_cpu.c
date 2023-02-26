@@ -40,10 +40,10 @@ static nes_opcode_t nes_opcode_table[256];
 static inline uint8_t nes_read_joypad(nes_t* nes,uint16_t address){
     uint8_t state = 0;
     if (address == 0x4016){
-        state = nes->nes_cpu.joypad.joypad & (0x8000 >> (nes->nes_cpu.joypad.offset1 & nes->nes_cpu.joypad.mask)) ? 1 : 0;
+        state = (nes->nes_cpu.joypad.joypad & (0x8000 >> (nes->nes_cpu.joypad.offset1 & nes->nes_cpu.joypad.mask))) ? 1 : 0;
         nes->nes_cpu.joypad.offset1++;
     }else if(address == 0x4017){
-        state = nes->nes_cpu.joypad.joypad & (0x80 >> (nes->nes_cpu.joypad.offset2 & nes->nes_cpu.joypad.mask)) ? 1 : 0;
+        state = (nes->nes_cpu.joypad.joypad & (0x80 >> (nes->nes_cpu.joypad.offset2 & nes->nes_cpu.joypad.mask))) ? 1 : 0;
         nes->nes_cpu.joypad.offset2++;
     }
     // nes_printf("nes_read joypad %04X %d %02X %d\n",address,nes->nes_cpu.joypad.mask,nes->nes_cpu.joypad.joypad,state);
