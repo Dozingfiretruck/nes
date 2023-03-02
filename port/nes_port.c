@@ -51,20 +51,20 @@ int nes_memcmp(const void *str1, const void *str2, size_t n){
 }
 
 /* io */
-FILE *nes_fopen( const char * filename, const char * mode ){
-    return fopen(filename,mode);
+NES_FILE *nes_fopen( const char * filename, const char * mode ){
+    return SDL_RWFromFile(filename,mode);
 }
 
-size_t nes_fread(void *ptr, size_t size_of_elements, size_t number_of_elements, FILE *a_file){
-    return fread(ptr, size_of_elements, number_of_elements,a_file);
+size_t nes_fread(void *ptr, size_t size_of_elements, size_t number_of_elements, NES_FILE *a_file){
+    return SDL_RWread(a_file,ptr, size_of_elements, number_of_elements);
 }
 
-int nes_fseek(FILE *stream, long int offset, int whence){
-    return fseek(stream,offset,whence);
+int nes_fseek(NES_FILE *stream, long int offset, int whence){
+    return SDL_RWseek(stream,offset,whence);
 }
 
-int nes_fclose( FILE *fp ){
-    return fclose(fp);
+int nes_fclose( NES_FILE *fp ){
+    return SDL_RWclose(fp);
 }
 
 /* wait */

@@ -36,7 +36,7 @@ nes_t* nes_load_rom(const char* file_path ){
     nes_header_info_t nes_header_info = {0};
     nes_t* nes = NULL;
 
-    FILE* nes_file = nes_fopen(file_path, "rb");
+    NES_FILE* nes_file = nes_fopen(file_path, "rb");
     if (!nes_file){
         goto error;
     } 
