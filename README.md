@@ -1,3 +1,7 @@
+![github license](https://img.shields.io/github/license/Dozingfiretruck/nes)![linux](https://github.com/Dozingfiretruck/nes/actions/workflows/action.yml/badge.svg?branch=master)
+
+
+
 # nes
 
 #### 介绍
