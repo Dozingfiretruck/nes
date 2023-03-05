@@ -8,24 +8,17 @@
 c语言实现nes模拟器，要求c11
 
 #### 软件架构
-软件架构说明
+示例基于SDL进行图像声音输出，没有特殊依赖，可自行移植至任意硬件
 
 
 #### 安装教程
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+​	windows下可选安装xmake / Visual Studio 进行编译
+
+​	linux下需安装xmake进行编译
 
 #### 使用说明
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+​	Visual Studio 不进行赘述
 
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+​	xmake方式需先安装[xmake](https://github.com/xmake-io/xmake) 随后直接执行 xmake 即可 
