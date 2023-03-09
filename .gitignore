@@ -39,8 +39,7 @@
 *.su
 *.idb
 *.pdb
-Debug
-.vs
+
 .vscode
 .xmake
 
@@ -53,11 +52,8 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-*.log
 *.nes
 build
-x64
-Release
 
 
 
