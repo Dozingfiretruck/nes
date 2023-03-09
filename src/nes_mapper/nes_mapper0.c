@@ -25,7 +25,7 @@
 #include "nes_port.h"
 #include "nes.h"
 
-static nes_mapper_init(nes_t* nes){
+static void nes_mapper_init(nes_t* nes){
     const int mirror = nes->nes_rom.prg_rom_size & 2;
     nes_load_prgrom_8k(nes,0, 0);
     nes_load_prgrom_8k(nes,1, 1);
