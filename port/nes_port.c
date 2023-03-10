@@ -22,49 +22,46 @@
  * SOFTWARE.
  */
 
-#include <stdarg.h>
-#include <SDL.h>
-#include <string.h>
-
-#include "nes_port.h"
 #include "nes.h"
+
+#include <SDL.h>
 
 /* memory */
 void *nes_malloc(int num){
-    return malloc(num);
+    return SDL_malloc(num);
 }
 
 void nes_free(void *address){
-    free(address);
+    SDL_free(address);
 }
 
 void *nes_memcpy(void *str1, const void *str2, size_t n){
-    return memcpy(str1, str2, n);
+    return SDL_memcpy(str1, str2, n);
 }
 
 void *nes_memset(void *str, int c, size_t n){
-    return memset(str,c,n);
+    return SDL_memset(str,c,n);
 }
 
 int nes_memcmp(const void *str1, const void *str2, size_t n){
-    return memcmp(str1,str2,n);
+    return SDL_memcmp(str1,str2,n);
 }
 
 /* io */
-NES_FILE *nes_fopen( const char * filename, const char * mode ){
-    return SDL_RWFromFile(filename,mode);
+FILE *nes_fopen( const char * filename, const char * mode ){
+    return fopen(filename,mode);
 }
 
-size_t nes_fread(void *ptr, size_t size_of_elements, size_t number_of_elements, NES_FILE *a_file){
-    return SDL_RWread(a_file,ptr, size_of_elements, number_of_elements);
+size_t nes_fread(void *ptr, size_t size_of_elements, size_t number_of_elements, FILE *a_file){
+    return fread(ptr, size_of_elements, number_of_elements,a_file);
 }
 
-int nes_fseek(NES_FILE *stream, long int offset, int whence){
-    return SDL_RWseek(stream,offset,whence);
+int nes_fseek(FILE *stream, long int offset, int whence){
+    return fseek(stream,offset,whence);
 }
 
-int nes_fclose( NES_FILE *fp ){
-    return SDL_RWclose(fp);
+int nes_fclose( FILE *fp ){
+    return fclose(fp);
 }
 
 /* wait */
@@ -216,6 +213,7 @@ static int NES_SDL(void *ptr){
         return 1;
     }
     screen = SDL_GetWindowSurface(window);
+
     sdl_event_loop(ptr);
     return 0;
 }
@@ -226,6 +224,7 @@ int nes_initex(nes_t *nes){
 
     if (NULL == thread) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_CreateThread failed: %s\n", SDL_GetError());
+        return -1;
     } 
     return 0;
 }
@@ -250,3 +249,4 @@ int nes_draw(size_t x1, size_t y1, size_t x2, size_t y2, nes_color_t* color_data
     SDL_UnlockSurface(screen);	
     return 0;
 }
+

@@ -22,11 +22,7 @@
  * SOFTWARE.
  */
 
-#include <string.h>
 
-#include "nes_port.h"
-#include "nes_cpu.h"
-#include "nes_ppu.h"
 #include "nes.h"
 
 typedef struct {
@@ -50,7 +46,7 @@ static inline uint8_t nes_read_joypad(nes_t* nes,uint16_t address){
     return state;
 }
 
-static inline void nes_write_joypad(nes_t* nes,uint16_t address,uint8_t data){
+static inline void nes_write_joypad(nes_t* nes,uint8_t data){
     nes->nes_cpu.joypad.mask = (data & 1)?0x00:0x07;
     if (data & 1)
         nes->nes_cpu.joypad.offset1 = nes->nes_cpu.joypad.offset2 = 0;
@@ -117,7 +113,7 @@ static void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
             return;
         case 2://$4000-$5FFF NES APU and I/O registers
             if (address == 0x4016 || address == 0x4017)
-                nes_write_joypad(nes, address,data);
+                nes_write_joypad(nes,data);
             else if (address == 0x4014){
                 // nes_printf("nes_write DMA %04X %02X\n",address,data);
                 if (nes->nes_ppu.oam_addr) {

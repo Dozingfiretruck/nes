@@ -2,7 +2,7 @@ add_rules("mode.debug", "mode.release")
 
 set_project("nes")
 set_version("0.0.1")
--- set_xmakever("2.7.6")
+set_xmakever("2.7.7")
 
 add_requires("llvm")
 set_toolchains("@llvm")
@@ -17,7 +17,7 @@ else
     set_optimize("fastest")
 end
 
-set_warnings("all")
+set_warnings("allextra")
 set_languages("c11")
 
 -- TODO
@@ -27,17 +27,9 @@ set_languages("c11")
 -- else 
 -- end
 
--- add SDL2
+-- [[ add SDL2 ]]
 add_requires("libsdl")
 add_packages("libsdl")
-
--- add_includedirs("SDL2/include")
--- if is_arch("x64") then
--- add_linkdirs("SDL2/lib/x64")
--- elseif is_arch("x86") then
--- add_linkdirs("SDL2/lib/x86")
--- end
--- add_links("SDL2")
 
 target("nes", function ()
     set_kind("binary")

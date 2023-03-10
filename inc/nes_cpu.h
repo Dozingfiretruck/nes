@@ -33,6 +33,9 @@
 // https://www.nesdev.org/wiki/Controller_reading
 #define NES_CPU_RAM_SIZE        0x800   /*  2KB */
 
+struct nes;
+typedef struct nes nes_t;
+
 #define NES_VERCTOR_NMI         0xFFFA  /*  NMI vector (NMI=not maskable interupts) */
 #define NES_VERCTOR_RESET       0xFFFC  /*  Reset vector */
 #define NES_VERCTOR_IRQBRK      0xFFFE  /*  IRQ vector */
@@ -43,7 +46,7 @@ Bit No. 15      14      13      12      11      10      9       8
 Bit No. 7       6       5       4       3       2       1       0
         A2      B2      Select2 Start2  Up2     Down2   Left2   Right2 
 */
-typedef struct {
+typedef struct nes_joypad{
     uint8_t offset1;
     uint8_t offset2;
     uint8_t mask;
@@ -71,7 +74,7 @@ typedef struct {
 } nes_joypad_t;
 
 // https://www.nesdev.org/wiki/CPU_registers
-typedef struct {
+typedef struct nes_cpu{
     /*  CPU registers */
     uint8_t A;                          /*  Accumulator */
     uint8_t X;                          /*  Indexes X */
@@ -97,6 +100,12 @@ typedef struct {
     uint8_t* prg_banks[4];              /*  4 bank ( 8Kb * 4 ) = 32KB  */
     nes_joypad_t joypad;
 } nes_cpu_t;
+
+void nes_cpu_init(nes_t *nes);
+void nes_cpu_reset(nes_t* nes);
+
+void nes_nmi(nes_t* nes);
+void nes_opcode(nes_t* nes,uint16_t ticks);
 
 #ifdef __cplusplus          
     }

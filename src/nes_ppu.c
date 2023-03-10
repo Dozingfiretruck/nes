@@ -22,8 +22,7 @@
  * SOFTWARE.
  */
 
-#include "nes_port.h"
-#include "nes_ppu.h"
+
 #include "nes.h"
 
 //https://www.nesdev.org/pal.txt

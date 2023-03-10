@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include "nes_port.h"
+
 #include "nes.h"
 
 void nes_load_prgrom_8k(nes_t* nes,int des, int src) {

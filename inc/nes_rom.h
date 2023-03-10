@@ -29,6 +29,9 @@
     extern "C" {
 #endif
 
+struct nes;
+typedef struct nes nes_t;
+
 /* NES 2.0: https://wiki.nesdev.org/w/index.php/NES_2.0 */
 #define TRAINER_SIZE            (0x200)
 #define PRG_ROM_UNIT_SIZE       (0x4000)
@@ -94,7 +97,7 @@ typedef struct {
     };                                  /*  Default Expansion Device */
 } nes_header_info_t;
 
-typedef struct {
+typedef struct nes_rom_info{
     uint16_t prg_rom_size;
     uint16_t chr_rom_size;
     uint8_t* prg_rom;
@@ -105,6 +108,9 @@ typedef struct {
     uint8_t  four_screen;               /*  0: No 1: Yes */
     uint8_t  save_ram;                  /*  0: Not present 1: Present */
 } nes_rom_info_t;
+
+nes_t* nes_load_rom(const char* file_path);
+int nes_rom_free(nes_t* nes);
 
 #ifdef __cplusplus          
     }

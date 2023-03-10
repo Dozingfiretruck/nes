@@ -22,10 +22,7 @@
  * SOFTWARE.
  */
 
-#include <string.h>
 
-#include "nes_port.h"
-#include "nes_rom.h"
 #include "nes.h"
 
 #if (NES_USE_SRAM == 1)
@@ -36,7 +33,7 @@ nes_t* nes_load_rom(const char* file_path ){
     nes_header_info_t nes_header_info = {0};
     nes_t* nes = NULL;
 
-    NES_FILE* nes_file = nes_fopen(file_path, "rb");
+    FILE* nes_file = nes_fopen(file_path, "rb");
     if (!nes_file){
         goto error;
     } 

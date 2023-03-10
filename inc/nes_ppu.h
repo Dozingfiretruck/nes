@@ -33,6 +33,9 @@
 
 #define NES_PPU_VRAM_SIZE       0x1000  /*  4KB */
 
+struct nes;
+typedef struct nes nes_t;
+
 // https://www.nesdev.org/wiki/PPU_OAM
 typedef struct{
     uint8_t	y;		                    /*  Y position of top of sprite */
@@ -57,7 +60,7 @@ typedef struct{
 } sprite_info_t;
 
 // https://www.nesdev.org/wiki/PPU_registers
-typedef struct {
+typedef struct nes_ppu{
     union {
         struct {
             uint8_t ppu_vram0[NES_PPU_VRAM_SIZE / 4];
@@ -170,6 +173,9 @@ typedef struct {
     };
 } nes_ppu_t;
 
+void nes_ppu_init(nes_t *nes);
+uint8_t nes_read_ppu_register(nes_t *nes,uint16_t address);
+void nes_write_ppu_register(nes_t *nes,uint16_t address, uint8_t data);
 
 #ifdef __cplusplus          
     }

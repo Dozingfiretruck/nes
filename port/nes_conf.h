@@ -22,47 +22,56 @@
  * SOFTWARE.
  */
 
-#ifndef _NES_MAPPER_
-#define _NES_MAPPER_
+#ifndef _NES_CONF_
+#define _NES_CONF_
 
 #ifdef __cplusplus
     extern "C" {
 #endif
 
-struct nes;
-typedef struct nes nes_t;
+#define NES_FRAME_SKIP          0
 
-typedef struct {
-    /* Initialize Mapper */
-    void (*mapper_init)(nes_t* nes);
-    /* Write to Mapper */
-    void (*mapper_write)(nes_t* nes,uint16_t write_addr, uint8_t data );
-    /* Write to SRAM */
-    void (*mapper_sram)( uint16_t write_addr, uint8_t data );
-    /* Write to Apu */
-    void (*mapper_apu)( uint16_t write_addr, uint8_t data );
-    /* Read from Apu */
-    uint8_t (*mapper_read_apu)( uint16_t write_addr );
-    /* Callback at VSync */
-    void (*mapper_vsync)(void);
-    /* Callback at HSync */
-    void (*mapper_hsync)(void);
-    /* Callback at PPU read/write */
-    void (*mapper_ppu)( uint16_t write_addr );
-    /* Callback at Rendering Screen 1:BG, 0:Sprite */
-    void (*mapper_render_screen)( uint8_t mode );
-} nes_mapper_t;
+#define NES_USE_SRAM            0
+#define NES_COLOR_DEPTH         32 
+#define NES_COLOR_SWAP          0
+#define NES_RAM_LACK            0
 
-/* mapper */
-int nes_load_mapper(nes_t* nes);
-void nes_load_prgrom_8k(nes_t* nes,int des, int src);
-void nes_load_chrrom_1k(nes_t* nes,int des, int src);
-int nes_mapper0_init(nes_t* nes);
-int nes_mapper1_init(nes_t* nes);
-int nes_mapper2_init(nes_t* nes);
+#ifndef NES_FRAME_SKIP
+#define NES_FRAME_SKIP          0
+#endif
+
+#ifndef NES_RAM_LACK
+#define NES_RAM_LACK            0
+#endif
+
+#if (NES_RAM_LACK == 1)
+#define NES_DRAW_SIZE         (NES_WIDTH) 
+#else
+#define NES_DRAW_SIZE         (NES_WIDTH * NES_HEIGHT)
+#endif
+
+#ifndef NES_COLOR_SWAP
+#define NES_COLOR_SWAP         0
+#endif
+
+/* Color depth:
+ * - 16: RGB565
+ * - 32: ARGB8888
+ */
+#ifndef NES_COLOR_DEPTH
+#define NES_COLOR_DEPTH         32
+#endif
+
+#if (NES_COLOR_DEPTH == 32)
+#define nes_color_t uint32_t
+#elif (NES_COLOR_DEPTH == 16)
+#define nes_color_t uint16_t
+#else
+#error "no supprt color depth"
+#endif
 
 #ifdef __cplusplus          
     }
 #endif
 
-#endif// _NES_MAPPER_
+#endif// _NES_CONF_

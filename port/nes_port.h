@@ -27,9 +27,9 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include "nes_conf.h"
+#include <string.h>
 
-#include <SDL.h>
+#include "nes_conf.h"
 
 #ifdef __cplusplus
     extern "C" {
@@ -50,11 +50,10 @@ void *nes_memset(void *str, int c, size_t n);
 int nes_memcmp(const void *str1, const void *str2, size_t n);
 
 /* io */
-#define NES_FILE SDL_RWops
-NES_FILE *nes_fopen( const char * filename, const char * mode );
-size_t nes_fread(void *ptr, size_t size_of_elements, size_t number_of_elements, NES_FILE *a_file);
-int nes_fseek(NES_FILE *stream, long int offset, int whence);
-int nes_fclose( NES_FILE *fp );
+FILE *nes_fopen( const char * filename, const char * mode );
+size_t nes_fread(void *ptr, size_t size_of_elements, size_t number_of_elements, FILE *a_file);
+int nes_fseek(FILE *stream, long int offset, int whence);
+int nes_fclose( FILE *fp );
 
 void nes_wait(uint32_t ms);
 

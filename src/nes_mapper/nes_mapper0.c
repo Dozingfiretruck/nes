@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include "nes_port.h"
+
 #include "nes.h"
 
 static void nes_mapper_init(nes_t* nes){

@@ -22,9 +22,7 @@
  * SOFTWARE.
  */
 
-#include <string.h>
 
-#include "nes_port.h"
 #include "nes.h"
 
 #define NES_PPU_CPU_CLOCKS		113
@@ -78,7 +76,7 @@ static void nes_render_background_line(nes_t* nes,uint16_t scanline,nes_color_t*
         m = 7;
     }
     nametable_id ^= nes->nes_rom.mirroring_type ? 1:2;
-    for (uint8_t tile_x = 0; tile_x <= dx; tile_x++){
+    for (uint8_t tile_x = 0; tile_x < dx; tile_x++){
         uint32_t pattern_id = nes->nes_ppu.name_table[nametable_id][tile_x + (tile_y << 5)];
         const uint8_t* bit0_p = nes->nes_ppu.pattern_table[nes->nes_ppu.CTRL_B ? 4 : 0] + pattern_id * 16;
         const uint8_t* bit1_p = bit0_p + 8;
@@ -377,7 +375,7 @@ void nes_run(nes_t* nes){
             // v: GHIA.BC DEF..... <- t: GHIA.BC DEF.....
             nes->nes_ppu.v_reg = (nes->nes_ppu.v_reg & (uint16_t)0x841F) | (nes->nes_ppu.t_reg & (uint16_t)0x7BE0);
         }
-        // nes_wait(5);
+        nes_wait(10);
     }
 }
 

@@ -22,52 +22,21 @@
  * SOFTWARE.
  */
 
-#ifndef _NES_CONF_
-#define _NES_CONF_
+#ifndef _NES_APU_
+#define _NES_APU_
 
 #ifdef __cplusplus
     extern "C" {
 #endif
 
-#define NES_FRAME_SKIP          0
+struct nes;
+typedef struct nes nes_t;
 
-#define NES_USE_SRAM            0
-#define NES_COLOR_DEPTH         32 
-#define NES_COLOR_SWAP          0
-#define NES_RAM_LACK            0
-
-#ifndef NES_FRAME_SKIP
-#define NES_FRAME_SKIP         0
-#endif
-
-#if (NES_RAM_LACK == 1)
-#define NES_DRAW_SIZE         (NES_WIDTH) 
-#else
-#define NES_DRAW_SIZE         (NES_WIDTH * NES_HEIGHT)
-#endif
-
-#ifndef NES_COLOR_SWAP
-#define NES_COLOR_SWAP         0
-#endif
-
-/* Color depth:
- * - 16: RGB565
- * - 32: ARGB8888
- */
-#ifndef NES_COLOR_DEPTH
-#define NES_COLOR_DEPTH         32
-#endif
-
-#if (NES_COLOR_DEPTH == 32)
-#define nes_color_t uint32_t
-#elif (NES_COLOR_DEPTH == 16)
-#define nes_color_t uint16_t
-#else
-#error "no supprt color depth"
-#endif
+uint8_t nes_read_apu_register(nes_t *nes,uint16_t address);
+void nes_write_apu_register(nes_t* nes,uint16_t address,uint8_t data);
 
 #ifdef __cplusplus          
     }
 #endif
 
-#endif// _NES_CONF_
+#endif// _NES_APU_

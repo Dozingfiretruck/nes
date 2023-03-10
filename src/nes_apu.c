@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include "nes_port.h"
+
 #include "nes.h"
 
 uint8_t nes_read_apu_register(nes_t *nes,uint16_t address){
