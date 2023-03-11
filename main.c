@@ -27,33 +27,25 @@
 
 
 int main(int argc, char *argv[]){
-
-    nes_t* nes = nes_load_rom("nestest.nes");
-    // nes_t* nes = nes_load_rom("super_mario.nes");
-    // nes_t* nes = nes_load_rom("contra.nes");
-
-
-    // nes_t* nes = nes_load_rom("color_test.nes");
-
-    // nes_t* nes = nes_load_rom("cpu_interrupts.nes");//mapper 1 
-    // nes_t* nes = nes_load_rom("cpu_dummy_reads.nes");//mapper 3 
-
-    // nes_t* nes = nes_load_rom("cpu_dummy_writes_oam.nes"); // #7
-    // nes_t* nes = nes_load_rom("cpu_dummy_writes_ppumem.nes"); // #11
-
-    // nes_t* nes = nes_load_rom("test_cpu_exec_space_apu.nes"); // #2
-    // nes_t* nes = nes_load_rom("test_cpu_exec_space_ppuio.nes"); // #3
-
-    // nes_t* nes = nes_load_rom("ram_after_reset.nes");
-    // nes_t* nes = nes_load_rom("registers.nes");
-
-    // nes_t* nes = nes_load_rom("cpu_timing_test.nes");// OP $18
-    
-    if (!nes){
+    if (argc == 2){
+        const char *nes_file_path = argv[1];
+        size_t nes_file_path_len = strlen(nes_file_path);
+        if (memcmp(nes_file_path+nes_file_path_len-4,".nes",4)==0 || memcmp(nes_file_path+nes_file_path_len-4,".NES",4)==0){
+            nes_printf("nes_file_path:%s\n",nes_file_path);
+            nes_t* nes = nes_load_rom(nes_file_path);
+            if (!nes){
+                return -1;
+            }
+            nes_run(nes);
+            nes_rom_free(nes);
+            return 0;
+        }else{
+            nes_printf("Please enter xxx.nes\n");
+            return -1;
+        }
+    }else{
+        nes_printf("Please enter the nes file path\n");
         return -1;
     }
-    nes_run(nes);
-    // nes_rom_free(nes);
-    return 0;
 }
 

@@ -1,13 +1,19 @@
+**English** | [中文](./README_zh.md) 
+
 ![github license](https://img.shields.io/github/license/Dozingfiretruck/nes)![linux](https://github.com/Dozingfiretruck/nes/actions/workflows/action.yml/badge.svg?branch=master)
 
 
 
 # nes
 
-#### 介绍
-c语言实现的nes模拟器，要求c11
+#### Introduction
+The nes simulator implemented in c , requires c11
 
-支持情况：
+**attention：**
+
+**This repository is only for the nes simulator and does not provide the game ！！！**
+
+Support：
 
 - [x] CUP
 
@@ -15,45 +21,44 @@ c语言实现的nes模拟器，要求c11
 
 - [ ] APU
 
-MAPPER 支持：0，2
+mapper  support：0，2
 
-#### 软件架构
-示例基于SDL2进行图像声音输出，没有特殊依赖，可自行移植至任意硬件
-
-**注意：**
-
-**本仓库仅为nes模拟器，不提供游戏！！！**
+#### Software Architecture
+The example is based on SDL2 for image and sound output, without special dependencies, and you can port to any hardware by yourself
 
 
-#### 编译教程
+#### Compile Tutorial
 
-​	克隆本仓库，安装[xmake](https://github.com/xmake-io/xmake)  ，直接执行 xmake 编译即可 
+​	clone repository，install[xmake](https://github.com/xmake-io/xmake)  ，execute `xmake` directly to compile
 
-#### 使用说明
+#### Instructions
 
-​	使用 `nes_t* nes_load_rom(const char* *file_path*);`加载要运行的游戏即可。
+​	on linux enter  `./nes xxx.nes` load the game to run
+​	on windows enter `.\nes.exe xxx.nes` load the game to run
 
 
 
-按键映射：
+Key mapping:：
 
-​                                      上                                                 A            B
+​                                      up                                                    A            B
 
-​                           左	   下	    右		 选择        确定        
+​                           left  down  right	  select      start        
 
 P1:
 
-​                                      W                                                  J            K
+​                                      W                                                     J            K
 
 ​                            A	    S	    D		      V             B        
 
 P2:
 
-​                                       ↑                                                   5            6
+​                                       ↑                                                      5            6
 
 ​                             ←	  ↓	    →		    1             2        
 
+#### Literature reference
 
+https://www.nesdev.org/
 
 
 
