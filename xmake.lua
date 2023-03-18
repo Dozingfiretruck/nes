@@ -1,8 +1,7 @@
-add_rules("mode.debug", "mode.release")
-
 set_project("nes")
 set_version("0.0.1")
 set_xmakever("2.7.7")
+add_rules("mode.debug", "mode.release")
 
 add_requires("llvm")
 set_toolchains("@llvm")

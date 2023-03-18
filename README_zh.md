@@ -1,4 +1,4 @@
-**[English](./README.md) ** | **中文**
+[**English**](./README.md)  | **中文**
 
 ![github license](https://img.shields.io/github/license/Dozingfiretruck/nes)![linux](https://github.com/Dozingfiretruck/nes/actions/workflows/action.yml/badge.svg?branch=master)
 
