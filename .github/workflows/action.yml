@@ -18,6 +18,7 @@ jobs:
           sudo apt-get install git make gcc p7zip-full llvm-dev libsdl2-dev -y
           wget https://xmake.io/shget.text -O - | bash -s v2.7.7
           source ~/.xmake/profile
+          xrepo update-repo
       - name: build
         run: |
           xmake -y
