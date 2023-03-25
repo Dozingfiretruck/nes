@@ -69,8 +69,9 @@ void nes_wait(uint32_t ms){
     SDL_Delay(ms);
 }
 
-static SDL_Window* window = NULL;
-static SDL_Surface *screen = NULL;
+static SDL_Window *window = NULL;
+static SDL_Renderer *renderer = NULL;
+static SDL_Texture *framebuffer = NULL;
 
 static void sdl_event_loop(nes_t *nes) {
     SDL_Event event;
@@ -189,31 +190,70 @@ static void sdl_event_loop(nes_t *nes) {
                     nes_deinit(nes);
                     return;
             }
-        }else{
-            //渲染
-            SDL_UpdateWindowSurface(window);
         }
     }
 }
 
+// #define FREQ 44100
+// #define SAMPLES 2048
+// static const double SoundFreq = 261.63;
+// static const double TimeLag = 1.0 / FREQ;
+// static int g_callbackIndex = 0;
+
+// static void AudioCallback(void* userdata, Uint8* stream, int len) {
+//     int16_t* source = (int16_t*)stream;
+//     int count = len / 2;
+//     double r = 0.0;
+//     int startIndex = (g_callbackIndex * count) % (int)(FREQ/SoundFreq*10);
+//     for (int i = 0; i < count; ++i) {
+//         r = M_PI * 2.0 * SoundFreq * TimeLag * (startIndex + i);
+//         source[i] = INT16_MAX * sin(r);
+//     }
+//     g_callbackIndex++;
+// }
+
 static int NES_SDL(void *ptr){
-    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_JOYSTICK)) {
+    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_JOYSTICK| SDL_INIT_TIMER)) {
         SDL_Log("Can not init video, %s", SDL_GetError());
         return 1;
     }
     window = SDL_CreateWindow(
             NES_NAME,
-            SDL_WINDOWPOS_CENTERED,
-            SDL_WINDOWPOS_CENTERED,
-            NES_WIDTH, NES_HEIGHT,
+            SDL_WINDOWPOS_UNDEFINED,
+            SDL_WINDOWPOS_UNDEFINED,
+            NES_WIDTH * 2, NES_HEIGHT * 2,
             SDL_WINDOW_SHOWN|SDL_WINDOW_ALLOW_HIGHDPI
     );
     if (window == NULL) {
         SDL_Log("Can not create window, %s", SDL_GetError());
         return 1;
     }
-    screen = SDL_GetWindowSurface(window);
 
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
+    framebuffer = SDL_CreateTexture(renderer,
+                                    SDL_PIXELFORMAT_ARGB8888,
+                                    SDL_TEXTUREACCESS_STREAMING,
+                                    NES_WIDTH,
+                                    NES_HEIGHT);
+
+    // SDL_AudioSpec desired;
+    // SDL_AudioSpec obtained;
+
+    // desired.freq = FREQ;
+    // desired.format = AUDIO_S16SYS;
+    // desired.channels = 1;
+    // desired.silence = 0;
+    // desired.samples = SAMPLES;
+    // desired.callback = AudioCallback;
+    // desired.userdata = NULL;
+
+    // SDL_AudioDeviceID nes_audio_device = SDL_OpenAudioDevice(NULL, SDL_FALSE, &desired, &obtained, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE);
+    // if (!nes_audio_device) {
+    //     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't open audio: %s\n", SDL_GetError());
+    // }
+    // SDL_PauseAudioDevice(nes_audio_device, SDL_FALSE);
+    
+    // SDL_CloseAudioDevice(nes_audio_device);
     sdl_event_loop(ptr);
     return 0;
 }
@@ -230,23 +270,26 @@ int nes_initex(nes_t *nes){
 }
 
 int nes_deinitex(nes_t *nes){
+    SDL_DestroyTexture(framebuffer);
+    SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
     return 0;
 }
 
 int nes_draw(size_t x1, size_t y1, size_t x2, size_t y2, nes_color_t* color_data){
-    if (screen == NULL){
+    if (!framebuffer){
         return -1;
     }
-    SDL_LockSurface(screen);
-    int i = 0;
-    for (size_t y = 0; y < y2-y1+1; y++){
-        for (size_t x = 0; x < x2-x1+1; x++){
-            ((uint32_t *) (screen->pixels))[(y1+y) * NES_WIDTH + x1 + x] = color_data[i++];
-        }
-    }
-    SDL_UnlockSurface(screen);	
+    SDL_Rect rect;
+    rect.x = x1;
+    rect.y = y1;
+    rect.w = x2 - x1 + 1;
+    rect.h = y2 - y1 + 1;
+    SDL_UpdateTexture(framebuffer, &rect, color_data, rect.w * 4);
+    //渲染
+    SDL_RenderCopy(renderer, framebuffer, NULL, NULL);
+    SDL_RenderPresent(renderer);
     return 0;
 }
 
