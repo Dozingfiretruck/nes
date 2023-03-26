@@ -76,7 +76,7 @@ static void nes_render_background_line(nes_t* nes,uint16_t scanline,nes_color_t*
         m = 7;
     }
     nametable_id ^= nes->nes_rom.mirroring_type ? 1:2;
-    for (uint8_t tile_x = 0; tile_x < dx; tile_x++){
+    for (uint8_t tile_x = 0; tile_x <= dx; tile_x++){
         uint32_t pattern_id = nes->nes_ppu.name_table[nametable_id][tile_x + (tile_y << 5)];
         const uint8_t* bit0_p = nes->nes_ppu.pattern_table[nes->nes_ppu.CTRL_B ? 4 : 0] + pattern_id * 16;
         const uint8_t* bit1_p = bit0_p + 8;
@@ -86,13 +86,14 @@ static void nes_render_background_line(nes_t* nes,uint16_t scanline,nes_color_t*
         // 1:D4-D5/D6-D7 0:D0-D1/D2-D3
         // 1:D2-D3/D6-D7 0:D0-D1/D4-D5
         const uint8_t high_bit = ((attribute >> (((tile_y & 2) << 1) | (tile_x & 2))) & 3) << 2;
+        uint8_t skew = 0;
         if (tile_x == dx){
             if (nes->nes_ppu.x){
-                m = nes->nes_ppu.x;
+                skew = 8 - nes->nes_ppu.x;
             }else
                 break;
         }
-        for (; m >= 0; m--){
+        for (; m >= skew; m--){
             uint8_t low_bit = ((bit0 >> m) & 0x01) | ((bit1 >> m)<<1 & 0x02);
             uint8_t palette_index = (high_bit & 0x0c) | low_bit;
             draw_data[p++] = nes->nes_ppu.background_palette[palette_index];
