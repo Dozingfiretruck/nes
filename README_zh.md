@@ -45,6 +45,11 @@ mapper 支持：0，2
 |  P1  |  W   |  S   |  A   |  D   |  V   |  B   |  J   |  K   |
 |  P2  |  ↑   |  ↓   |  ←   |  →   |  1   |  2   |  5   |  6   |
 
+#### 运行展示
+
+![super_mario](E:\code\codeup\nes\doc\super_mario.png)
+
+![contra](E:\code\codeup\nes\doc\contra.png)
 
 
 #### 文献参考

@@ -45,6 +45,12 @@ The example is based on SDL2 for image and sound output, without special depende
 |    P1    |  W   |  S   |  A   |   D   |   V    |   B   |  J   |  K   |
 |    P2    |  ↑   |  ↓   |  ←   |   →   |   1    |   2   |  5   |  6   |
 
+#### showcase
+
+![super_mario](E:\code\codeup\nes\doc\super_mario.png)
+
+![contra](E:\code\codeup\nes\doc\contra.png)
+
 
 
 #### Literature reference
