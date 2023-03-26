@@ -47,9 +47,9 @@ The example is based on SDL2 for image and sound output, without special depende
 
 #### showcase
 
-![super_mario](E:\code\codeup\nes\doc\super_mario.png)
+![super_mario](doc\super_mario.png)
 
-![contra](E:\code\codeup\nes\doc\contra.png)
+![contra](doc\contra.png)
 
 
 

@@ -47,9 +47,9 @@ mapper 支持：0，2
 
 #### 运行展示
 
-![super_mario](E:\code\codeup\nes\doc\super_mario.png)
+![super_mario](doc\super_mario.png)
 
-![contra](E:\code\codeup\nes\doc\contra.png)
+![contra](doc\contra.png)
 
 
 #### 文献参考
