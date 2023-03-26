@@ -38,23 +38,14 @@ The example is based on SDL2 for image and sound output, without special depende
 
 
 
-Key mapping:：
+#### Key mapping
 
-​                                      up                                                    A            B
+| 手柄 |  up  | down | left | right | select | start |  A   |  B   |
+| :--: | :--: | :--: | :--: | :---: | :----: | :---: | :--: | :--: |
+|  P1  |  W   |  S   |  A   |   D   |   V    |   B   |  J   |  K   |
+|  P2  |  ↑   |  ↓   |  ←   |   →   |   1    |   2   |  5   |  6   |
 
-​                           left  down  right	  select      start        
 
-P1:
-
-​                                      W                                                     J            K
-
-​                            A	    S	    D		      V             B        
-
-P2:
-
-​                                       ↑                                                      5            6
-
-​                             ←	  ↓	    →		    1             2        
 
 #### Literature reference
 
