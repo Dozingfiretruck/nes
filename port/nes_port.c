@@ -47,6 +47,7 @@ int nes_memcmp(const void *str1, const void *str2, size_t n){
     return SDL_memcmp(str1,str2,n);
 }
 
+#if (NES_USE_FS == 1)
 /* io */
 FILE *nes_fopen( const char * filename, const char * mode ){
     return fopen(filename,mode);
@@ -63,6 +64,7 @@ int nes_fseek(FILE *stream, long int offset, int whence){
 int nes_fclose( FILE *fp ){
     return fclose(fp);
 }
+#endif
 
 /* wait */
 void nes_wait(uint32_t ms){
@@ -287,9 +289,14 @@ int nes_draw(size_t x1, size_t y1, size_t x2, size_t y2, nes_color_t* color_data
     rect.w = x2 - x1 + 1;
     rect.h = y2 - y1 + 1;
     SDL_UpdateTexture(framebuffer, &rect, color_data, rect.w * 4);
+    return 0;
+}
+
+void nes_frame(void){
     //渲染
     SDL_RenderCopy(renderer, framebuffer, NULL, NULL);
     SDL_RenderPresent(renderer);
-    return 0;
+    //此处可做帧同步
+    nes_wait(10);
 }
 

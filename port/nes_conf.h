@@ -36,6 +36,12 @@
 #define NES_COLOR_SWAP          0
 #define NES_RAM_LACK            0
 
+#define NES_USE_FS              1
+
+#ifndef NES_USE_FS
+#define NES_USE_FS              0
+#endif
+
 #ifndef NES_FRAME_SKIP
 #define NES_FRAME_SKIP          0
 #endif

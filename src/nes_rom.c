@@ -29,7 +29,8 @@
     #define SRAM_SIZE           (0x2000)
 #endif
 
-nes_t* nes_load_rom(const char* file_path ){
+#if (NES_USE_FS == 1)
+nes_t* nes_load_file(const char* file_path ){
     nes_header_info_t nes_header_info = {0};
     nes_t* nes = NULL;
 
@@ -99,6 +100,8 @@ error:
     }
     return NULL;
 }
+#endif
+
 // release
 int nes_rom_free(nes_t* nes){
     if (nes->nes_rom.prg_rom){
@@ -115,4 +118,51 @@ int nes_rom_free(nes_t* nes){
     }
     return NES_OK;
 }
+
+nes_t* nes_load_rom(const uint8_t* nes_rom){
+    nes_t* nes = (nes_t *)nes_malloc(sizeof(nes_t));
+    if (nes == NULL) {
+        goto error;
+    }
+    memset(nes, 0, sizeof(nes_t));
+
+    nes_header_info_t* nes_header_info = (nes_header_info_t*)nes_rom;
+
+#if (NES_USE_SRAM == 1)
+    nes->nes_rom.sram = (uint8_t*)nes_malloc(SRAM_SIZE);
+#endif
+        if ( nes_memcmp( nes_header_info->identification, "NES\x1a", 4 )){
+            goto error;
+        }
+        uint8_t* nes_bin = nes_rom + sizeof(nes_header_info_t);
+        if (nes_header_info->trainer){
+#if (NES_USE_SRAM == 1)
+#else
+#endif
+            nes_bin += TRAINER_SIZE;
+        }
+        nes->nes_rom.prg_rom_size = ((nes_header_info->prg_rom_size_m << 8) & 0xF00) | nes_header_info->prg_rom_size_l;
+        nes->nes_rom.chr_rom_size = ((nes_header_info->prg_rom_size_m << 8) & 0xF00) | nes_header_info->chr_rom_size_l;
+        nes->nes_rom.mapper_number = ((nes_header_info->mapper_number_h << 8) & 0xF00) | ((nes_header_info->mapper_number_m << 4) & 0xF0) | (nes_header_info->mapper_number_l & 0x0F);
+        nes->nes_rom.mirroring_type = (nes_header_info->mirroring);
+        nes->nes_rom.four_screen = (nes_header_info->four_screen);
+        nes->nes_rom.save_ram = (nes_header_info->save);
+
+        nes->nes_rom.prg_rom = nes_bin;
+        nes_bin += PRG_ROM_UNIT_SIZE * nes->nes_rom.prg_rom_size;
+
+        if (nes->nes_rom.chr_rom_size){
+            nes->nes_rom.chr_rom = nes_bin;
+        }
+    nes_init(nes);
+    nes_load_mapper(nes);
+    nes->nes_mapper.mapper_init(nes);
+    return nes;
+error:
+    if (nes){
+        nes_rom_free(nes);
+    }
+    return NULL;
+}
+
 

@@ -75,12 +75,12 @@ typedef struct {
                                             If the shift count is non-zero, the actual size is
                                             "64 << shift count" bytes, i.e. 8192 bytes for a shift count of 7. */
     struct {
-        uint8_t timing_mode :2;         /*  D0-3    CPU/PPU timing mode 
+        uint8_t timing_mode :2;         /*  D0-1    CPU/PPU timing mode 
                                                     0: RP2C02 ("NTSC NES")
                                                     1: RP2C07 ("Licensed PAL NES")
                                                     2: Multiple-region
                                                     3: UMC 6527P ("Dendy") */
-        uint8_t :5;
+        uint8_t :6;
     };                                  /*  CPU/PPU Timing */
     struct {
         uint8_t ppu_type:4;             /*  D0-3  Vs. PPU Type */
@@ -88,11 +88,11 @@ typedef struct {
     };                                  /*  When Byte 7 AND 3 =1: Vs. System Type
                                             When Byte 7 AND 3 =3: Extended Console Type */
     struct {
-        uint8_t miscellaneous_number:2; /*  D0-2  Number of miscellaneous ROMs present */
-        uint8_t :5;
+        uint8_t miscellaneous_number:2; /*  D0-1  Number of miscellaneous ROMs present */
+        uint8_t :6;
     };                                  /*  Miscellaneous ROMs */
     struct {
-        uint8_t expansion_device:5;     /*  D0-5  Default Expansion Device */
+        uint8_t expansion_device:6;     /*  D0-5  Default Expansion Device */
         uint8_t :2;
     };                                  /*  Default Expansion Device */
 } nes_header_info_t;
@@ -109,7 +109,11 @@ typedef struct nes_rom_info{
     uint8_t  save_ram;                  /*  0: Not present 1: Present */
 } nes_rom_info_t;
 
-nes_t* nes_load_rom(const char* file_path);
+#if (NES_USE_FS == 1)
+nes_t* nes_load_file(const char* file_path);
+#endif
+
+nes_t* nes_load_rom(const uint8_t* nes_rom);
 int nes_rom_free(nes_t* nes);
 
 #ifdef __cplusplus          
