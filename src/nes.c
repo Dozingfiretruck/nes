@@ -302,7 +302,7 @@ void nes_run(nes_t* nes){
 
         if (nes->nes_ppu.MASK_b == 0){
 #if (NES_RAM_LACK == 1)
-            for (size_t i = 0; i < NES_WIDTH; i++){
+            for (size_t i = 0; i < NES_HEIGHT * NES_WIDTH / 2; i++){
                 nes->nes_draw_data[i] = nes->nes_ppu.background_palette[0];
             }
 #else
@@ -312,17 +312,17 @@ void nes_run(nes_t* nes){
 #endif
         }
         
-        for(scanline = 0; scanline < 240; scanline++) { // 0-239 Visible frame
+        for(scanline = 0; scanline < NES_HEIGHT; scanline++) { // 0-239 Visible frame
             if (nes->nes_ppu.MASK_b){
 #if (NES_RAM_LACK == 1)
-                nes_render_background_line(nes,scanline,nes->nes_draw_data);
+                nes_render_background_line(nes,scanline,nes->nes_draw_data + scanline%(NES_HEIGHT/2) * NES_WIDTH);
 #else
                 nes_render_background_line(nes,scanline,nes->nes_draw_data + scanline * NES_WIDTH);
 #endif
             }
             if (nes->nes_ppu.MASK_s){
 #if (NES_RAM_LACK == 1)
-                nes_render_sprite_line(nes,scanline,nes->nes_draw_data);
+                nes_render_sprite_line(nes,scanline,nes->nes_draw_data + scanline%(NES_HEIGHT/2) * NES_WIDTH);
 #else
                 nes_render_sprite_line(nes,scanline,nes->nes_draw_data + scanline * NES_WIDTH);
 #endif
@@ -350,7 +350,11 @@ void nes_run(nes_t* nes){
             
 #if (NES_RAM_LACK == 1)
             if((frame_cnt % (NES_FRAME_SKIP+1))==0){
-                nes_draw(0, scanline, NES_WIDTH-1, scanline, nes->nes_draw_data);
+                if (scanline == NES_HEIGHT/2-1){
+                    nes_draw(0, 0, NES_WIDTH-1, NES_HEIGHT/2-1, nes->nes_draw_data);
+                }else if(scanline == NES_HEIGHT-1){
+                    nes_draw(0, NES_HEIGHT/2, NES_WIDTH-1, NES_HEIGHT-1, nes->nes_draw_data);
+                }
             }
 #endif
         }
