@@ -32,12 +32,12 @@ int main(int argc, char *argv[]){
         size_t nes_file_path_len = strlen(nes_file_path);
         if (memcmp(nes_file_path+nes_file_path_len-4,".nes",4)==0 || memcmp(nes_file_path+nes_file_path_len-4,".NES",4)==0){
             nes_printf("nes_file_path:%s\n",nes_file_path);
-            nes_t* nes = nes_load_rom(nes_file_path);
+            nes_t* nes = nes_load_file(nes_file_path);
             if (!nes){
                 return -1;
             }
             nes_run(nes);
-            nes_rom_free(nes);
+            nes_unload_file(nes);
             return 0;
         }else{
             nes_printf("Please enter xxx.nes\n");

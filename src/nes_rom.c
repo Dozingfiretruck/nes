@@ -96,14 +96,13 @@ error:
         nes_fclose(nes_file);
     }
     if (nes){
-        nes_rom_free(nes);
+        nes_unload_file(nes);
     }
     return NULL;
 }
-#endif
 
-// release
-int nes_rom_free(nes_t* nes){
+
+int nes_unload_file(nes_t* nes){
     if (nes->nes_rom.prg_rom){
         nes_free(nes->nes_rom.prg_rom);
     }
@@ -118,6 +117,8 @@ int nes_rom_free(nes_t* nes){
     }
     return NES_OK;
 }
+
+#endif
 
 nes_t* nes_load_rom(const uint8_t* nes_rom){
     nes_t* nes = (nes_t *)nes_malloc(sizeof(nes_t));
@@ -160,9 +161,14 @@ nes_t* nes_load_rom(const uint8_t* nes_rom){
     return nes;
 error:
     if (nes){
-        nes_rom_free(nes);
+        nes_unload_rom(nes);
     }
     return NULL;
 }
 
-
+int nes_unload_rom(nes_t* nes){
+    if (nes){
+        nes_free(nes);
+    }
+    return NES_OK;
+}
