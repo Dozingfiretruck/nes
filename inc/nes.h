@@ -60,6 +60,7 @@ int nes_initex(nes_t* nes);
 int nes_deinitex(nes_t* nes);
 
 void nes_run(nes_t* nes);
+void nes_frame(nes_t* nes);
 
 #ifdef __cplusplus          
     }
