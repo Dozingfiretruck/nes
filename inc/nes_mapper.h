@@ -60,6 +60,7 @@ void nes_load_chrrom_1k(nes_t* nes,int des, int src);
 int nes_mapper0_init(nes_t* nes);
 int nes_mapper1_init(nes_t* nes);
 int nes_mapper2_init(nes_t* nes);
+int nes_mapper3_init(nes_t* nes);
 
 #ifdef __cplusplus          
     }

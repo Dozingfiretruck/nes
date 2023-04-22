@@ -25,24 +25,30 @@
 
 #include "nes.h"
 
-void nes_load_prgrom_8k(nes_t* nes,int des, int src) {
-    nes->nes_cpu.prg_banks[des] = nes->nes_rom.prg_rom + 8 * 1024 * src;
-}
 
-void nes_load_chrrom_1k(nes_t* nes,int des, int src) {
-    nes->nes_ppu.pattern_table[des] = nes->nes_rom.chr_rom + 1024 * src;
-}
+static void nes_mapper_init(nes_t* nes){
+    const int mirror = nes->nes_rom.prg_rom_size & 2;
+    nes_load_prgrom_8k(nes,0, 0);
+    nes_load_prgrom_8k(nes,1, 1);
+    nes_load_prgrom_8k(nes,2, mirror+0);
+    nes_load_prgrom_8k(nes,3, mirror+1);
 
-int nes_load_mapper(nes_t* nes){
-    switch (nes->nes_rom.mapper_number){
-        case 0 :
-            return nes_mapper0_init(nes);
-        case 2 :
-            return nes_mapper2_init(nes);
-        case 3 :
-            return nes_mapper3_init(nes);
-        default :
-            nes_printf("mapper:%03d is unsupported\n",nes->nes_rom.mapper_number);
-            return NES_ERROR;
+    for (int i = 0; i < 8; i++){
+        nes_load_chrrom_1k(nes,i,i);
     }
 }
+
+static void nes_mapper_write(nes_t* nes, uint16_t address, uint8_t date) {
+    const int bank = (date % nes->nes_rom.chr_rom_size) * 8;
+    for (int i = 0; i != 8; ++i)
+        nes_load_chrrom_1k(nes, i, bank +i );
+}
+
+
+
+int nes_mapper3_init(nes_t* nes){
+    nes->nes_mapper.mapper_init = nes_mapper_init;
+    nes->nes_mapper.mapper_write = nes_mapper_write;
+    return 0;
+}
+
