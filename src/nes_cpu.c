@@ -352,7 +352,6 @@ static void nes_dec(nes_t* nes){
 // N  V  U  B  D  I  Z  C
 // *                 *  
 static void nes_dex(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     NES_CHECK_N(--nes->nes_cpu.X);
     NES_CHECK_Z(nes->nes_cpu.X);
 }
@@ -361,7 +360,6 @@ static void nes_dex(nes_t* nes){
 // N  V  U  B  D  I  Z  C
 // *                 *  
 static void nes_dey(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     NES_CHECK_N(--nes->nes_cpu.Y);
     NES_CHECK_Z(nes->nes_cpu.Y);
 }
@@ -381,7 +379,6 @@ static void nes_inc(nes_t* nes){
 // N  V  U  B  D  I  Z  C
 // *                 *  
 static void nes_inx(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     NES_CHECK_N(++nes->nes_cpu.X);
     NES_CHECK_Z(nes->nes_cpu.X);
 }
@@ -390,7 +387,6 @@ static void nes_inx(nes_t* nes){
 // N  V  U  B  D  I  Z  C
 // *                 *  
 static void nes_iny(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     NES_CHECK_N(++nes->nes_cpu.Y);
     NES_CHECK_Z(nes->nes_cpu.Y);
 }
@@ -531,7 +527,6 @@ static void nes_sty(nes_t* nes){
 // N  V  U  B  D  I  Z  C
 // *                 *  
 static void nes_tax(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     nes->nes_cpu.X=nes->nes_cpu.A;
     NES_CHECK_N(nes->nes_cpu.X);
     NES_CHECK_Z(nes->nes_cpu.X);
@@ -541,7 +536,6 @@ static void nes_tax(nes_t* nes){
 // N  V  U  B  D  I  Z  C
 // *                 *  
 static void nes_txa(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     nes->nes_cpu.A=nes->nes_cpu.X;
     NES_CHECK_N(nes->nes_cpu.A);
     NES_CHECK_Z(nes->nes_cpu.A);
@@ -551,7 +545,6 @@ static void nes_txa(nes_t* nes){
 // N  V  U  B  D  I  Z  C
 // *                 *  
 static void nes_tay(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     nes->nes_cpu.Y=nes->nes_cpu.A;
     NES_CHECK_N(nes->nes_cpu.Y);
     NES_CHECK_Z(nes->nes_cpu.Y);
@@ -561,7 +554,6 @@ static void nes_tay(nes_t* nes){
 // N  V  U  B  D  I  Z  C
 // *                 *  
 static void nes_tya(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     nes->nes_cpu.A=nes->nes_cpu.Y;
     NES_CHECK_N(nes->nes_cpu.A);
     NES_CHECK_Z(nes->nes_cpu.A);
@@ -571,7 +563,6 @@ static void nes_tya(nes_t* nes){
 // N  V  U  B  D  I  Z  C
 // *                 *  
 static void nes_tsx(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     nes->nes_cpu.X=nes->nes_cpu.SP;
     NES_CHECK_N(nes->nes_cpu.X);
     NES_CHECK_Z(nes->nes_cpu.X);
@@ -579,7 +570,6 @@ static void nes_tsx(nes_t* nes){
 
 // S:=X
 static void nes_txs(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     nes->nes_cpu.SP=nes->nes_cpu.X;
 }
 
@@ -587,7 +577,6 @@ static void nes_txs(nes_t* nes){
 // N  V  U  B  D  I  Z  C
 // *                 *  
 static void nes_pla(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     nes->nes_cpu.A = NES_POP(nes);
     NES_CHECK_N(nes->nes_cpu.A);
     NES_CHECK_Z(nes->nes_cpu.A);
@@ -595,7 +584,6 @@ static void nes_pla(nes_t* nes){
 
 // (S)-:=A
 static void nes_pha(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     NES_PUSH(nes,nes->nes_cpu.A);
 }
 
@@ -603,14 +591,12 @@ static void nes_pha(nes_t* nes){
 // N  V  U  B  D  I  Z  C
 // *  *        *  *  *  *
 static void nes_plp(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     nes->nes_cpu.P = NES_POP(nes);
     // nes->nes_cpu.B=0;
 }
 
 // (S)-:=P
 static void nes_php(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     NES_PUSH(nes,nes->nes_cpu.P);
 }
 
@@ -696,7 +682,6 @@ static void nes_brk(nes_t* nes){
 // N  V  U  B  D  I  Z  C
 // *  *        *  *  *  *
 static void nes_rti(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     nes->nes_cpu.P = NES_POP(nes);
     nes->nes_cpu.U = 1;
     nes->nes_cpu.B = 0;
@@ -713,7 +698,6 @@ static void nes_jsr(nes_t* nes){
 
 // PC:=+(S)
 static void nes_rts(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     nes->nes_cpu.PC = (uint16_t)NES_POP(nes);
     nes->nes_cpu.PC |= (uint16_t)NES_POP(nes) << 8;
     nes->nes_cpu.PC++;
@@ -739,7 +723,6 @@ static void nes_bit(nes_t* nes){
 // N  V  U  B  D  I  Z  C
 //                      0
 static void nes_clc(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     nes->nes_cpu.C=0;
 }
 
@@ -747,7 +730,6 @@ static void nes_clc(nes_t* nes){
 // N  V  U  B  D  I  Z  C
 //                      1
 static void nes_sec(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     nes->nes_cpu.C=1;
 }
 
@@ -755,7 +737,6 @@ static void nes_sec(nes_t* nes){
 // N  V  U  B  D  I  Z  C
 //             0         
 static void nes_cld(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     nes->nes_cpu.D=0;
 }
 
@@ -763,7 +744,6 @@ static void nes_cld(nes_t* nes){
 // N  V  U  B  D  I  Z  C
 //             1         
 static void nes_sed(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     nes->nes_cpu.D=1;
 }
 
@@ -771,7 +751,6 @@ static void nes_sed(nes_t* nes){
 // N  V  U  B  D  I  Z  C
 //                0      
 static void nes_cli(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     nes->nes_cpu.I=0;
 }
 
@@ -779,7 +758,6 @@ static void nes_cli(nes_t* nes){
 // N  V  U  B  D  I  Z  C
 //                1      
 static void nes_sei(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     nes->nes_cpu.I=1;
 }
 
@@ -787,7 +765,6 @@ static void nes_sei(nes_t* nes){
 // N  V  U  B  D  I  Z  C
 //    0                  
 static void nes_clv(nes_t* nes){
-    if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     nes->nes_cpu.V=0;
 }
 
