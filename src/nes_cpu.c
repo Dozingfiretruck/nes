@@ -272,14 +272,15 @@ static void nes_eor(nes_t* nes){
     NES_CHECK_Z(nes->nes_cpu.A);
 }
 
-// A:=A+{adr}
-// N  V  U  B  D  I  Z  C
-// *  *              *  *
+/* 
+    A:=A+{adr}
+    N  V  U  B  D  I  Z  C
+    *  *              *  *
+*/
 static void nes_adc(nes_t* nes){
     const uint8_t src = nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     const uint16_t result16 = nes->nes_cpu.A + src + nes->nes_cpu.C;
-    if (result16 >> 8)nes->nes_cpu.C = 1;
-    else nes->nes_cpu.C = 0;
+    nes->nes_cpu.C = result16 >> 8;
     const uint8_t result8 = (uint8_t)result16;
     if (!((nes->nes_cpu.A ^ src) & 0x80) && ((nes->nes_cpu.A ^ result8) & 0x80)) nes->nes_cpu.V = 1;
     else nes->nes_cpu.V = 0;
@@ -288,20 +289,15 @@ static void nes_adc(nes_t* nes){
     NES_CHECK_Z(nes->nes_cpu.A);
 }
 
-// A:=A-{adr}
-
-// EB
-// SBC (SBC) [SBC]
-// The same as the legal opcode $E9 (SBC #byte)
-// Status flags: N,V,Z,C
-
-// N  V  U  B  D  I  Z  C
-// *  *              *  *
+/* 
+    A:=A-{adr}
+    N  V  U  B  D  I  Z  C
+    *  *              *  *
+*/
 static void nes_sbc(nes_t* nes){
     const uint8_t src = nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     const uint16_t result16 = nes->nes_cpu.A - src - !nes->nes_cpu.C;
-    if (!(result16 >> 8))nes->nes_cpu.C = 1;
-    else nes->nes_cpu.C = 0;
+    nes->nes_cpu.C = !(result16 >> 8);
     const uint8_t result8 = (uint8_t)result16;
     if (((nes->nes_cpu.A ^ src) & 0x80) && ((nes->nes_cpu.A ^ result8) & 0x80)) nes->nes_cpu.V = 1;
     else nes->nes_cpu.V = 0;
@@ -315,8 +311,7 @@ static void nes_sbc(nes_t* nes){
 // *                 *  *
 static void nes_cmp(nes_t* nes){
     const uint16_t value = (uint16_t)nes->nes_cpu.A - (uint16_t)nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
-    if (!(value & 0x8000))nes->nes_cpu.C = 1;
-    else nes->nes_cpu.C = 0;
+    nes->nes_cpu.C = !(value >> 15);
     NES_CHECK_N((uint8_t)value);
     NES_CHECK_Z((uint8_t)value);
 }
@@ -326,8 +321,7 @@ static void nes_cmp(nes_t* nes){
 // *                 *  *
 static void nes_cpx(nes_t* nes){
     const uint16_t value = (uint16_t)nes->nes_cpu.X - (uint16_t)nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
-    if (!(value & 0x8000))nes->nes_cpu.C = 1;
-    else nes->nes_cpu.C = 0;
+    nes->nes_cpu.C = !(value >> 15);
     NES_CHECK_N((uint8_t)value);
     NES_CHECK_Z((uint8_t)value);
 }
@@ -337,8 +331,7 @@ static void nes_cpx(nes_t* nes){
 // *                 *  *
 static void nes_cpy(nes_t* nes){
     const uint16_t value = (uint16_t)nes->nes_cpu.Y - (uint16_t)nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
-    if (!(value & 0x8000))nes->nes_cpu.C = 1;
-    else nes->nes_cpu.C = 0;
+    nes->nes_cpu.C = !(value >> 15);
     NES_CHECK_N((uint8_t)value);
     NES_CHECK_Z((uint8_t)value);
 }
@@ -409,15 +402,13 @@ static void nes_asl(nes_t* nes){
     if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode){
         uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
         uint8_t value = nes_read_cpu(nes,address);
-        if (value & 0x80)nes->nes_cpu.C = 1;
-        else nes->nes_cpu.C = 0;
+        nes->nes_cpu.C = value >> 7;
         value <<= 1;
         nes_write_cpu(nes,address,value);
         NES_CHECK_N(value);
         NES_CHECK_Z(value);
     }else{
-        if (nes->nes_cpu.A&0x80)nes->nes_cpu.C = 1;
-        else nes->nes_cpu.C = 0;
+        nes->nes_cpu.C = nes->nes_cpu.A >> 7;
         nes->nes_cpu.A <<= 1;
         NES_CHECK_N(nes->nes_cpu.A);
         NES_CHECK_Z(nes->nes_cpu.A);
@@ -455,15 +446,13 @@ static void nes_lsr(nes_t* nes){
     if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode){
         uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
         uint8_t value = nes_read_cpu(nes,address);
-        if (value & 1)nes->nes_cpu.C = 1;
-        else nes->nes_cpu.C = 0;
+        nes->nes_cpu.C = value & 0x01;
         value >>= 1;
         nes_write_cpu(nes,address,value);
         NES_CHECK_N(value);
         NES_CHECK_Z(value);
     }else{
-        if (nes->nes_cpu.A & 1)nes->nes_cpu.C = 1;
-        else nes->nes_cpu.C = 0;
+        nes->nes_cpu.C = nes->nes_cpu.A & 0x01;
         nes->nes_cpu.A >>= 1;
         NES_CHECK_N(nes->nes_cpu.A);
         NES_CHECK_Z(nes->nes_cpu.A);
@@ -821,8 +810,7 @@ static void nes_nop(nes_t* nes){
 static void nes_slo(nes_t* nes){
     uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     uint8_t data = nes_read_cpu(nes,address);
-    if (data & 0x80)nes->nes_cpu.C = 1;
-    else nes->nes_cpu.C = 0;
+    nes->nes_cpu.C = data >> 7;
     data <<= 1;
     nes_write_cpu(nes,address,data);
 
@@ -860,8 +848,7 @@ static void nes_rla(nes_t* nes){
 static void nes_sre(nes_t* nes){
     uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     uint8_t data = nes_read_cpu(nes,address);
-    if (data & 1)nes->nes_cpu.C = 1;
-    else nes->nes_cpu.C = 0;
+    nes->nes_cpu.C = data & 0x01;
     data >>= 1;
     nes_write_cpu(nes,address,data);
 
@@ -887,8 +874,7 @@ static void nes_rra(nes_t* nes){
     nes_write_cpu(nes,address,value);
 
     const uint16_t result16 = nes->nes_cpu.A + value + nes->nes_cpu.C;
-    if (result16 >> 8)nes->nes_cpu.C = 1;
-    else nes->nes_cpu.C = 0;
+    nes->nes_cpu.C = result16 >> 8;
     const uint8_t result8 = (uint8_t)result16;
     if (!((nes->nes_cpu.A ^ value) & 0x80) && ((nes->nes_cpu.A ^ result8) & 0x80)) nes->nes_cpu.V = 1;
     else nes->nes_cpu.V = 0;
@@ -938,10 +924,7 @@ static void nes_dcp(nes_t* nes){
     data--;
     nes_write_cpu(nes,address,data);
     const uint16_t result16 = (uint16_t)nes->nes_cpu.A - (uint16_t)data;
-
-    if (!(result16 & (uint16_t)0x8000))nes->nes_cpu.C = 1;
-    else nes->nes_cpu.C = 0;
-
+    nes->nes_cpu.C = !(result16 >> 15);
     NES_CHECK_N((uint8_t)result16);
     NES_CHECK_Z((uint8_t)result16);
 }
@@ -959,8 +942,7 @@ static void nes_isc(nes_t* nes){
     nes_write_cpu(nes,address,data);
 
     const uint16_t result16 = nes->nes_cpu.A - data - !nes->nes_cpu.C;
-    if (!(result16 >> 8))nes->nes_cpu.C = 1;
-    else nes->nes_cpu.C = 0;
+    nes->nes_cpu.C = !(result16 >> 8);
     const uint8_t result8 = (uint8_t)result16;
     if (((nes->nes_cpu.A ^ data) & 0x80) && ((nes->nes_cpu.A ^ result8) & 0x80)) nes->nes_cpu.V = 1;
     else nes->nes_cpu.V = 0;
@@ -1117,6 +1099,9 @@ void nes_cpu_init(nes_t* nes){
         nes_write_cpu(nes,0x4000+i, 0x00);
     }
 }
+
+// https://www.nesdev.org/wiki/CPU_unofficial_opcodes
+// https://www.oxyron.de/html/opcodes02.html
 
 static nes_opcode_t nes_opcode_table[] = {
     {nes_brk,	NULL,	    7   },      // 0x00     BRK             7

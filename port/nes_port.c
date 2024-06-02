@@ -246,7 +246,7 @@ int nes_deinitex(nes_t *nes){
     return 0;
 }
 
-int nes_draw(size_t x1, size_t y1, size_t x2, size_t y2, nes_color_t* color_data){
+int nes_draw(int x1, int y1, int x2, int y2, nes_color_t* color_data){
     if (!framebuffer){
         return -1;
     }

@@ -61,7 +61,7 @@ void nes_wait(uint32_t ms);
 
 // void nes_frame(void);
 
-int nes_draw(size_t x1, size_t y1, size_t x2, size_t y2, nes_color_t* color_data);
+int nes_draw(int x1, int y1, int x2, int y2, nes_color_t* color_data);
 
 
 #ifdef __cplusplus          
