@@ -76,9 +76,8 @@ static uint8_t nes_read_cpu(nes_t* nes,uint16_t address){
             return nes->nes_cpu.prg_banks[(address >> 13)-4][address & (uint16_t)0x1fff];
         default :
             nes_printf("nes_read_cpu error %04X\n",address);
-            return -1;
+            return 0;
     }
-    return 0;
 }
 
 static inline const uint8_t* nes_get_dma_address(nes_t* nes,uint8_t data) {
@@ -1093,20 +1092,30 @@ void nes_nmi(nes_t* nes){
     nes->nes_cpu.cycles += 7;
 }
 
+// https://www.nesdev.org/wiki/CPU_power_up_state#After_reset
 void nes_cpu_reset(nes_t* nes){
-    nes->nes_cpu.A = nes->nes_cpu.X = nes->nes_cpu.Y = nes->nes_cpu.P = 0;
-    nes->nes_cpu.U = 1;
-    // nes->nes_cpu.B = 1;
-    
-    nes->nes_cpu.P = 0x34;
+    nes->nes_cpu.I = 1;             // The I (IRQ disable) flag was set to true
+    nes->nes_cpu.SP -= 3;           // S was decremented by 3 (but nothing was written to the stack)
+    nes_write_cpu(nes,0x4015, 0x00);// APU was silenced ($4015 = 0)
 
-    nes->nes_cpu.SP = 0xFD;
     nes->nes_cpu.PC = nes_read_cpu(nes,NES_VERCTOR_RESET)|(uint16_t)nes_read_cpu(nes,NES_VERCTOR_RESET + 1) << 8;
     nes->nes_cpu.cycles = 7;
 }
 
+// https://www.nesdev.org/wiki/CPU_power_up_state#At_power-up
 void nes_cpu_init(nes_t* nes){
-
+    // Status: Carry, Zero, Decimal, Overflow, Negative clear. Interrupt Disable set.
+    // A, X, Y = 0
+    nes->nes_cpu.A = nes->nes_cpu.X = nes->nes_cpu.Y = nes->nes_cpu.P = 0;
+    nes->nes_cpu.U = nes->nes_cpu.I = nes->nes_cpu.B = 1;
+    nes->nes_cpu.SP = 0xFD;         // S = $FD
+    nes_write_cpu(nes,0x4017, 0x00);// $4017 = $00 (frame irq enabled)
+    nes_write_cpu(nes,0x4015, 0x00);// $4015 = $00 (all channels disabled)
+    // $4000-$400F = $00
+    // $4010-$4013 = $00
+    for (uint8_t i = 0; i <= 13; i++){
+        nes_write_cpu(nes,0x4000+i, 0x00);
+    }
 }
 
 static nes_opcode_t nes_opcode_table[] = {

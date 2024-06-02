@@ -104,7 +104,7 @@ uint8_t nes_read_ppu_register(nes_t* nes,uint16_t address){
             break;
         default :
             nes_printf("nes_read_ppu_register error %04X\n",address);
-            return -1;
+            return 0;
     }
     // nes_printf("nes_read_ppu_register %04X %02X\n",address,data);
     return data;
