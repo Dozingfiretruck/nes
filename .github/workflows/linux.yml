@@ -12,14 +12,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: xmake-io/github-action-setup-xmake@v1
-        with:
-          xmake-version: latest
       - name: prepare software
         run: |
           sudo apt-get update
           sudo apt-get install git make gcc p7zip-full libsdl2-dev -y
           sudo apt-get upgrade -y
+      - uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
       - name: build
         run: |
           xmake -y
