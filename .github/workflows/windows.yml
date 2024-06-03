@@ -1,6 +1,6 @@
 
-name: Macos
-run-name: Macos Build
+name: Windows
+run-name: Windows Build
 
 on:
   push:
@@ -9,18 +9,15 @@ on:
     branches: [ "master" ]
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
       - name: prepare software
-        run: |
-          brew update
-          brew install git make gcc p7zip sdl2
-      - uses: xmake-io/github-action-setup-xmake@v1
+        uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: latest
       - name: build
         run: |
           xmake -y
-
-
