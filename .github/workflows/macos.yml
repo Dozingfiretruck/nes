@@ -12,13 +12,10 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: xmake-io/github-action-setup-xmake@v1
-      with:
-        xmake-version: latest
     - name: prepare software
       run: |
         brew update
-        brew install git make gcc p7zip sdl2 -y
+        brew install git make gcc p7zip sdl2
     - uses: xmake-io/github-action-setup-xmake@v1
       with:
         xmake-version: latest
