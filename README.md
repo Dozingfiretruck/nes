@@ -13,7 +13,15 @@ The nes simulator implemented in c , requires c11
 
 **This repository is only for the nes simulator and does not provide the game ！！！**
 
-Support：
+Platform support:
+
+- [x] Windows
+
+- [x] Linux
+
+- [x] MacOS
+
+Simulator support：
 
 - [x] CUP
 
@@ -21,7 +29,7 @@ Support：
 
 - [ ] APU
 
-mapper  support：0，2
+mapper  support：0，2, 3
 
 #### Software Architecture
 The example is based on SDL2 for image and sound output, without special dependencies, and you can port to any hardware by yourself
