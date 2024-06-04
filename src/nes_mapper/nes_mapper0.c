@@ -25,13 +25,20 @@
 
 #include "nes.h"
 
+/* https://www.nesdev.org/wiki/NROM */
+
 static void nes_mapper_init(nes_t* nes){
-    const int mirror = nes->nes_rom.prg_rom_size & 2;
+    // $6000-$7FFF: Family Basic only: PRG RAM, mirrored as necessary to fill entire 8 KiB window, write protectable with an external switch
+
+    // PRG-ROM 16k or 32k, set mirror
+    const int mirror = nes->nes_rom.prg_rom_size & 0x02;
+    // CPU $8000-$BFFF: First 16 KB of ROM.
     nes_load_prgrom_8k(nes,0, 0);
     nes_load_prgrom_8k(nes,1, 1);
+    // CPU $C000-$FFFF: Last 16 KB of ROM (NROM-256) or mirror of $8000-$BFFF (NROM-128).
     nes_load_prgrom_8k(nes,2, mirror+0);
     nes_load_prgrom_8k(nes,3, mirror+1);
-
+    // CHR capacity: 8 KiB ROM (DIP-28 standard pinout) but most emulators support RAM
     for (int i = 0; i < 8; i++){
         nes_load_chrrom_1k(nes,i,i);
     }

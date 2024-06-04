@@ -25,26 +25,36 @@
 
 #include "nes.h"
 
-
+/* https://www.nesdev.org/wiki/INES_Mapper_003 */
 static void nes_mapper_init(nes_t* nes){
-    const int mirror = nes->nes_rom.prg_rom_size & 2;
+    // PRG ROM size: 16 KiB or 32 KiB, set mirror
+    const int mirror = nes->nes_rom.prg_rom_size & 0x02;
+    // CPU $8000-$BFFF: First 16 KB of ROM.
     nes_load_prgrom_8k(nes,0, 0);
     nes_load_prgrom_8k(nes,1, 1);
+    // CPU $C000-$FFFF: Last 16 KB of ROM or mirror of $8000-$BFFF.
     nes_load_prgrom_8k(nes,2, mirror+0);
     nes_load_prgrom_8k(nes,3, mirror+1);
-
+    // CHR capacity: 8 KiB ROM
     for (int i = 0; i < 8; i++){
         nes_load_chrrom_1k(nes,i,i);
     }
 }
 
+/*
+    PPU $0000-$1FFF: 8 KB switchable CHR ROM bank
+    7  bit  0
+    ---- ----
+    cccc ccCC
+    |||| ||||
+    ++++-++++- Select 8 KB CHR ROM bank for PPU $0000-$1FFF
+    CNROM only implements the lowest 2 bits, capping it at 32 KiB CHR. Other boards may implement 4 or more bits for larger CHR.
+*/
 static void nes_mapper_write(nes_t* nes, uint16_t address, uint8_t date) {
-    const int bank = (date % nes->nes_rom.chr_rom_size) * 8;
+    const int bank = (date % nes->nes_rom.chr_rom_size) * 0x08;
     for (int i = 0; i != 8; ++i)
         nes_load_chrrom_1k(nes, i, bank +i );
 }
-
-
 
 int nes_mapper3_init(nes_t* nes){
     nes->nes_mapper.mapper_init = nes_mapper_init;

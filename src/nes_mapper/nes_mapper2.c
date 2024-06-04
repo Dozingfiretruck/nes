@@ -25,22 +25,32 @@
 
 #include "nes.h"
 
+/* https://www.nesdev.org/wiki/UxROM */
 
 static void nes_mapper_init(nes_t* nes){
-    const int mirror = nes->nes_rom.prg_rom_size * 2;
+    const int mirror = nes->nes_rom.prg_rom_size * 0x02;
+    // CPU $8000-$BFFF: 16 KB switchable PRG ROM bank
     nes_load_prgrom_8k(nes,0, 0);
     nes_load_prgrom_8k(nes,1, 1);
+    // CPU $C000-$FFFF: 16 KB PRG ROM bank, fixed to the last bank
     nes_load_prgrom_8k(nes,2, mirror-2);
     nes_load_prgrom_8k(nes,3, mirror-1);
-
+    // CHR capacity: 8 KiB ROM
     for (int i = 0; i < 8; i++){
         nes_load_chrrom_1k(nes,i,i);
     }
 }
-
+/*
+    7  bit  0
+    ---- ----
+    xxxx pPPP
+         ||||
+         ++++- Select 16 KB PRG ROM bank for CPU $8000-$BFFF
+                (UNROM uses bits 2-0; UOROM uses bits 3-0)
+*/
 static void nes_mapper_write(nes_t* nes, uint16_t address, uint8_t date) {
-    const int bank = (date % nes->nes_rom.prg_rom_size) * 2;
-    nes_load_prgrom_8k(nes, 0, bank + 0);
+    const int bank = (date % nes->nes_rom.prg_rom_size) * 0x02;
+    nes_load_prgrom_8k(nes, 0, bank);
     nes_load_prgrom_8k(nes, 1, bank + 1);
 }
 

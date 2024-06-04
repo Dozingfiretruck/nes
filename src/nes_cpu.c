@@ -160,7 +160,11 @@ static void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
 */
 
 /*
-    #v(Immediate):Uses the 8-bit operand itself as the value for the operation, 
+    Implicit:Instructions like RTS or CLC have no address operand, the destination of results are implied.
+*/
+
+/*
+    #v:Immediate:Uses the 8-bit operand itself as the value for the operation, 
                     rather than fetching a value from a memory address.
 */
 static uint16_t nes_imm(nes_t* nes){
@@ -168,7 +172,7 @@ static uint16_t nes_imm(nes_t* nes){
 }
 
 /*
-    label(Relative):Branch instructions (e.g. BEQ, BCS) have a relative addressing mode 
+    label:Relative::Branch instructions (e.g. BEQ, BCS) have a relative addressing mode 
                     that specifies an 8-bit signed offset relative to the current PC.
 */
 static uint16_t nes_rel(nes_t* nes){
@@ -177,7 +181,7 @@ static uint16_t nes_rel(nes_t* nes){
 }
 
 /*
-    a(Absolute):Fetches the value from a 16-bit address anywhere in memory.
+    a:Absolute::Fetches the value from a 16-bit address anywhere in memory.
 */
 static uint16_t nes_abs(nes_t* nes){
     uint16_t address = nes_read_cpu(nes,nes->nes_cpu.PC)|(uint16_t)nes_read_cpu(nes,nes->nes_cpu.PC + 1) << 8;
@@ -185,7 +189,9 @@ static uint16_t nes_abs(nes_t* nes){
     return address;
 }
 
-//ABX
+/*
+    a,x:Absolute indexed:val = PEEK(arg + X)
+*/
 static uint16_t nes_abx(nes_t* nes){
     uint16_t address = nes_read_cpu(nes,nes->nes_cpu.PC)|(uint16_t)nes_read_cpu(nes,nes->nes_cpu.PC + 1) << 8;
     nes->nes_cpu.PC += 2;
@@ -195,7 +201,9 @@ static uint16_t nes_abx(nes_t* nes){
     return address + nes->nes_cpu.X;
 }
 
-//ABY
+/*
+    a,y:Absolute indexed:val = PEEK(arg + Y)
+*/
 static uint16_t nes_aby(nes_t* nes){
     uint16_t address = nes_read_cpu(nes,nes->nes_cpu.PC)|(uint16_t)nes_read_cpu(nes,nes->nes_cpu.PC + 1) << 8;
     nes->nes_cpu.PC += 2;
@@ -228,12 +236,17 @@ static uint16_t nes_zpy(nes_t* nes){
     return address & 0xFF;
 }
 
+/*
+    (d,x):Indexed indirect:val = PEEK(PEEK((arg + X) % 256) + PEEK((arg + X + 1) % 256) * 256)
+*/
 static uint16_t nes_izx(nes_t* nes){
-    uint8_t address = nes_read_cpu(nes,nes->nes_cpu.PC++);
-    address += nes->nes_cpu.X;
+    uint8_t address = nes_read_cpu(nes,nes->nes_cpu.PC++) + nes->nes_cpu.X;
     return nes_read_cpu(nes,address)|(uint16_t)nes_read_cpu(nes,(uint8_t)(address + 1)) << 8;
 }
 
+/*
+    (d),y:Indexed indirect:val = PEEK(PEEK(arg) + PEEK((arg + 1) % 256) * 256 + Y)
+*/
 static uint16_t nes_izy(nes_t* nes){
     uint8_t value = nes_read_cpu(nes,nes->nes_cpu.PC++);
     uint16_t address = nes_read_cpu(nes,value)|(uint16_t)nes_read_cpu(nes,(uint8_t)(value + 1)) << 8;
@@ -243,14 +256,16 @@ static uint16_t nes_izy(nes_t* nes){
     return address + nes->nes_cpu.Y;
 }
 
+/*
+    (a):Indirect:The JMP instruction has a special indirect addressing mode 
+                    that can jump to the address stored in a 16-bit pointer anywhere in memory.
+*/
 static uint16_t nes_ind(nes_t* nes){
     uint16_t value1 = nes_read_cpu(nes,nes->nes_cpu.PC)|(uint16_t)nes_read_cpu(nes,(nes->nes_cpu.PC + 1)) << 8;
+    nes->nes_cpu.PC+=2;
     // 6502 BUG
     const uint16_t value2 = (value1 & (uint16_t)0xFF00)| ((value1 + 1) & (uint16_t)0x00FF);
-
-    uint16_t address = nes_read_cpu(nes,value1)|(uint16_t)nes_read_cpu(nes,value2) << 8;
-    nes->nes_cpu.PC+=2;
-    return address;
+    return nes_read_cpu(nes,value1)|(uint16_t)nes_read_cpu(nes,value2) << 8;
 }
 
 /* 6502/6510/8500/8502 Opcode matrix: https://www.oxyron.de/html/opcodes02.html */
