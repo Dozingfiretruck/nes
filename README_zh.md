@@ -37,11 +37,11 @@ mapper 支持：0，2, 3
 
 #### 编译教程
 
-​	克隆本仓库，安装[xmake](https://github.com/xmake-io/xmake)  ，直接执行 xmake 编译即可 
+​	克隆本仓库，安装 [xmake](https://github.com/xmake-io/xmake)，直接执行 xmake 编译即可 
 
 #### 使用说明
 
-​	linux下输入 `./nes xxx.nes` 加载要运行的游戏
+​	linux或macos下输入 `./nes xxx.nes` 加载要运行的游戏
 ​	windows下输入 `.\nes.exe xxx.nes` 加载要运行的游戏
 
 

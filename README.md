@@ -37,11 +37,11 @@ The example is based on SDL2 for image and sound output, without special depende
 
 #### Compile Tutorial
 
-​	clone repository，install[xmake](https://github.com/xmake-io/xmake)  ，execute `xmake` directly to compile
+​	clone repository，install [xmake](https://github.com/xmake-io/xmake)，execute `xmake` directly to compile
 
 #### Instructions
 
-​	on linux enter  `./nes xxx.nes` load the game to run
+​	on linux or macos enter  `./nes xxx.nes` load the game to run
 ​	on windows enter `.\nes.exe xxx.nes` load the game to run
 
 
