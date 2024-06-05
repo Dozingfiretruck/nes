@@ -25,7 +25,6 @@
 
 #include "nes.h"
 
-
 int main(int argc, char *argv[]){
     if (argc == 2){
         const char *nes_file_path = argv[1];
@@ -34,18 +33,22 @@ int main(int argc, char *argv[]){
             nes_printf("nes_file_path:%s\n",nes_file_path);
             nes_t* nes = nes_load_file(nes_file_path);
             if (!nes){
-                return -1;
+                nes_printf("nes load file fail\n");
+                goto error;
             }
             nes_run(nes);
             nes_unload_file(nes);
             return 0;
         }else{
             nes_printf("Please enter xxx.nes\n");
-            return -1;
+            goto error;
         }
     }else{
         nes_printf("Please enter the nes file path\n");
-        return -1;
+        goto error;
     }
+error:
+    getchar();
+    return -1;
 }
 
