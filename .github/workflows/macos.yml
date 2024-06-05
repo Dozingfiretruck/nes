@@ -15,7 +15,7 @@ jobs:
       - name: prepare software
         run: |
           brew update
-          brew install git make gcc p7zip sdl2
+          brew install make gcc sdl2
       - uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: latest
