@@ -39,16 +39,14 @@ void nes_load_chrrom_1k(nes_t* nes,int des, int src) {
     nes->nes_ppu.pattern_table[des] = nes->nes_rom.chr_rom + 1024 * src;
 }
 
+#define NES_CASE_LOAD_MAPPER(mapper_id) case mapper_id: return nes_mapper##mapper_id##_init(nes);
+
 int nes_load_mapper(nes_t* nes){
     switch (nes->nes_rom.mapper_number){
-        case 0 :
-            return nes_mapper0_init(nes);
-        case 2 :
-            return nes_mapper2_init(nes);
-        case 3 :
-            return nes_mapper3_init(nes);
-        // case 4 :
-        //     return nes_mapper4_init(nes);
+        NES_CASE_LOAD_MAPPER(0);
+        NES_CASE_LOAD_MAPPER(2);
+        NES_CASE_LOAD_MAPPER(3);
+        // NES_CASE_LOAD_MAPPER(4);
         default :
             nes_printf("mapper:%03d is unsupported\n",nes->nes_rom.mapper_number);
             return NES_ERROR;
