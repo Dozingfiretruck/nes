@@ -7,11 +7,20 @@ on:
     branches: [ "master" ]
     paths-ignore:
         - 'docs/**'
+        - 'README.md'
+        - 'README_zh.md'
   pull_request:
     branches: [ "master" ]
 jobs:
   build:
-    runs-on: macos-latest
+    strategy:
+        matrix:
+          os: [macos-latest]
+          arch: [x86_64,arm64]
+    runs-on: ${{ matrix.os }}
+    concurrency:
+        group: ${{ matrix.os }}-${{ matrix.arch }}
+        cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
       - name: prepare software
