@@ -42,6 +42,7 @@ mapper 支持：0，2, 3
 #### 使用说明
 
 ​	linux或macos下输入 `./nes xxx.nes` 加载要运行的游戏
+
 ​	windows下输入 `.\nes.exe xxx.nes` 加载要运行的游戏
 
 
@@ -55,9 +56,9 @@ mapper 支持：0，2, 3
 
 #### 运行展示
 
-![super_mario](./doc/super_mario.png)
+![super_mario](./docs/super_mario.png)
 
-![contra](./doc/contra.png)
+![contra](./docs/contra.png)
 
 
 #### 文献参考

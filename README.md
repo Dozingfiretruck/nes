@@ -42,6 +42,7 @@ The example is based on SDL2 for image and sound output, without special depende
 #### Instructions
 
 ​	on linux or macos enter  `./nes xxx.nes` load the game to run
+
 ​	on windows enter `.\nes.exe xxx.nes` load the game to run
 
 
@@ -55,9 +56,9 @@ The example is based on SDL2 for image and sound output, without special depende
 
 #### showcase
 
-![super_mario](./doc/super_mario.png)
+![super_mario](./docs/super_mario.png)
 
-![contra](./doc/contra.png)
+![contra](./docs/contra.png)
 
 
 
