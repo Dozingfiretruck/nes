@@ -33,5 +33,10 @@ jobs:
       - name: build
         run: |
           xmake -y
+          cp build/macos/${{ matrix.arch }}/release/nes nes-macos-${{ matrix.arch }}.app
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nes-macos-${{ matrix.arch }}.app
+          path: nes-macos-${{ matrix.arch }}.app
 

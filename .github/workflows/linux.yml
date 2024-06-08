@@ -13,7 +13,14 @@ on:
     branches: [ "master" ]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+        matrix:
+          os: [ubuntu-latest]
+          arch: [x86_64]
+    runs-on: ${{ matrix.os }}
+    concurrency:
+        group: ${{ matrix.os }}-${{ matrix.arch }}
+        cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
       - name: prepare software
@@ -27,8 +34,9 @@ jobs:
       - name: build
         run: |
           xmake -y
+          cp build/linux/${{ matrix.arch }}/release/nes nes-linux-${{ matrix.arch }}.bin
 
       - uses: actions/upload-artifact@v4
         with:
-          name: nes-linux-x86_64
-          path: build/linux/x86_64/release/nes
+          name: nes-linux-${{ matrix.arch }}.bin
+          path: nes-linux-${{ matrix.arch }}.bin
