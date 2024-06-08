@@ -12,7 +12,7 @@ on:
   pull_request:
     branches: [ "master" ]
   release:
-        types: [published]
+    types: [published]
 jobs:
   build:
     strategy:
@@ -42,27 +42,11 @@ jobs:
           name: nes-macos-${{ matrix.arch }}.app
           path: nes-macos-${{ matrix.arch }}.app
 
-        # upload artifacts to latest release
-    #   - name: Inject slug/short variables
-    #     uses: rlespinasse/github-slug-action@v4
-
-    #   - name: Get Previous tag
-    #     id: previoustag
-    #     uses: WyriHaximus/github-action-get-previous-tag@master
-
-    #   - name: Upload artifacts to lastest release
-    #     uses: svenstaro/upload-release-action@v2
-    #     with:
-    #       repo_token: ${{ secrets.GITHUB_TOKEN }}
-    #       file: nes-macos-${{ matrix.arch }}.app
-    #       asset_name: nes-macos-${{ matrix.arch }}.app
-    #       tag: ${{ steps.tagName.outputs.tag }}
-    #       overwrite: true
-
       - uses: little-core-labs/get-git-tag@v3.0.2
         id: tagName
 
       - name: Publish file to release
+        if: github.event.action == 'published'
         uses: actions/upload-release-asset@v1.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
