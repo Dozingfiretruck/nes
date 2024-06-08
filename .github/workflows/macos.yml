@@ -40,3 +40,16 @@ jobs:
           name: nes-macos-${{ matrix.arch }}.app
           path: nes-macos-${{ matrix.arch }}.app
 
+      - name: Get Previous tag
+        id: previoustag
+        uses: WyriHaximus/github-action-get-previous-tag@v1
+
+      - name: Upload artifacts to lastest release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: nes-macos-${{ matrix.arch }}.app
+          asset_name: nes-macos-${{ matrix.arch }}.app
+          tag: ${{ steps.previoustag.outputs.tag }}
+          overwrite: true
+
