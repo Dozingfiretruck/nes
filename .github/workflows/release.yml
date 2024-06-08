@@ -13,6 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Create Release
+        id: create_release
         uses: softprops/action-gh-release@v2
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -26,7 +27,13 @@ jobs:
             prerelease: false
 
 
-
+      - name: Trigger Release Publish
+        run: |
+            curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/$GITHUB_REPOSITORY/releases/${{ steps.create_release.outputs.id }}/actions/workflows/release-publish.yml/dispatches \
+            -d '{"ref": "master"}'
 
 
 
