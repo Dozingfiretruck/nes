@@ -42,7 +42,7 @@ jobs:
           name: nes-macos-${{ matrix.arch }}.app
           path: nes-macos-${{ matrix.arch }}.app
 
-      - uses: little-core-labs/get-git-tag@v3.0.2
+      - uses: olegtarasov/get-tag@v2.1.3
         id: tagName
 
       - name: Publish file to release
@@ -52,7 +52,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: nes-macos-${{ matrix.arch }}.app
+          asset_path: ./nes-macos-${{ matrix.arch }}.app
           asset_name: nes-macos-${{ matrix.arch }}-${{ steps.tagName.outputs.tag }}.app
           asset_content_type: application/zip
 
