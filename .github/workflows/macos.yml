@@ -54,7 +54,7 @@ jobs:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: nes-macos-${{ matrix.arch }}.app
           asset_name: nes-macos-${{ matrix.arch }}-${{ steps.tagName.outputs.tag }}.app
-          asset_content_type: application
+          asset_content_type: application/zip
 
 
 
