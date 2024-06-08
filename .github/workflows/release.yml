@@ -26,6 +26,23 @@ jobs:
             draft: false
             prerelease: false
 
+      - name: test txt
+        run: echo ${{ github.sha }} > test.txt
+
+      - name: Publish file to release
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./test.txt
+          asset_name: test.txt
+          asset_content_type: application/zip
+
+
+
+
+
 
 
 
