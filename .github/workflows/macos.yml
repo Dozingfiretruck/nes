@@ -16,7 +16,7 @@ jobs:
     strategy:
         matrix:
           os: [macos-latest]
-          arch: [x86_64,arm64]
+          arch: [arm64]
     runs-on: ${{ matrix.os }}
     concurrency:
         group: ${{ matrix.os }}-${{ matrix.arch }}
@@ -43,7 +43,7 @@ jobs:
         # upload artifacts to latest release
       - name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v4
-        
+
       - name: Get Previous tag
         id: previoustag
         uses: WyriHaximus/github-action-get-previous-tag@master
