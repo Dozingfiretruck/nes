@@ -37,21 +37,21 @@ typedef struct {
     /* Initialize Mapper */
     void (*mapper_init)(nes_t* nes);
     /* Write to Mapper */
-    void (*mapper_write)(nes_t* nes,uint16_t write_addr, uint8_t data );
+    void (*mapper_write)(nes_t* nes, uint16_t write_addr, uint8_t data );
     /* Write to SRAM */
-    void (*mapper_sram)( uint16_t write_addr, uint8_t data );
+    void (*mapper_sram)(nes_t* nes, uint16_t write_addr, uint8_t data );
     /* Write to Apu */
-    void (*mapper_apu)( uint16_t write_addr, uint8_t data );
+    void (*mapper_apu)(nes_t* nes, uint16_t write_addr, uint8_t data );
     /* Read from Apu */
-    uint8_t (*mapper_read_apu)( uint16_t write_addr );
+    uint8_t (*mapper_read_apu)(nes_t* nes, uint16_t write_addr );
     /* Callback at VSync */
-    void (*mapper_vsync)(void);
+    void (*mapper_vsync)(nes_t* nes);
     /* Callback at HSync */
-    void (*mapper_hsync)(void);
+    void (*mapper_hsync)(nes_t* nes);
     /* Callback at PPU read/write */
-    void (*mapper_ppu)( uint16_t write_addr );
+    void (*mapper_ppu)(nes_t* nes, uint16_t write_addr );
     /* Callback at Rendering Screen 1:BG, 0:Sprite */
-    void (*mapper_render_screen)( uint8_t mode );
+    void (*mapper_render_screen)(nes_t* nes, uint8_t mode );
 } nes_mapper_t;
 
 /* mapper */
