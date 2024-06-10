@@ -29,14 +29,21 @@
     extern "C" {
 #endif
 
-#define NES_FRAME_SKIP          0
+#define NES_USE_APU             0       /* use APU */
+#define NES_USE_SRAM            0       /* use SRAM */
 
-#define NES_USE_SRAM            0
-#define NES_COLOR_DEPTH         32 
-#define NES_COLOR_SWAP          0
-#define NES_RAM_LACK            0
+#define NES_FRAME_SKIP          0       /* skip frames */
+#define NES_COLOR_DEPTH         32      /* color depth */
+#define NES_COLOR_SWAP          0       /* swap color channels */
+#define NES_RAM_LACK            0       /* lack of RAM */
 
-#define NES_USE_FS              1
+#define NES_USE_FS              1       /* use file system */
+
+
+
+#ifndef NES_USE_APU
+#define NES_USE_APU             1
+#endif
 
 #ifndef NES_USE_FS
 #define NES_USE_FS              0

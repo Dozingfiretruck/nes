@@ -111,7 +111,7 @@ static void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
             nes_write_ppu_register(nes,address, data);
             return;
         case 2://$4000-$5FFF NES APU and I/O registers
-            if (address == 0x4016 || address == 0x4017)
+            if (address == 0x4016)
                 nes_write_joypad(nes,data);
             else if (address == 0x4014){
                 // nes_printf("nes_write DMA %04X %02X\n",address,data);
@@ -125,7 +125,7 @@ static void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
                     memcpy(nes->nes_ppu.oam_data, nes_get_dma_address(nes,data), 256);
                 nes->nes_cpu.cycles += 513;
                 nes->nes_cpu.cycles += nes->nes_cpu.cycles & 1;
-            }else if (address < 0x4016){
+            }else if (address < 0x4016 || address == 0x4017){
                 nes_write_apu_register(nes, address,data);
             }else
                 nes_printf("nes_write address %04X not sPport\n",address);
@@ -1246,9 +1246,9 @@ void nes_nmi(nes_t* nes){
 
 // https://www.nesdev.org/wiki/CPU_power_up_state#After_reset
 void nes_cpu_reset(nes_t* nes){
-    nes->nes_cpu.I = 1;             // The I (IRQ disable) flag was set to true
-    nes->nes_cpu.SP -= 3;           // S was decremented by 3 (but nothing was written to the stack)
-    nes_write_cpu(nes,0x4015, 0x00);// APU was silenced ($4015 = 0)
+    nes->nes_cpu.I = 1;                 // The I (IRQ disable) flag was set to true
+    nes->nes_cpu.SP -= 3;               // S was decremented by 3 (but nothing was written to the stack)
+    nes_write_cpu(nes,0x4015, 0x00);    // APU was silenced ($4015 = 0)
 
     nes->nes_cpu.PC = nes_read_cpu(nes,NES_VERCTOR_RESET)|(uint16_t)nes_read_cpu(nes,NES_VERCTOR_RESET + 1) << 8;
     nes->nes_cpu.cycles = 7;
@@ -1260,9 +1260,9 @@ void nes_cpu_init(nes_t* nes){
     // A, X, Y = 0
     nes->nes_cpu.A = nes->nes_cpu.X = nes->nes_cpu.Y = nes->nes_cpu.P = 0;
     nes->nes_cpu.U = nes->nes_cpu.I = nes->nes_cpu.B = 1;
-    nes->nes_cpu.SP = 0xFD;         // S = $FD
-    nes_write_cpu(nes,0x4017, 0x00);// $4017 = $00 (frame irq enabled)
-    nes_write_cpu(nes,0x4015, 0x00);// $4015 = $00 (all channels disabled)
+    nes->nes_cpu.SP = 0x00;             // reset: S = $00- $03 = $FD
+    nes_write_cpu(nes,0x4017, 0x00);    // $4017 = $00 (frame irq enabled)
+    nes_write_cpu(nes,0x4015, 0x00);    // $4015 = $00 (all channels disabled)
     // $4000-$400F = $00
     // $4010-$4013 = $00
     for (uint8_t i = 0; i <= 13; i++){

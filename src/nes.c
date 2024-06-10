@@ -30,6 +30,9 @@
 int nes_init(nes_t *nes){
     nes_initex(nes);
     nes_cpu_init(nes);
+#if (NES_USE_APU==1)
+    nes_apu_init(nes);
+#endif
     nes_ppu_init(nes);
     return 0;
 }

@@ -194,23 +194,16 @@ static void sdl_event(nes_t *nes) {
     }
 }
 
-// #define FREQ 44100
-// #define SAMPLES 2048
-// static const double SoundFreq = 261.63;
-// static const double TimeLag = 1.0 / FREQ;
-// static int g_callbackIndex = 0;
+#if (NES_USE_APU == 1)
 
-// static void AudioCallback(void* userdata, Uint8* stream, int len) {
-//     int16_t* source = (int16_t*)stream;
-//     int count = len / 2;
-//     double r = 0.0;
-//     int startIndex = (g_callbackIndex * count) % (int)(FREQ/SoundFreq*10);
-//     for (int i = 0; i < count; ++i) {
-//         r = M_PI * 2.0 * SoundFreq * TimeLag * (startIndex + i);
-//         source[i] = INT16_MAX * sin(r);
-//     }
-//     g_callbackIndex++;
-// }
+static SDL_AudioDeviceID nes_audio_device;
+#define SDL_AUDIO_NUM_CHANNELS          (1)
+
+static void AudioCallback(void* userdata, Uint8* stream, int len) {
+    nes_t *nes = (nes_t*)userdata;
+    nes_memcpy(stream, &nes->nes_apu.sample_buffer[5] , len);
+}
+#endif
 
 int nes_initex(nes_t *nes){
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_JOYSTICK| SDL_INIT_TIMER)) {
@@ -221,7 +214,7 @@ int nes_initex(nes_t *nes){
             NES_NAME,
             SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED,
-            NES_WIDTH * 2, NES_HEIGHT * 2,
+            NES_WIDTH * 2, NES_HEIGHT * 2,      // 二倍分辨率
             SDL_WINDOW_SHOWN|SDL_WINDOW_ALLOW_HIGHDPI
     );
     if (window == NULL) {
@@ -235,6 +228,26 @@ int nes_initex(nes_t *nes){
                                     SDL_TEXTUREACCESS_STREAMING,
                                     NES_WIDTH,
                                     NES_HEIGHT);
+
+#if (NES_USE_APU == 1)
+
+    SDL_AudioSpec desired = {
+        .freq = NES_APU_SAMPLE_RATE,
+        .format = AUDIO_U8,
+        .channels = SDL_AUDIO_NUM_CHANNELS,
+        .samples = NES_APU_SAMPLE_PER_SYNC,
+        .callback = AudioCallback,
+        .userdata = nes
+    };
+
+    nes_audio_device = SDL_OpenAudioDevice(NULL, SDL_FALSE, &desired, NULL, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE);
+    if (!nes_audio_device) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't open audio: %s\n", SDL_GetError());
+    }
+    SDL_PauseAudioDevice(nes_audio_device, SDL_FALSE);
+
+#endif
+
     return 0;
 }
 
