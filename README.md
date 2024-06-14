@@ -23,7 +23,7 @@ Platform support:
 
 Simulator support：
 
-- [x] CUP
+- [x] CPU
 
 - [x] PPU
 
