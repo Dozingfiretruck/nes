@@ -28,7 +28,7 @@ jobs:
       - name: prepare software
         uses: xmake-io/github-action-setup-xmake@v1
         with:
-          xmake-version: latest
+          xmake-version: branch@dev
       - name: build
         run: |
           xmake -y
