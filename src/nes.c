@@ -30,7 +30,7 @@
 int nes_init(nes_t *nes){
     nes_initex(nes);
     nes_cpu_init(nes);
-#if (NES_USE_APU==1)
+#if (NES_ENABLE_SOUND==1)
     nes_apu_init(nes);
 #endif
     nes_ppu_init(nes);
@@ -314,7 +314,9 @@ void nes_run(nes_t* nes){
             }
 #endif
         }
-        
+#if (NES_ENABLE_SOUND==1)
+        nes_apu_frame(nes);
+#endif
         for(scanline = 0; scanline < NES_HEIGHT; scanline++) { // 0-239 Visible frame
             if (nes->nes_ppu.MASK_b){
 #if (NES_RAM_LACK == 1)
@@ -350,7 +352,9 @@ void nes_run(nes_t* nes){
                 // v: ....A.. ...BCDEF <- t: ....A.. ...BCDEF
                 nes->nes_ppu.v_reg = (nes->nes_ppu.v_reg & (uint16_t)0xFBE0) | (nes->nes_ppu.t_reg & (uint16_t)0x041F);
             }
-            
+#if (NES_ENABLE_SOUND==1)
+            if (scanline % 66 == 65) nes_apu_frame(nes);
+#endif
 #if (NES_RAM_LACK == 1)
             if((frame_cnt % (NES_FRAME_SKIP+1))==0){
                 if (scanline == NES_HEIGHT/2-1){

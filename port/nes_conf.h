@@ -29,7 +29,7 @@
     extern "C" {
 #endif
 
-#define NES_USE_APU             0       /* use APU */
+#define NES_ENABLE_SOUND        0       /* enable sound */
 #define NES_USE_SRAM            0       /* use SRAM */
 
 #define NES_FRAME_SKIP          0       /* skip frames */
@@ -41,8 +41,8 @@
 
 
 
-#ifndef NES_USE_APU
-#define NES_USE_APU             1
+#ifndef NES_ENABLE_SOUND
+#define NES_ENABLE_SOUND             1
 #endif
 
 #ifndef NES_USE_FS

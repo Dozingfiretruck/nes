@@ -63,9 +63,12 @@ static uint8_t nes_read_cpu(nes_t* nes,uint16_t address){
             if (address == 0x4016 || address == 0x4017)
                 return nes_read_joypad(nes, address);
             else if (address < 0x4016){
+#if (NES_ENABLE_SOUND == 1)
                 return nes_read_apu_register(nes, address);
-            }else
+#endif
+            }else{
                 nes_printf("nes_read address %04X not sPport\n",address);
+            }
             return 0;
         case 3://$6000-$7FFF SRAM
 #if (NES_USE_SRAM == 1)
@@ -121,14 +124,18 @@ static void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
                     const uint8_t* src = nes_get_dma_address(nes,data);
                     memcpy(dst, src + len, len);
                     memcpy(dst + len, src, 256 - len);
-                } else 
+                } else {
                     memcpy(nes->nes_ppu.oam_data, nes_get_dma_address(nes,data), 256);
+                }
                 nes->nes_cpu.cycles += 513;
                 nes->nes_cpu.cycles += nes->nes_cpu.cycles & 1;
             }else if (address < 0x4016 || address == 0x4017){
+#if (NES_ENABLE_SOUND == 1)
                 nes_write_apu_register(nes, address,data);
-            }else
+#endif
+            }else{
                 nes_printf("nes_write address %04X not sPport\n",address);
+            }
             return;
         case 3://$6000-$7FFF SRAM
 #if (NES_USE_SRAM == 1)
@@ -1252,6 +1259,16 @@ void nes_cpu_reset(nes_t* nes){
 
     nes->nes_cpu.PC = nes_read_cpu(nes,NES_VERCTOR_RESET)|(uint16_t)nes_read_cpu(nes,NES_VERCTOR_RESET + 1) << 8;
     nes->nes_cpu.cycles = 7;
+}
+
+void nes_cpu_irq(nes_t* nes){
+    if (nes->nes_cpu.I==0){
+        NES_PUSHW(nes,nes->nes_cpu.PC-1);
+        NES_PUSH(nes,nes->nes_cpu.P);
+        nes->nes_cpu.I = 1;
+        nes->nes_cpu.PC = nes_read_cpu(nes,NES_VERCTOR_IRQBRK)|(uint16_t)nes_read_cpu(nes,NES_VERCTOR_IRQBRK + 1) << 8;
+    }
+    nes->nes_cpu.cycles += 7;
 }
 
 // https://www.nesdev.org/wiki/CPU_power_up_state#At_power-up

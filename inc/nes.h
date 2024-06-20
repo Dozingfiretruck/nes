@@ -48,7 +48,9 @@ typedef struct nes{
     nes_rom_info_t nes_rom;
     nes_cpu_t nes_cpu;
     nes_ppu_t nes_ppu;
+#if (NES_ENABLE_SOUND==1)
     nes_apu_t nes_apu;
+#endif
     nes_mapper_t nes_mapper;
     nes_color_t nes_draw_data[NES_DRAW_SIZE];
 } nes_t;

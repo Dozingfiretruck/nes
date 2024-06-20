@@ -194,7 +194,7 @@ static void sdl_event(nes_t *nes) {
     }
 }
 
-#if (NES_USE_APU == 1)
+#if (NES_ENABLE_SOUND == 1)
 
 static SDL_AudioDeviceID nes_audio_device;
 #define SDL_AUDIO_NUM_CHANNELS          (1)
@@ -221,16 +221,13 @@ int nes_initex(nes_t *nes){
         SDL_Log("Can not create window, %s", SDL_GetError());
         return 1;
     }
-
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     framebuffer = SDL_CreateTexture(renderer,
                                     SDL_PIXELFORMAT_ARGB8888,
                                     SDL_TEXTUREACCESS_STREAMING,
                                     NES_WIDTH,
                                     NES_HEIGHT);
-
-#if (NES_USE_APU == 1)
-
+#if (NES_ENABLE_SOUND == 1)
     SDL_AudioSpec desired = {
         .freq = NES_APU_SAMPLE_RATE,
         .format = AUDIO_U8,
@@ -239,15 +236,12 @@ int nes_initex(nes_t *nes){
         .callback = AudioCallback,
         .userdata = nes
     };
-
     nes_audio_device = SDL_OpenAudioDevice(NULL, SDL_FALSE, &desired, NULL, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE);
     if (!nes_audio_device) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't open audio: %s\n", SDL_GetError());
     }
     SDL_PauseAudioDevice(nes_audio_device, SDL_FALSE);
-
 #endif
-
     return 0;
 }
 

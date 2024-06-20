@@ -71,7 +71,7 @@ typedef struct {
         uint8_t control1;
     };
 
-    uint8_t timer_low;                  /*  Timer low (T) Low 8 bits of raw period */
+    uint8_t timer_low;                      /*  Timer low (T) Low 8 bits of raw period */
     union {
         struct {
             uint8_t timer_high:3;           /*  timer high High 3 bits of raw period */
@@ -79,6 +79,7 @@ typedef struct {
         };
         uint8_t control3;
     };
+    uint8_t length_counter;
 } pulse_t;
 
 // https://www.nesdev.org/wiki/APU#Triangle_($4008-$400B)
@@ -98,7 +99,7 @@ typedef struct {
         uint8_t control0;
     };
 
-    uint8_t timer_low;                  /*  Timer low Low 8 bits of raw period */
+    uint8_t timer_low;                      /*  Timer low Low 8 bits of raw period */
     union {
         struct {    
             uint8_t timer_high:3;           /*  timer high High 3 bits of raw period */
@@ -106,7 +107,7 @@ typedef struct {
         };
         uint8_t control3;
     };
-
+    uint8_t length_counter;
 } triangle_t;
 
 typedef struct {
@@ -133,6 +134,7 @@ typedef struct {
         };
         uint8_t control3;
     };
+    uint8_t length_counter;
 } noise_t;
 
 typedef struct {
@@ -154,8 +156,8 @@ typedef struct {
     };
     
 
-    uint8_t sample_address;             /*	Sample address (A) */
-    uint8_t sample_length;              /*	Sample length (L) */
+    uint8_t sample_address;                 /*	Sample address (A) */
+    uint8_t sample_length;                  /*	Sample length (L) */
 } dmc_t;
 
 // https://www.nesdev.org/wiki/APU#Registers
@@ -173,8 +175,8 @@ typedef struct nes_apu{
             uint8_t status_noise:1;         /*  write:Enable noise channels    read:length counter of noise */
             uint8_t status_dmc:1;           /*  write:Enable dmc channels      read:dmc active */
             uint8_t :1;
-            uint8_t frame_interrupt:1;      /*  DMC interrupt (I) only read */
-            uint8_t dmc_interrupt:1;        /*  frame interrupt (F) only read */
+            uint8_t frame_interrupt:1;      /*  frame interrupt (F) only read */
+            uint8_t dmc_interrupt:1;        /*  DMC interrupt (I) only read */
         };                                  
         uint8_t status;                     /*  Status ($4015) 
                                                 The status register is used to enable and disable individual channels, 
@@ -187,13 +189,16 @@ typedef struct nes_apu{
             uint8_t irq_inhibit_flag:1;     /*   IRQ inhibit flag (I)*/
             uint8_t mode:1;                 /*  Mode (M, 0 = 4-step, 1 = 5-step) */
         };
-        uint8_t frame_counter;                     //  Frame Counter ($4017)
+        uint8_t frame_counter;              //  Frame Counter ($4017)
     };
+
+    uint8_t clock_count;
     // sample_buffer: pulse1 pulse2 triangle noise dmc output
     uint8_t sample_buffer[5+1][NES_APU_SAMPLE_PER_SYNC];
 } nes_apu_t;
 
 void nes_apu_init(nes_t *nes);
+void nes_apu_frame(nes_t *nes);
 uint8_t nes_read_apu_register(nes_t *nes,uint16_t address);
 void nes_write_apu_register(nes_t* nes,uint16_t address,uint8_t data);
 
