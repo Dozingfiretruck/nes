@@ -11,8 +11,7 @@ on:
         - 'README_zh.md'
   pull_request:
     branches: [ "master" ]
-  release:
-    types: [published]
+
 jobs:
   build:
     strategy:
@@ -34,6 +33,7 @@ jobs:
           xmake-version: latest
       - name: build
         run: |
+          xrepo update-repo
           xmake -v -y
           cp build/macosx/${{ matrix.arch }}/release/nes nes-macos-${{ matrix.arch }}.app
 
@@ -41,20 +41,3 @@ jobs:
         with:
           name: nes-macos-${{ matrix.arch }}.app
           path: nes-macos-${{ matrix.arch }}.app
-
-      - uses: olegtarasov/get-tag@v2.1.3
-        id: tagName
-
-      - name: Publish file to release
-        if: github.event.action == 'published'
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./nes-macos-${{ matrix.arch }}.app
-          asset_name: nes-macos-${{ matrix.arch }}-${{ steps.tagName.outputs.tag }}.app
-          asset_content_type: application/zip
-
-
-
