@@ -56,11 +56,27 @@ The example is based on SDL2 for image and sound output, without special depende
 
 #### showcase
 
-![super_mario](./docs/super_mario.png)
+mapper 0:
 
-![contra](./docs/contra.png)
+|   Game    |                  showcase                  |
+| :---------: | :------------------------------------: |
+| Super Mario | ![super_mario](./docs/super_mario.png) |
 
 
+
+mapper 2:
+
+| Game |             showcase             |
+| :----: | :--------------------------: |
+| Contra1 | ![contra](./docs/Contra.png) |
+| 恶魔城1 | ![contra](./docs/Castlevania.png) |
+| 西游记1 |   ![contra](./docs/Journey.png)   |
+
+mapper 3:
+
+|   Game   |               showcase               |
+| :--------: | :------------------------------: |
+| MapleStory | ![contra](./docs/MapleStory.png) |
 
 #### Literature reference
 

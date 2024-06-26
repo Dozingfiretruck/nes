@@ -56,10 +56,27 @@ mapper 支持：0，2, 3
 
 #### 运行展示
 
-![super_mario](./docs/super_mario.png)
+mapper 0:
 
-![contra](./docs/contra.png)
+|   游戏名   |                  演示                  |
+| :--------: | :------------------------------------: |
+| 超级马里奥 | ![super_mario](./docs/super_mario.png) |
 
+
+
+mapper 2:
+
+| 游戏名  |               演示                |
+| :-----: | :-------------------------------: |
+| 魂斗罗1 |   ![contra](./docs/Contra.png)    |
+| 恶魔城1 | ![contra](./docs/Castlevania.png) |
+| 西游记1 |   ![contra](./docs/Journey.png)   |
+
+mapper 3:
+
+|      游戏名      |               演示               |
+| :--------------: | :------------------------------: |
+| 高桥名人的冒险岛 | ![contra](./docs/MapleStory.png) |
 
 #### 文献参考
 
