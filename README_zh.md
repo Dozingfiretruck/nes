@@ -68,15 +68,18 @@ mapper 2:
 
 | 游戏名  |               演示                |
 | :-----: | :-------------------------------: |
-| 魂斗罗1 |   ![contra](./docs/Contra.png)    |
-| 恶魔城1 | ![contra](./docs/Castlevania.png) |
-| 西游记1 |   ![contra](./docs/Journey.png)   |
+| 魂斗罗1 | ![Contra1](./docs/Contra1.png) |
+| 恶魔城1 | ![Castlevania](./docs/Castlevania.png) |
+| 西游记1 |   ![Journey](./docs/Journey.png)   |
+| 洛克人 | ![mega_man](./docs/mega_man.png) |
 
 mapper 3:
 
-|      游戏名      |               演示               |
-| :--------------: | :------------------------------: |
-| 高桥名人的冒险岛 | ![contra](./docs/MapleStory.png) |
+|      游戏名      |                 演示                 |
+| :--------------: | :----------------------------------: |
+| 高桥名人的冒险岛 | ![MapleStory](./docs/MapleStory.png) |
+
+
 
 #### 文献参考
 

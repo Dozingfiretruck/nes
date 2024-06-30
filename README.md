@@ -68,7 +68,7 @@ mapper 2:
 
 | Game |             showcase             |
 | :----: | :--------------------------: |
-| Contra1 | ![contra](./docs/Contra.png) |
+| Contra1 | ![contra](./docs/Contra1.png) |
 | 恶魔城1 | ![contra](./docs/Castlevania.png) |
 | 西游记1 |   ![contra](./docs/Journey.png)   |
 
