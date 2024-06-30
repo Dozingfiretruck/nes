@@ -63,23 +63,20 @@ nes_t* nes_load_file(const char* file_path ){
         }
         nes->nes_rom.prg_rom_size = ((nes_header_info.prg_rom_size_m << 8) & 0xF00) | nes_header_info.prg_rom_size_l;
         nes->nes_rom.chr_rom_size = ((nes_header_info.prg_rom_size_m << 8) & 0xF00) | nes_header_info.chr_rom_size_l;
-        if (nes_header_info.identifier==1){
-                uint8_t idx = 4;
-                uint8_t* nes_header = (uint8_t*)&nes_header_info;
-                nes->nes_rom.mapper_number = nes_header_info.mapper_number_l & 0x0F;
-                for (idx = 4; idx < 8 && nes_header[8+idx] == 0; ++idx);
-                if (idx==8){
-                    nes->nes_rom.mapper_number |= ((nes_header_info.mapper_number_m << 4) & 0xF0);
-                }
-                nes->nes_rom.prg_rom_size = nes_header_info.prg_rom_size_l;
-                nes->nes_rom.chr_rom_size = nes_header_info.chr_rom_size_l;
-        }else if (nes_header_info.identifier==2){
+        if (nes_header_info.identifier==2){
             nes->nes_rom.mapper_number = ((nes_header_info.mapper_number_h << 8) & 0xF00) | ((nes_header_info.mapper_number_m << 4) & 0xF0) | (nes_header_info.mapper_number_l & 0x0F);
             nes->nes_rom.prg_rom_size = ((nes_header_info.prg_rom_size_m << 8) & 0xF00) | nes_header_info.prg_rom_size_l;
             nes->nes_rom.chr_rom_size = ((nes_header_info.prg_rom_size_m << 8) & 0xF00) | nes_header_info.chr_rom_size_l;
         }else{
-            nes_printf("nes_load_file: unsupported rom format\n");
-            goto error;
+            uint8_t idx = 4;
+            uint8_t* nes_header = (uint8_t*)&nes_header_info;
+            nes->nes_rom.mapper_number = nes_header_info.mapper_number_l & 0x0F;
+            for (idx = 4; idx < 8 && nes_header[8+idx] == 0; ++idx);
+            if (idx==8){
+                nes->nes_rom.mapper_number |= ((nes_header_info.mapper_number_m << 4) & 0xF0);
+            }
+            nes->nes_rom.prg_rom_size = nes_header_info.prg_rom_size_l;
+            nes->nes_rom.chr_rom_size = nes_header_info.chr_rom_size_l;
         }
         nes->nes_rom.mirroring_type = (nes_header_info.mirroring);
         nes->nes_rom.four_screen = (nes_header_info.four_screen);
