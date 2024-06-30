@@ -32,6 +32,7 @@
 struct nes;
 typedef struct nes nes_t;
 
+/* INES:    https://www.nesdev.org/wiki/INES */
 /* NES 2.0: https://wiki.nesdev.org/w/index.php/NES_2.0 */
 #define TRAINER_SIZE            (0x200)
 #define PRG_ROM_UNIT_SIZE       (0x4000)
@@ -49,7 +50,7 @@ typedef struct {
     };
     struct {
         uint8_t console_type:2;         /*  D0-1  Console type   0: Nintendo Entertainment System/Family Computer 1: Nintendo Vs. System 2: Nintendo Playchoice 10 3: Extended Console Type */
-        uint8_t identifier2:2;          /*  D2-3  NES 2.0 identifier */
+        uint8_t identifier:2;           /*  D2-3  NES 2.0 identifier */
         uint8_t mapper_number_m:4;      /*  D4-7  Mapper Number D4..D7 */
     }; 
     struct {
