@@ -95,6 +95,9 @@ uint8_t nes_read_ppu_register(nes_t* nes,uint16_t address){
             nes->nes_ppu.STATUS_V = 0;
             nes->nes_ppu.w = 0;
             break;
+        case 3://OAM address ($2003) 
+            data = nes->nes_ppu.oam_addr;
+            break;
         case 4://OAM data ($2004) <> read/write
             data = nes->nes_ppu.oam_data[nes->nes_ppu.oam_addr];
             break;
