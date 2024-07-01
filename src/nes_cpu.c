@@ -73,8 +73,9 @@ static uint8_t nes_read_cpu(nes_t* nes,uint16_t address){
         case 3://$6000-$7FFF SRAM
 #if (NES_USE_SRAM == 1)
             return nes->nes_rom.sram[address & (uint16_t)0x1fff];
-#endif
+#else
             return 0;
+#endif
         case 4: case 5: case 6: case 7:
             return nes->nes_cpu.prg_banks[(address >> 13)-4][address & (uint16_t)0x1fff];
         default :
@@ -84,24 +85,24 @@ static uint8_t nes_read_cpu(nes_t* nes,uint16_t address){
 }
 
 static inline const uint8_t* nes_get_dma_address(nes_t* nes,uint8_t data) {
-    switch (data >> 5)
-    {
-    default:
-    case 1:
-        // PPU寄存器
-        nes_printf("PPU REG!");
-    case 2:
-        // 扩展区
-        nes_printf("TODO");
-    case 0:
-        // 系统内存
-        return nes->nes_cpu.cpu_ram + ((uint16_t)(data & 0x07) << 8);
-    // case 3:
-    //     // 存档 SRAM区
-    //     return famicom->save_ram + ((uint16_t)(data & 0x1f) << 8);
-    case 4: case 5: case 6: case 7:
-        // 高一位为1, [$8000, $10000) 程序PRG-ROM区
-        return nes->nes_cpu.prg_banks[data >> 4] + ((uint16_t)(data & 0x0f) << 8);
+    switch (data >> 5){
+        case 1:
+            nes_printf("PPU REG!");
+            return 0;
+        case 2:
+            nes_printf("TODO");
+            return 0;
+        case 0:
+            return nes->nes_cpu.cpu_ram + ((uint16_t)(data & 0x07) << 8);
+#if (NES_USE_SRAM == 1)
+        // case 3:
+        //     return famicom->save_ram + ((uint16_t)(data & 0x1f) << 8);
+#endif
+        case 4: case 5: case 6: case 7:// 高一位为1, [$8000, $10000) PRG-ROM
+            return nes->nes_cpu.prg_banks[data >> 4] + ((uint16_t)(data & 0x0f) << 8);
+        default:
+            nes_printf("nes_get_dma_address error %02X\n",data);
+            return 0;
     }
 }
 
@@ -128,7 +129,7 @@ static void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
                     memcpy(nes->nes_ppu.oam_data, nes_get_dma_address(nes,data), 256);
                 }
                 nes->nes_cpu.cycles += 513;
-                nes->nes_cpu.cycles += nes->nes_cpu.cycles & 1;
+                nes->nes_cpu.cycles += nes->nes_cpu.cycles & 1; //奇数周期需要sleep 514个CPU时钟周期
             }else if (address < 0x4016 || address == 0x4017){
 #if (NES_ENABLE_SOUND == 1)
                 nes_write_apu_register(nes, address,data);
@@ -144,7 +145,6 @@ static void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
             return;
         case 4: case 5: case 6: case 7:
             nes->nes_mapper.mapper_write(nes, address, data);
-            // nes->nes_cpu.prg_banks[(address >> 13)-4][address & (uint16_t)0x1fff] = data;
             return;
         default :
             nes_printf("nes_write_ppu_register error %04X %02X\n",address,data);
@@ -171,7 +171,7 @@ static void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
 */
 
 /*
-    #v:Immediate:Uses the 8-bit operand itself as the value for the operation, 
+    #v:Immediate: Uses the 8-bit operand itself as the value for the operation, 
                     rather than fetching a value from a memory address.
 */
 static uint16_t nes_imm(nes_t* nes){
@@ -321,8 +321,10 @@ static void nes_adc(nes_t* nes){
     const uint16_t result16 = nes->nes_cpu.A + src + nes->nes_cpu.C;
     nes->nes_cpu.C = result16 >> 8;
     const uint8_t result8 = (uint8_t)result16;
+
     if (!((nes->nes_cpu.A ^ src) & 0x80) && ((nes->nes_cpu.A ^ result8) & 0x80)) nes->nes_cpu.V = 1;
     else nes->nes_cpu.V = 0;
+
     nes->nes_cpu.A = result8;
     NES_CHECK_N(nes->nes_cpu.A);
     NES_CHECK_Z(nes->nes_cpu.A);
@@ -338,8 +340,10 @@ static void nes_sbc(nes_t* nes){
     const uint16_t result16 = nes->nes_cpu.A - src - !nes->nes_cpu.C;
     nes->nes_cpu.C = !(result16 >> 8);
     const uint8_t result8 = (uint8_t)result16;
+
     if (((nes->nes_cpu.A ^ src) & 0x80) && ((nes->nes_cpu.A ^ result8) & 0x80)) nes->nes_cpu.V = 1;
     else nes->nes_cpu.V = 0;
+
     nes->nes_cpu.A = result8;
     NES_CHECK_N(nes->nes_cpu.A);
     NES_CHECK_Z(nes->nes_cpu.A);
@@ -388,8 +392,7 @@ static void nes_cpy(nes_t* nes){
 */
 static void nes_dec(nes_t* nes){
     uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
-    uint8_t data = nes_read_cpu(nes,address);
-    data--;
+    uint8_t data = nes_read_cpu(nes,address)-1;
     nes_write_cpu(nes,address, data);
     NES_CHECK_N(data);
     NES_CHECK_Z(data);
@@ -422,8 +425,8 @@ static void nes_dey(nes_t* nes){
 */
 static void nes_inc(nes_t* nes){
     uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
-    uint8_t data = nes_read_cpu(nes,address);
-    nes_write_cpu(nes,address,++data);
+    uint8_t data = nes_read_cpu(nes,address)+1;
+    nes_write_cpu(nes,address,data);
     NES_CHECK_N(data);
     NES_CHECK_Z(data);
 }
@@ -456,15 +459,16 @@ static void nes_iny(nes_t* nes){
 static void nes_asl(nes_t* nes){
     if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode){
         uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
-        uint8_t value = nes_read_cpu(nes,address);
-        nes->nes_cpu.C = value >> 7;
+        uint16_t value = nes_read_cpu(nes,address);
         value <<= 1;
-        nes_write_cpu(nes,address,value);
+        nes->nes_cpu.C = value >> 8;
         NES_CHECK_N(value);
         NES_CHECK_Z(value);
+        nes_write_cpu(nes,address,(uint8_t)value);
     }else{
-        nes->nes_cpu.C = nes->nes_cpu.A >> 7;
-        nes->nes_cpu.A <<= 1;
+        uint16_t value = nes->nes_cpu.A << 1;
+        nes->nes_cpu.C = value >> 8;
+        nes->nes_cpu.A = (uint8_t)value;
         NES_CHECK_N(nes->nes_cpu.A);
         NES_CHECK_Z(nes->nes_cpu.A);
     }
@@ -478,19 +482,19 @@ static void nes_asl(nes_t* nes){
 static void nes_rol(nes_t* nes){
     if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode){
         uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
-        uint8_t saveflags=nes->nes_cpu.C;
+        uint8_t cflag=nes->nes_cpu.C;
         uint8_t value = nes_read_cpu(nes,address);
-        nes->nes_cpu.P= (nes->nes_cpu.P & 0xfe) | ((value>>7) & 0x01);
+        nes->nes_cpu.C = (value>>7) & 0x01;
         value <<= 1;
-        value |= saveflags;
-        nes_write_cpu(nes,address,value);
+        value |= cflag;
         NES_CHECK_N(value);
         NES_CHECK_Z(value);
+        nes_write_cpu(nes,address,value);
     }else{
-        uint8_t saveflags=nes->nes_cpu.C;
-        nes->nes_cpu.P= (nes->nes_cpu.P & 0xfe) | ((nes->nes_cpu.A>>7) & 0x01);
+        uint8_t cflag=nes->nes_cpu.C;
+        nes->nes_cpu.C = (nes->nes_cpu.A>>7) & 0x01;
         nes->nes_cpu.A <<= 1;
-        nes->nes_cpu.A |= saveflags;
+        nes->nes_cpu.A |= cflag;
         NES_CHECK_N(nes->nes_cpu.A);
         NES_CHECK_Z(nes->nes_cpu.A);
     }
@@ -507,9 +511,9 @@ static void nes_lsr(nes_t* nes){
         uint8_t value = nes_read_cpu(nes,address);
         nes->nes_cpu.C = value & 0x01;
         value >>= 1;
-        nes_write_cpu(nes,address,value);
         NES_CHECK_N(value);
         NES_CHECK_Z(value);
+        nes_write_cpu(nes,address,value);
     }else{
         nes->nes_cpu.C = nes->nes_cpu.A & 0x01;
         nes->nes_cpu.A >>= 1;
@@ -526,19 +530,19 @@ static void nes_lsr(nes_t* nes){
 static void nes_ror(nes_t* nes){
     if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) {
         uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
-        uint8_t saveflags=nes->nes_cpu.C;
+        uint8_t cflag=nes->nes_cpu.C;
         uint8_t value = nes_read_cpu(nes,address);
-        nes->nes_cpu.P= (nes->nes_cpu.P & 0xfe) | (value & 0x01);
+        nes->nes_cpu.C = value & 0x01;
         value >>= 1;
-        if (saveflags) value |= 0x80;
-        nes_write_cpu(nes,address,value);
+        value |= cflag << 7;
         NES_CHECK_N(value);
-        NES_CHECK_Z(value);  
+        NES_CHECK_Z(value);
+        nes_write_cpu(nes,address,value);
     }else{
-        uint8_t saveflags=nes->nes_cpu.C;
-        nes->nes_cpu.P= (nes->nes_cpu.P & 0xfe) | (nes->nes_cpu.A & 0x01);
+        uint8_t cflag=nes->nes_cpu.C;
+        nes->nes_cpu.C = nes->nes_cpu.A & 0x01;
         nes->nes_cpu.A >>= 1;
-        if (saveflags) nes->nes_cpu.A |= 0x80;
+        nes->nes_cpu.A |= cflag << 7;
         NES_CHECK_N(nes->nes_cpu.A);
         NES_CHECK_Z(nes->nes_cpu.A);
     }
@@ -697,7 +701,6 @@ static void nes_pha(nes_t* nes){
 */
 static void nes_plp(nes_t* nes){
     nes->nes_cpu.P = NES_POP(nes);
-    // nes->nes_cpu.B=0;
 }
 
 /*
@@ -706,7 +709,9 @@ static void nes_plp(nes_t* nes){
 
 */
 static void nes_php(nes_t* nes){
+    nes,nes->nes_cpu.B = 1;
     NES_PUSH(nes,nes->nes_cpu.P);
+    nes->nes_cpu.B = 0;
 }
 
 // Jump/Flag commands:
@@ -809,17 +814,16 @@ static void nes_beq(nes_t* nes){
 /*
     (S)-:=PC,P PC:=($FFFE)
     N  V  U  B  D  I  Z  C
-            1     1
+             1     1
 */
 static void nes_brk(nes_t* nes){
-    nes->nes_cpu.PC ++;
-    if (nes->nes_cpu.I==0){
-        NES_PUSHW(nes,nes->nes_cpu.PC-1);
-        NES_PUSH(nes,nes->nes_cpu.P);
-        // nes->nes_cpu.B = 1;
-        nes->nes_cpu.I = 1;
-        nes->nes_cpu.PC = nes_read_cpu(nes,NES_VERCTOR_IRQBRK)|(uint16_t)nes_read_cpu(nes,NES_VERCTOR_IRQBRK + 1) << 8;
-    }
+    nes->nes_cpu.PC++;
+    NES_PUSHW(nes,nes->nes_cpu.PC);
+    nes->nes_cpu.B = 1;
+    nes->nes_cpu.I = 1;
+    NES_PUSH(nes,nes->nes_cpu.P);
+    nes->nes_cpu.B = 0;
+    nes->nes_cpu.PC = nes_read_cpu(nes,NES_VERCTOR_IRQBRK)|(uint16_t)nes_read_cpu(nes,NES_VERCTOR_IRQBRK + 1) << 8;
 }
 
 /*
@@ -830,7 +834,6 @@ static void nes_brk(nes_t* nes){
 static void nes_rti(nes_t* nes){
     nes->nes_cpu.P = NES_POP(nes);
     nes->nes_cpu.U = 1;
-    nes->nes_cpu.B = 0;
     nes->nes_cpu.PC = (uint16_t)NES_POP(nes);
     nes->nes_cpu.PC |= (uint16_t)NES_POP(nes) << 8;
 }
@@ -876,8 +879,7 @@ static void nes_jmp(nes_t* nes){
 static void nes_bit(nes_t* nes){
     const uint8_t value = nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     NES_CHECK_Z(value & nes->nes_cpu.A);
-    if (value & (uint8_t)(1 << 6)) nes->nes_cpu.V = 1;
-    else nes->nes_cpu.V = 0;
+    nes->nes_cpu.V = (value>>6) & 1;
     NES_CHECK_N(value);
 }
 
@@ -893,7 +895,7 @@ static void nes_clc(nes_t* nes){
 /*
     C:=1
     N  V  U  B  D  I  Z  C
-                        1
+                         1
 */
 static void nes_sec(nes_t* nes){
     nes->nes_cpu.C=1;
@@ -920,7 +922,7 @@ static void nes_sed(nes_t* nes){
 /*
     I:=0
     N  V  U  B  D  I  Z  C
-                0      
+                   0      
 */
 static void nes_cli(nes_t* nes){
     nes->nes_cpu.I=0;
@@ -929,7 +931,7 @@ static void nes_cli(nes_t* nes){
 /*
     I:=1
     N  V  U  B  D  I  Z  C
-                1      
+                   1      
 */
 static void nes_sei(nes_t* nes){
     nes->nes_cpu.I=1;
@@ -938,7 +940,7 @@ static void nes_sei(nes_t* nes){
 /*
     V:=0
     N  V  U  B  D  I  Z  C
-    0                  
+       0                  
 */
 static void nes_clv(nes_t* nes){
     nes->nes_cpu.V=0;
@@ -957,9 +959,6 @@ static void nes_nop(nes_t* nes){
 
 /*
     {adr}:={adr}*2 A:=A or {adr}	
-    SLO (SLO) [ASO]
-    Shift left one bit in memory, then OR accumulator with memory. =
-    Status flags: N,Z,C
     N  V  U  B  D  I  Z  C
     *                 *  *
 */
@@ -977,9 +976,6 @@ static void nes_slo(nes_t* nes){
 
 /*
     {adr}:={adr}rol A:=A and {adr}
-    RLA (RLA) [RLA]
-    Rotate one bit left in memory, then AND accumulator with memory. Status
-    flags: N,Z,C
     N  V  U  B  D  I  Z  C
     *                 *  *
 */
@@ -999,9 +995,6 @@ static void nes_rla(nes_t* nes){
 
 /*
     {adr}:={adr}/2 A:=A exor {adr}
-    SRE (SRE) [LSE]
-    Shift right one bit in memory, then EOR accumulator with memory. Status
-    flags: N,Z,C
     N  V  U  B  D  I  Z  C
     *                 *  *
 */
@@ -1019,10 +1012,6 @@ static void nes_sre(nes_t* nes){
 
 /*
     {adr}:={adr}ror A:=A adc {adr}
-    RRA (RRA) [RRA]
-    Rotate one bit right in memory, then add memory to accumulator (with
-    carry).
-    Status flags: N,V,Z,C
     N  V  U  B  D  I  Z  C
     *  *              *  *
 */
@@ -1047,9 +1036,8 @@ static void nes_rra(nes_t* nes){
 
 /*
     {adr}:=A&X
-    AAX (SAX) [AXS]
-    AND X register with accumulator and store result in memory. Status
-    flags: N,Z
+    N  V  U  B  D  I  Z  C
+
 */
 static void nes_sax(nes_t* nes){
     nes_write_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes),nes->nes_cpu.A & nes->nes_cpu.X);
@@ -1068,9 +1056,6 @@ static void nes_lax(nes_t* nes){
 
 /*
     {adr}:={adr}-1 A-{adr}
-    DCP (DCP) [DCM]
-    Subtract 1 from memory (without borrow).
-    Status flags: C
     N  V  U  B  D  I  Z  C
     *                 *  *
 */
@@ -1087,9 +1072,6 @@ static void nes_dcp(nes_t* nes){
 
 /*
     {adr}:={adr}+1 A:=A-{adr}
-    ISC (ISB) [INS]
-    Increase memory by one, then subtract memory from accu-mulator (with
-    borrow). Status flags: N,V,Z,C
     N  V  U  B  D  I  Z  C
     *  *              *  *
 */
@@ -1110,9 +1092,6 @@ static void nes_isc(nes_t* nes){
 
 /*
     A:=A&#{imm}
-    AAC (ANC) [ANC]
-    AND byte with accumulator. If result is negative then carry is set.
-    Status flags: N,Z,C
     N  V  U  B  D  I  Z  C
     *                 *  *
 */
@@ -1122,9 +1101,6 @@ static void nes_anc(nes_t* nes){
 
 /*
     A:=(A&#{imm})/2
-    ASR (ASR) [ALR]
-    AND byte with accumulator, then shift right one bit in accumu-lator.
-    Status flags: N,Z,C
     N  V  U  B  D  I  Z  C
     *                 *  *
 */
@@ -1134,14 +1110,6 @@ static void nes_alr(nes_t* nes){
 
 /*
     A:=(A&#{imm})/2
-    ARR (ARR) [ARR]
-    AND byte with accumulator, then rotate one bit right in accu-mulator and
-    check bit 5 and 6:
-    If both bits are 1: set C, clear V.
-    If both bits are 0: clear C and V.
-    If only bit 5 is 1: set V, clear C.
-    If only bit 6 is 1: set C and V.
-    arr
     N  V  U  B  D  I  Z  C
     *  *              *  *
 */
@@ -1151,9 +1119,6 @@ static void nes_arr(nes_t* nes){
 
 /*
     A:=X&#{imm}
-    XAA (ANE) [XAA]
-    Exact operation unknown. Read the referenced documents for more
-    information and observations.
     N  V  U  B  D  I  Z  C
     *                 *  
 */
@@ -1163,9 +1128,6 @@ static void nes_xaa(nes_t* nes){
 
 /*
     X:=A&X-#{imm}
-    AXS (SBX) [SAX]
-    AND X register with accumulator and store result in X regis-ter, then
-    subtract byte from X register (without borrow).
     N  V  U  B  D  I  Z  C
     *                 *  *
 */
@@ -1175,8 +1137,6 @@ static void nes_axs(nes_t* nes){
 
 /*
     {adr}:=A&X&H
-    AXA (SHA) [AXA]
-    AND X register with accumulator then AND result with 7 and store inmemory. 
     N  V  U  B  D  I  Z  C
 
 */
@@ -1186,10 +1146,6 @@ static void nes_ahx(nes_t* nes){
 
 /*
     {adr}:=Y&H
-    SYA (SHY) [SAY]
-    AND Y register with the high byte of the target address of the argument
-    + 1. Store the result in memory.
-    M =3D Y AND HIGH(arg) + 1
     N  V  U  B  D  I  Z  C
 
 */
@@ -1199,10 +1155,6 @@ static void nes_shy(nes_t* nes){
 
 /*
     {adr}:=X&H
-    SXA (SHX) [XAS]
-    AND X register with the high byte of the target address of the argument
-    + 1. Store the result in memory.
-    M =3D X AND HIGH(arg) + 1
     N  V  U  B  D  I  Z  C
 
 */
@@ -1212,11 +1164,6 @@ static void nes_shx(nes_t* nes){
 
 /*
     S:=A&X {adr}:=S&H
-    XAS (SHS) [TAS]
-    AND X register with accumulator and store result in stack pointer, then
-    AND stack pointer with the high byte of the target address of the
-    argument + 1. Store result in memory.
-    S =3D X AND A, M =3D S AND HIGH(arg) + 1
     N  V  U  B  D  I  Z  C
 
 */
@@ -1226,9 +1173,6 @@ static void nes_tas(nes_t* nes){
 
 /*
     A,X,S:={adr}&S
-    LAR (LAE) [LAS]
-    AND memory with stack pointer, transfer result to accu-mulator, X
-    register and stack pointer.
     N  V  U  B  D  I  Z  C
     *                 *  
 */
@@ -1245,8 +1189,9 @@ static void nes_las(nes_t* nes){
 
 void nes_nmi(nes_t* nes){
     NES_PUSHW(nes,nes->nes_cpu.PC);
-    NES_PUSH(nes,nes->nes_cpu.P);
+    nes->nes_cpu.B = 0;
     nes->nes_cpu.I = 1;
+    NES_PUSH(nes,nes->nes_cpu.P);
     nes->nes_cpu.PC = nes_read_cpu(nes,NES_VERCTOR_NMI)|(uint16_t)nes_read_cpu(nes,NES_VERCTOR_NMI + 1) << 8;
     nes->nes_cpu.cycles += 7;
 }
@@ -1263,12 +1208,13 @@ void nes_cpu_reset(nes_t* nes){
 
 void nes_cpu_irq(nes_t* nes){
     if (nes->nes_cpu.I==0){
-        NES_PUSHW(nes,nes->nes_cpu.PC-1);
+        NES_PUSHW(nes,nes->nes_cpu.PC);
         NES_PUSH(nes,nes->nes_cpu.P);
+        // nes->nes_cpu.B = 0;
         nes->nes_cpu.I = 1;
         nes->nes_cpu.PC = nes_read_cpu(nes,NES_VERCTOR_IRQBRK)|(uint16_t)nes_read_cpu(nes,NES_VERCTOR_IRQBRK + 1) << 8;
+        nes->nes_cpu.cycles += 7;
     }
-    nes->nes_cpu.cycles += 7;
 }
 
 // https://www.nesdev.org/wiki/CPU_power_up_state#At_power-up
@@ -1276,8 +1222,8 @@ void nes_cpu_init(nes_t* nes){
     // Status: Carry, Zero, Decimal, Overflow, Negative clear. Interrupt Disable set.
     // A, X, Y = 0
     nes->nes_cpu.A = nes->nes_cpu.X = nes->nes_cpu.Y = nes->nes_cpu.P = 0;
-    nes->nes_cpu.U = nes->nes_cpu.I = nes->nes_cpu.B = 1;
-    nes->nes_cpu.SP = 0x00;             // reset: S = $00- $03 = $FD
+    nes->nes_cpu.U = nes->nes_cpu.I = 1;
+    nes->nes_cpu.SP = 0x00;             // reset: S = $00-$03 = $FD
     nes_write_cpu(nes,0x4017, 0x00);    // $4017 = $00 (frame irq enabled)
     nes_write_cpu(nes,0x4015, 0x00);    // $4015 = $00 (all channels disabled)
     // $4000-$400F = $00
