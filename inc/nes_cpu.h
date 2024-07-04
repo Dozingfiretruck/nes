@@ -79,8 +79,8 @@ typedef struct nes_cpu{
     uint8_t A;                          /*  Accumulator */
     uint8_t X;                          /*  Indexes X */
     uint8_t Y;                          /*  Indexes Y */
-    uint16_t PC;                        /*  Program Counter */
     uint8_t SP;                         /*  Stack Pointer */
+    uint16_t PC;                        /*  Program Counter */
     union {
         struct {
             uint8_t C:1;                /*  carry flag (1 on unsigned overflow) */

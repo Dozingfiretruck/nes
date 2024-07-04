@@ -86,23 +86,13 @@ static uint8_t nes_read_cpu(nes_t* nes,uint16_t address){
 
 static inline const uint8_t* nes_get_dma_address(nes_t* nes,uint8_t data) {
     switch (data >> 5){
-        case 1:
-            nes_printf("PPU REG!");
-            return 0;
-        case 2:
-            nes_printf("TODO");
-            return 0;
         case 0:
             return nes->nes_cpu.cpu_ram + ((uint16_t)(data & 0x07) << 8);
-#if (NES_USE_SRAM == 1)
-        // case 3:
-        //     return famicom->save_ram + ((uint16_t)(data & 0x1f) << 8);
-#endif
         case 4: case 5: case 6: case 7:// 高一位为1, [$8000, $10000) PRG-ROM
-            return nes->nes_cpu.prg_banks[data >> 4] + ((uint16_t)(data & 0x0f) << 8);
+            return nes->nes_cpu.prg_banks[(data >> 4)&0x03] + ((uint16_t)(data & 0x0f) << 8);
         default:
             nes_printf("nes_get_dma_address error %02X\n",data);
-            return 0;
+            return NULL;
     }
 }
 
@@ -1498,6 +1488,9 @@ static nes_opcode_t nes_opcode_table[] = {
 
 void nes_opcode(nes_t* nes,uint16_t ticks){
     while (ticks > nes->nes_cpu.cycles){
+        // nes_printf("A:0x%02X X:0x%02X SP:0x%02X PC:0x%04X \nP:0x%02X \nC:0x%02X Z:0x%02X I:0x%02X D:0x%02X B:0x%02X V:0x%02X N:0x%02X \n",
+        //             nes->nes_cpu.A,nes->nes_cpu.X,nes->nes_cpu.Y,nes->nes_cpu.SP,nes->nes_cpu.PC,
+        //             nes->nes_cpu.P,nes->nes_cpu.C,nes->nes_cpu.Z,nes->nes_cpu.I,nes->nes_cpu.D,nes->nes_cpu.B,nes->nes_cpu.V,nes->nes_cpu.N);
         nes->nes_cpu.opcode = nes_read_cpu(nes,nes->nes_cpu.PC++);
         nes_opcode_table[nes->nes_cpu.opcode].instruction(nes);
         nes->nes_cpu.cycles += nes_opcode_table[nes->nes_cpu.opcode].ticks;

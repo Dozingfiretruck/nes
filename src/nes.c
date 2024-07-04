@@ -290,16 +290,19 @@ sprite0:
 
 
 void nes_run(nes_t* nes){
-    // nes_printf("mapper:%03d\n",nes->nes_rom.mapper_number);
-    // nes_printf("prg_rom_size:%d*16kb\n",nes->nes_rom.prg_rom_size);
-    // nes_printf("chr_rom_size:%d*8kb\n",nes->nes_rom.chr_rom_size);
+    nes_printf("mapper:%03d\n",nes->nes_rom.mapper_number);
+    nes_printf("prg_rom_size:%d*16kb\n",nes->nes_rom.prg_rom_size);
+    nes_printf("chr_rom_size:%d*8kb\n",nes->nes_rom.chr_rom_size);
+    nes_printf("mirroring_type:%d\n",nes->nes_rom.mirroring_type);
+    nes_printf("four_screen:%d\n",nes->nes_rom.four_screen);
+    // nes_printf("save_ram:%d\n",nes->nes_rom.save_ram);
+
     nes_cpu_reset(nes);
-    // nes->nes_cpu.PC = 0xC000;
-    // printf("nes->nes_cpu.PC %02X",nes->nes_cpu.PC);
     uint64_t frame_cnt = 0;
     uint16_t scanline = 0;
 
     while (!nes->nes_quit){
+        // nes_printf("frame_cnt:%d\n",frame_cnt);
         frame_cnt++;
         nes_palette_generate(nes);
 
