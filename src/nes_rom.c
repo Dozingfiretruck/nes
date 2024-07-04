@@ -62,19 +62,13 @@ nes_t* nes_load_file(const char* file_path ){
 #endif
         }
         nes->nes_rom.prg_rom_size = ((nes_header_info.prg_rom_size_m << 8) & 0xF00) | nes_header_info.prg_rom_size_l;
-        nes->nes_rom.chr_rom_size = ((nes_header_info.prg_rom_size_m << 8) & 0xF00) | nes_header_info.chr_rom_size_l;
+        nes->nes_rom.chr_rom_size = ((nes_header_info.chr_rom_size_m << 8) & 0xF00) | nes_header_info.chr_rom_size_l;
         if (nes_header_info.identifier==2){
             nes->nes_rom.mapper_number = ((nes_header_info.mapper_number_h << 8) & 0xF00) | ((nes_header_info.mapper_number_m << 4) & 0xF0) | (nes_header_info.mapper_number_l & 0x0F);
             nes->nes_rom.prg_rom_size = ((nes_header_info.prg_rom_size_m << 8) & 0xF00) | nes_header_info.prg_rom_size_l;
-            nes->nes_rom.chr_rom_size = ((nes_header_info.prg_rom_size_m << 8) & 0xF00) | nes_header_info.chr_rom_size_l;
+            nes->nes_rom.chr_rom_size = ((nes_header_info.chr_rom_size_m << 8) & 0xF00) | nes_header_info.chr_rom_size_l;
         }else{
-            uint8_t idx = 4;
-            uint8_t* nes_header = (uint8_t*)&nes_header_info;
             nes->nes_rom.mapper_number = nes_header_info.mapper_number_l & 0x0F;
-            for (idx = 4; idx < 8 && nes_header[8+idx] == 0; ++idx);
-            if (idx==8){
-                nes->nes_rom.mapper_number |= ((nes_header_info.mapper_number_m << 4) & 0xF0);
-            }
             nes->nes_rom.prg_rom_size = nes_header_info.prg_rom_size_l;
             nes->nes_rom.chr_rom_size = nes_header_info.chr_rom_size_l;
         }
@@ -98,10 +92,6 @@ nes_t* nes_load_file(const char* file_path ){
                 goto error;
             }
         }
-
-        nes_printf("nes_load_rom: prg_rom_size: %d, chr_rom_size: %d, mapper_number: %d, mirroring_type: %d, four_screen: %d, save_ram: %d\n", 
-                                    nes->nes_rom.prg_rom_size, nes->nes_rom.chr_rom_size, nes->nes_rom.mapper_number, nes->nes_rom.mirroring_type, 
-                                    nes->nes_rom.four_screen, nes->nes_rom.save_ram);
     }else{
         goto error;
     }
@@ -167,9 +157,7 @@ nes_t* nes_load_rom(const uint8_t* nes_rom){
         nes->nes_rom.mirroring_type = (nes_header_info->mirroring);
         nes->nes_rom.four_screen = (nes_header_info->four_screen);
         nes->nes_rom.save_ram = (nes_header_info->save);
-        nes_printf("nes_load_rom: prg_rom_size: %d, chr_rom_size: %d, mapper_number: %d, mirroring_type: %d, four_screen: %d, save_ram: %d\n", 
-                                    nes->nes_rom.prg_rom_size, nes->nes_rom.chr_rom_size, nes->nes_rom.mapper_number, nes->nes_rom.mirroring_type, 
-                                    nes->nes_rom.four_screen, nes->nes_rom.save_ram);
+
         nes->nes_rom.prg_rom = nes_bin;
         nes_bin += PRG_ROM_UNIT_SIZE * nes->nes_rom.prg_rom_size;
 
