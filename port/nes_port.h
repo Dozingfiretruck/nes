@@ -37,9 +37,9 @@
 
 /* log */
 #ifdef __DEBUG__
-#define nes_printf(...)  printf(__VA_ARGS__)
+#define nes_printf(format,...)  printf("%s " format,__func__,##__VA_ARGS__)
 #else
-#define nes_printf(...)
+#define nes_printf(format,...)
 #endif
 
 /* memory */
@@ -50,19 +50,20 @@ void *nes_memset(void *str, int c, size_t n);
 int nes_memcmp(const void *str1, const void *str2, size_t n);
 
 #if (NES_USE_FS == 1)
+
 /* io */
-FILE *nes_fopen( const char * filename, const char * mode );
-size_t nes_fread(void *ptr, size_t size_of_elements, size_t number_of_elements, FILE *a_file);
+FILE *nes_fopen(const char * filename, const char * mode );
+size_t nes_fread(void *ptr, size_t size, size_t nmemb, FILE *stream);
+size_t nes_fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream);
 int nes_fseek(FILE *stream, long int offset, int whence);
-int nes_fclose( FILE *fp );
+int nes_fclose(FILE *stream );
+
 #endif
 
-void nes_wait(uint32_t ms);
-
-// void nes_frame(void);
+void nes_frame(void);
 
 int nes_draw(int x1, int y1, int x2, int y2, nes_color_t* color_data);
-
+int nes_sound_output(uint8_t *buffer, size_t len);
 
 #ifdef __cplusplus          
     }

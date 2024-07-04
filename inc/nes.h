@@ -40,6 +40,8 @@
 #define NES_WIDTH               256
 #define NES_HEIGHT              240
 
+#define NES_CPU_CLOCK_FREQ      (1789773)
+
 #define NES_OK                  0 
 #define NES_ERROR               -1
 
@@ -63,7 +65,6 @@ int nes_initex(nes_t* nes);
 int nes_deinitex(nes_t* nes);
 
 void nes_run(nes_t* nes);
-void nes_frame(nes_t* nes);
 
 #ifdef __cplusplus          
     }

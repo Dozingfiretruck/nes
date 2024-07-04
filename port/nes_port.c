@@ -49,25 +49,29 @@ int nes_memcmp(const void *str1, const void *str2, size_t n){
 
 #if (NES_USE_FS == 1)
 /* io */
-FILE *nes_fopen( const char * filename, const char * mode ){
+FILE *nes_fopen(const char * filename, const char * mode ){
     return fopen(filename,mode);
 }
 
-size_t nes_fread(void *ptr, size_t size_of_elements, size_t number_of_elements, FILE *a_file){
-    return fread(ptr, size_of_elements, number_of_elements,a_file);
+size_t nes_fread(void *ptr, size_t size, size_t nmemb, FILE *stream){
+    return fread(ptr, size, nmemb,stream);
+}
+
+size_t nes_fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream){
+    return fwrite(ptr, size, nmemb,stream);
 }
 
 int nes_fseek(FILE *stream, long int offset, int whence){
     return fseek(stream,offset,whence);
 }
 
-int nes_fclose( FILE *fp ){
-    return fclose(fp);
+int nes_fclose(FILE *stream ){
+    return fclose(stream);
 }
 #endif
 
 /* wait */
-void nes_wait(uint32_t ms){
+static void nes_wait(uint32_t ms){
     SDL_Delay(ms);
 }
 
@@ -199,27 +203,37 @@ static void sdl_event(nes_t *nes) {
 static SDL_AudioDeviceID nes_audio_device;
 #define SDL_AUDIO_NUM_CHANNELS          (1)
 
+
+static uint8_t apu_output = 0;
 static void AudioCallback(void* userdata, Uint8* stream, int len) {
     nes_t *nes = (nes_t*)userdata;
-    nes_memcpy(stream, &nes->nes_apu.sample_buffer[5] , len);
+    if (apu_output){
+        nes_memcpy(stream, &nes->nes_apu.sample_buffer , NES_APU_SAMPLE_PER_SYNC);
+        apu_output = 0;
+    }
+}
+
+int nes_sound_output(uint8_t *buffer, size_t len){
+    apu_output = 1;
+    return 0;
 }
 #endif
 
 int nes_initex(nes_t *nes){
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_JOYSTICK| SDL_INIT_TIMER)) {
         SDL_Log("Can not init video, %s", SDL_GetError());
-        return 1;
+        return -1;
     }
     window = SDL_CreateWindow(
             NES_NAME,
             SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED,
-            NES_WIDTH * 2, NES_HEIGHT * 2,      // 二倍分辨率
+            NES_WIDTH*2, NES_HEIGHT*2,      // 二倍分辨率
             SDL_WINDOW_SHOWN|SDL_WINDOW_ALLOW_HIGHDPI
     );
     if (window == NULL) {
         SDL_Log("Can not create window, %s", SDL_GetError());
-        return 1;
+        return -1;
     }
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     framebuffer = SDL_CreateTexture(renderer,
@@ -274,4 +288,5 @@ void nes_frame(nes_t* nes){
     sdl_event(nes);
     nes_wait(FRAMES_PER_SECOND);
 }
+
 
