@@ -282,7 +282,7 @@ int nes_draw(int x1, int y1, int x2, int y2, nes_color_t* color_data){
 
 #define FRAMES_PER_SECOND   1000/60
 
-void nes_frame(void){
+void nes_frame(nes_t* nes){
     SDL_RenderCopy(renderer, framebuffer, NULL, NULL);
     SDL_RenderPresent(renderer);
     sdl_event(nes);
