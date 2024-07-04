@@ -60,7 +60,7 @@ int nes_fclose(FILE *stream );
 
 #endif
 
-void nes_frame(nes_t* nes);
+void nes_frame(void);
 
 int nes_draw(int x1, int y1, int x2, int y2, nes_color_t* color_data);
 int nes_sound_output(uint8_t *buffer, size_t len);
