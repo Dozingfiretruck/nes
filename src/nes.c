@@ -25,8 +25,6 @@
 
 #include "nes.h"
 
-#define NES_PPU_CPU_CLOCKS		113
-
 int nes_init(nes_t *nes){
     nes_initex(nes);
     nes_cpu_init(nes);
@@ -111,11 +109,13 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
     uint8_t sprite_size = nes->nes_ppu.CTRL_H?16:8;
     
     for (uint8_t i = 63; i > 0 ; i--){
-        if (nes->nes_ppu.sprite_info[i].y >= 0xEF)
+        if (nes->nes_ppu.sprite_info[i].y >= 0xEF){
             continue;
+        }
         uint8_t sprite_y = (uint8_t)(nes->nes_ppu.sprite_info[i].y + 1);
-        if (scanline < sprite_y || scanline >= sprite_y + sprite_size)
+        if (scanline < sprite_y || scanline >= sprite_y + sprite_size){
             continue;
+        }
         sprite_number ++;
         if(sprite_number > 8 ){
             nes->nes_ppu.STATUS_O = 1;
@@ -377,7 +377,7 @@ void nes_run(nes_t* nes){
 
         nes->nes_ppu.STATUS_V = 1;// Set VBlank flag
         if (nes->nes_ppu.CTRL_V) {
-            nes_nmi(nes);
+            nes->nes_cpu.irq_nmi=1;
         }
         for(; scanline < 261; scanline++){ // 241-260行 垂直空白行 x20
             nes_opcode(nes,NES_PPU_CPU_CLOCKS);

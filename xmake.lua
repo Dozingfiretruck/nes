@@ -4,12 +4,12 @@ set_xmakever("2.9.2")
 add_rules("mode.debug", "mode.release")
 
 if is_mode("debug") then
+    set_symbols("debug")
     set_optimize("none")
     add_defines("__DEBUG__")
-    set_symbols("debug")
-else 
-    set_symbols("hidden")
+else
     set_strip("all")
+    set_symbols("hidden")
     set_optimize("fastest")
 end
 

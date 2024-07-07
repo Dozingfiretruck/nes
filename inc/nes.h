@@ -42,6 +42,9 @@
 
 #define NES_CPU_CLOCK_FREQ      (1789773)
 
+// https://www.nesdev.org/w/images/default/4/4f/Ppu.svg
+#define NES_PPU_CPU_CLOCKS		113     // 113 = 341/3
+
 #define NES_OK                  0 
 #define NES_ERROR               -1
 
