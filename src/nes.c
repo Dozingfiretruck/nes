@@ -44,10 +44,10 @@ int nes_deinit(nes_t *nes){
 extern nes_color_t nes_palette[];
 
 static inline void nes_palette_generate(nes_t* nes){
-    for (size_t i = 0; i < 32; i++) {
+    for (uint8_t i = 0; i < 32; i++) {
         nes->nes_ppu.palette[i] = nes_palette[nes->nes_ppu.palette_indexes[i]];
     }
-    for (size_t i = 1; i < 8; i++){
+    for (uint8_t i = 1; i < 8; i++){
         nes->nes_ppu.palette[4 * i] = nes->nes_ppu.palette[0];
     }
 }
@@ -60,12 +60,12 @@ static void nes_render_background_line(nes_t* nes,uint16_t scanline,nes_color_t*
     const uint8_t tile_y = (const uint8_t)nes->nes_ppu.v.coarse_y;
     uint8_t nametable_id = (uint8_t)nes->nes_ppu.v.nametable;
     for (uint8_t tile_x = dx; tile_x < 32; tile_x++){
-        uint32_t pattern_id = nes->nes_ppu.name_table[nametable_id][tile_x + (tile_y << 5)];
+        const uint32_t pattern_id = nes->nes_ppu.name_table[nametable_id][tile_x + (tile_y << 5)];
         const uint8_t* bit0_p = nes->nes_ppu.pattern_table[nes->nes_ppu.CTRL_B ? 4 : 0] + pattern_id * 16;
         const uint8_t* bit1_p = bit0_p + 8;
         const uint8_t bit0 = bit0_p[dy];
         const uint8_t bit1 = bit1_p[dy];
-        uint8_t attribute = nes->nes_ppu.name_table[nametable_id][960 + ((tile_y >> 2) << 3) + (tile_x >> 2)];
+        const uint8_t attribute = nes->nes_ppu.name_table[nametable_id][960 + ((tile_y >> 2) << 3) + (tile_x >> 2)];
         // 1:D4-D5/D6-D7 0:D0-D1/D2-D3
         // 1:D2-D3/D6-D7 0:D0-D1/D4-D5
         const uint8_t high_bit = ((attribute >> (((tile_y & 2) << 1) | (tile_x & 2))) & 3) << 2;
@@ -78,12 +78,12 @@ static void nes_render_background_line(nes_t* nes,uint16_t scanline,nes_color_t*
     }
     nametable_id ^= nes->nes_rom.mirroring_type ? 1:2;
     for (uint8_t tile_x = 0; tile_x <= dx; tile_x++){
-        uint32_t pattern_id = nes->nes_ppu.name_table[nametable_id][tile_x + (tile_y << 5)];
+        const uint32_t pattern_id = nes->nes_ppu.name_table[nametable_id][tile_x + (tile_y << 5)];
         const uint8_t* bit0_p = nes->nes_ppu.pattern_table[nes->nes_ppu.CTRL_B ? 4 : 0] + pattern_id * 16;
         const uint8_t* bit1_p = bit0_p + 8;
         const uint8_t bit0 = bit0_p[dy];
         const uint8_t bit1 = bit1_p[dy];
-        uint8_t attribute = nes->nes_ppu.name_table[nametable_id][960 + ((tile_y >> 2) << 3) + (tile_x >> 2)];
+        const uint8_t attribute = nes->nes_ppu.name_table[nametable_id][960 + ((tile_y >> 2) << 3) + (tile_x >> 2)];
         // 1:D4-D5/D6-D7 0:D0-D1/D2-D3
         // 1:D2-D3/D6-D7 0:D0-D1/D4-D5
         const uint8_t high_bit = ((attribute >> (((tile_y & 2) << 1) | (tile_x & 2))) & 3) << 2;
@@ -95,8 +95,8 @@ static void nes_render_background_line(nes_t* nes,uint16_t scanline,nes_color_t*
                 break;
         }
         for (; m >= skew; m--){
-            uint8_t low_bit = ((bit0 >> m) & 0x01) | ((bit1 >> m)<<1 & 0x02);
-            uint8_t palette_index = (high_bit & 0x0c) | low_bit;
+            const uint8_t low_bit = ((bit0 >> m) & 0x01) | ((bit1 >> m)<<1 & 0x02);
+            const uint8_t palette_index = (high_bit & 0x0c) | low_bit;
             draw_data[p++] = nes->nes_ppu.background_palette[palette_index];
         }
         m = 7;
@@ -104,9 +104,9 @@ static void nes_render_background_line(nes_t* nes,uint16_t scanline,nes_color_t*
 }
 
 static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* draw_data){
-    nes_color_t background_color = nes->nes_ppu.background_palette[0];
+    const nes_color_t background_color = nes->nes_ppu.background_palette[0];
     uint8_t sprite_number = 0;
-    uint8_t sprite_size = nes->nes_ppu.CTRL_H?16:8;
+    const uint8_t sprite_size = nes->nes_ppu.CTRL_H?16:8;
     
     for (uint8_t i = 63; i > 0 ; i--){
         if (nes->nes_ppu.sprite_info[i].y >= 0xEF){
@@ -156,8 +156,8 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
         uint8_t p = nes->nes_ppu.sprite_info[i].x;
         if (nes->nes_ppu.sprite_info[i].flip_h){
             for (int8_t m = 0; m <= 7; m++){
-                uint8_t low_bit = ((sprite_bit0 >> m) & 0x01) | ((sprite_bit1 >> m)<<1 & 0x02);
-                uint8_t palette_index = (nes->nes_ppu.sprite_info[i].sprite_palette << 2) | low_bit;
+                const uint8_t low_bit = ((sprite_bit0 >> m) & 0x01) | ((sprite_bit1 >> m)<<1 & 0x02);
+                const uint8_t palette_index = (nes->nes_ppu.sprite_info[i].sprite_palette << 2) | low_bit;
                 if (palette_index%4 != 0){
                     if (nes->nes_ppu.sprite_info[i].priority){
                         if (draw_data[p] == background_color){
@@ -173,8 +173,8 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
             }
         }else{
             for (int8_t m = 7; m >= 0; m--){
-                uint8_t low_bit = ((sprite_bit0 >> m) & 0x01) | ((sprite_bit1 >> m)<<1 & 0x02);
-                uint8_t palette_index = (nes->nes_ppu.sprite_info[i].sprite_palette << 2) | low_bit;
+                const uint8_t low_bit = ((sprite_bit0 >> m) & 0x01) | ((sprite_bit1 >> m)<<1 & 0x02);
+                const uint8_t palette_index = (nes->nes_ppu.sprite_info[i].sprite_palette << 2) | low_bit;
                 if (palette_index%4 != 0){
                     if (nes->nes_ppu.sprite_info[i].priority){
                         if (draw_data[p] == background_color){
@@ -191,10 +191,9 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
         }
     }
 sprite0:
-    // sprite 0
     if (nes->nes_ppu.sprite_info[0].y >= 0xEF)
         return;
-    uint8_t sprite_y = (uint8_t)(nes->nes_ppu.sprite_info[0].y + 1);
+    const uint8_t sprite_y = (uint8_t)(nes->nes_ppu.sprite_info[0].y + 1);
     if (scanline < sprite_y || scanline >= sprite_y + sprite_size)
         return;
     sprite_number ++;
@@ -235,13 +234,13 @@ sprite0:
 
     const uint8_t sprite_date = sprite_bit0 | sprite_bit1;
     if (sprite_date && nes->nes_ppu.MASK_b && nes->nes_ppu.STATUS_S == 0){
-        uint8_t nametable_id = (uint8_t)nes->nes_ppu.v.nametable;
+        const uint8_t nametable_id = (uint8_t)nes->nes_ppu.v.nametable;
         const uint8_t tile_x = (nes->nes_ppu.sprite_info[0].x) >> 3;
         const uint8_t tile_y = scanline >> 3;
-        uint32_t pattern_id = nes->nes_ppu.name_table[nametable_id][tile_x + (tile_y << 5)];
+        const uint32_t pattern_id = nes->nes_ppu.name_table[nametable_id][tile_x + (tile_y << 5)];
         const uint8_t* bit0_p = nes->nes_ppu.pattern_table[nes->nes_ppu.CTRL_B ? 4 : 0] + pattern_id * 16;
         const uint8_t* bit1_p = bit0_p + 8;
-        uint8_t background_date = bit0_p[dy] | bit1_p[dy]<<1;
+        const uint8_t background_date = bit0_p[dy] | bit1_p[dy]<<1;
         if (sprite_date == background_date){
             nes->nes_ppu.STATUS_S = 1;
         }
@@ -253,8 +252,8 @@ sprite0:
     uint8_t p = nes->nes_ppu.sprite_info[0].x;
     if (nes->nes_ppu.sprite_info[0].flip_h){
         for (int8_t m = 0; m <= 7; m++){
-            uint8_t low_bit = ((sprite_bit0 >> m) & 0x01) | ((sprite_bit1 >> m)<<1 & 0x02);
-            uint8_t palette_index = (nes->nes_ppu.sprite_info[0].sprite_palette << 2) | low_bit;
+            const uint8_t low_bit = ((sprite_bit0 >> m) & 0x01) | ((sprite_bit1 >> m)<<1 & 0x02);
+            const uint8_t palette_index = (nes->nes_ppu.sprite_info[0].sprite_palette << 2) | low_bit;
             if (palette_index%4 != 0){
                 if (nes->nes_ppu.sprite_info[0].priority){
                     if (draw_data[p] == background_color){
@@ -270,8 +269,8 @@ sprite0:
         }
     }else{
         for (int8_t m = 7; m >= 0; m--){
-            uint8_t low_bit = ((sprite_bit0 >> m) & 0x01) | ((sprite_bit1 >> m)<<1 & 0x02);
-            uint8_t palette_index = (nes->nes_ppu.sprite_info[0].sprite_palette << 2) | low_bit;
+            const uint8_t low_bit = ((sprite_bit0 >> m) & 0x01) | ((sprite_bit1 >> m)<<1 & 0x02);
+            const uint8_t palette_index = (nes->nes_ppu.sprite_info[0].sprite_palette << 2) | low_bit;
             if (palette_index%4 != 0){
                 if (nes->nes_ppu.sprite_info[0].priority){
                     if (draw_data[p] == background_color){
@@ -288,6 +287,7 @@ sprite0:
     }
 }
 
+// https://www.nesdev.org/wiki/PPU_rendering
 
 void nes_run(nes_t* nes){
     nes_printf("mapper:%03d\n",nes->nes_rom.mapper_number);
@@ -320,6 +320,7 @@ void nes_run(nes_t* nes){
 #if (NES_ENABLE_SOUND==1)
         nes_apu_frame(nes);
 #endif
+        // https://www.nesdev.org/wiki/PPU_rendering#Visible_scanlines_(0-239)
         for(scanline = 0; scanline < NES_HEIGHT; scanline++) { // 0-239 Visible frame
             if (nes->nes_ppu.MASK_b){
 #if (NES_RAM_LACK == 1)
@@ -335,8 +336,10 @@ void nes_run(nes_t* nes){
                 nes_render_sprite_line(nes,scanline,nes->nes_draw_data + scanline * NES_WIDTH);
 #endif
             }
-            nes_opcode(nes,NES_PPU_CPU_CLOCKS);
+            nes_opcode(nes,85); // ppu cycles: 85*3=255
+            // https://www.nesdev.org/wiki/PPU_scrolling#Wrapping_around
             if (nes->nes_ppu.MASK_b){
+                // https://www.nesdev.org/wiki/PPU_scrolling#At_dot_256_of_each_scanline
                 if ((nes->nes_ppu.v.fine_y) < 7) {
                     nes->nes_ppu.v.fine_y++;
                 }else {
@@ -352,9 +355,11 @@ void nes_run(nes_t* nes){
                     }
                     nes->nes_ppu.v.coarse_y = y;
                 }
+                // https://www.nesdev.org/wiki/PPU_scrolling#At_dot_257_of_each_scanline
                 // v: ....A.. ...BCDEF <- t: ....A.. ...BCDEF
                 nes->nes_ppu.v_reg = (nes->nes_ppu.v_reg & (uint16_t)0xFBE0) | (nes->nes_ppu.t_reg & (uint16_t)0x041F);
             }
+            nes_opcode(nes,NES_PPU_CPU_CLOCKS-85);
 #if (NES_ENABLE_SOUND==1)
             if (scanline % 66 == 65) nes_apu_frame(nes);
 #endif
@@ -384,9 +389,11 @@ void nes_run(nes_t* nes){
         }
 
         nes->nes_ppu.ppu_status &= 0x10; // Clear:VBlank,Sprite 0,Overflow
+        // nes->nes_ppu.ppu_status = 0;
         nes_opcode(nes,NES_PPU_CPU_CLOCKS); // 261 Pre-render line
         //do more
         if (nes->nes_ppu.MASK_b){
+            // https://www.nesdev.org/wiki/PPU_scrolling#During_dots_280_to_304_of_the_pre-render_scanline_(end_of_vblank)
             // v: GHIA.BC DEF..... <- t: GHIA.BC DEF.....
             nes->nes_ppu.v_reg = (nes->nes_ppu.v_reg & (uint16_t)0x841F) | (nes->nes_ppu.t_reg & (uint16_t)0x7BE0);
         }

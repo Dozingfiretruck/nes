@@ -708,9 +708,9 @@ static void nes_php(nes_t* nes){
 
 // Jump/Flag commands:
 
-static inline void nes_branch(nes_t* nes) {
+static inline void nes_branch(nes_t* nes,const uint16_t address) {
     const uint16_t pc_old = nes->nes_cpu.PC;
-    nes->nes_cpu.PC = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
+    nes->nes_cpu.PC = address;
     nes->nes_cpu.cycles++;
     nes->nes_cpu.cycles += ((nes->nes_cpu.PC ^ pc_old) >> 8)?1:0;
 }
@@ -721,10 +721,10 @@ static inline void nes_branch(nes_t* nes) {
 
 */
 static void nes_bpl(nes_t* nes){
+    const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     if (nes->nes_cpu.N==0){
-        nes_branch(nes);
-    } 
-    else nes->nes_cpu.PC++;
+        nes_branch(nes,address);
+    }
 }
 
 /*
@@ -733,10 +733,10 @@ static void nes_bpl(nes_t* nes){
 
 */
 static void nes_bmi(nes_t* nes){
+    const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     if (nes->nes_cpu.N){
-        nes_branch(nes);
+        nes_branch(nes,address);
     } 
-    else nes->nes_cpu.PC++;
 }
 
 /*
@@ -745,10 +745,10 @@ static void nes_bmi(nes_t* nes){
 
 */
 static void nes_bvc(nes_t* nes){
+    const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     if (nes->nes_cpu.V==0){
-        nes_branch(nes);
+        nes_branch(nes,address);
     } 
-    else nes->nes_cpu.PC++;
 }
 
 /*
@@ -757,10 +757,10 @@ static void nes_bvc(nes_t* nes){
 
 */
 static void nes_bvs(nes_t* nes){
+    const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     if (nes->nes_cpu.V){
-        nes_branch(nes);
+        nes_branch(nes,address);
     } 
-    else nes->nes_cpu.PC++;
 }
 
 /*
@@ -769,10 +769,10 @@ static void nes_bvs(nes_t* nes){
 
 */
 static void nes_bcc(nes_t* nes){
+    const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     if (nes->nes_cpu.C==0){
-        nes_branch(nes);
+        nes_branch(nes,address);
     } 
-    else nes->nes_cpu.PC++;
 }
 
 /*
@@ -781,10 +781,10 @@ static void nes_bcc(nes_t* nes){
 
 */
 static void nes_bcs(nes_t* nes){
+    const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     if (nes->nes_cpu.C){
-        nes_branch(nes);
+        nes_branch(nes,address);
     } 
-    else nes->nes_cpu.PC++;
 }
 
 /*
@@ -793,10 +793,10 @@ static void nes_bcs(nes_t* nes){
 
 */
 static void nes_bne(nes_t* nes){
+    const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     if (nes->nes_cpu.Z==0){
-        nes_branch(nes);
+        nes_branch(nes,address);
     } 
-    else nes->nes_cpu.PC++;
 }
 
 /*
@@ -805,10 +805,10 @@ static void nes_bne(nes_t* nes){
 
 */
 static void nes_beq(nes_t* nes){
+    const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     if (nes->nes_cpu.Z){
-        nes_branch(nes);
+        nes_branch(nes,address);
     } 
-    else nes->nes_cpu.PC++;
 }
 
 /*
@@ -1019,26 +1019,25 @@ static void nes_sre(nes_t* nes){
     NES_CHECK_Z(nes->nes_cpu.A);
 }
 
-/*---------
+/*
     {adr}:={adr}ror A:=A adc {adr}
     N  V  U  B  D  I  Z  C
     *  *              *  *
 */
 static void nes_rra(nes_t* nes){
     uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
-    uint8_t saveflags=nes->nes_cpu.C;
     uint16_t data = nes_read_cpu(nes,address);
-    nes->nes_cpu.P= (nes->nes_cpu.P & 0xfe) | (data & 0x01);
+    // ror
+    data |= (nes->nes_cpu.C << 8);
+    uint8_t cflag = data & 0x01;
     data >>= 1;
-    if (saveflags) data |= 0x80;
-    nes_write_cpu(nes,address,data);
-
-    const uint16_t result16 = nes->nes_cpu.A + data + nes->nes_cpu.C;
-    nes->nes_cpu.C = result16 >> 8;
-    const uint8_t result8 = (uint8_t)result16;
-    if (!((nes->nes_cpu.A ^ data) & 0x80) && ((nes->nes_cpu.A ^ result8) & 0x80)) nes->nes_cpu.V = 1;
+    nes_write_cpu(nes,address,(uint8_t)data);
+    // adc
+    const uint16_t data1 = nes->nes_cpu.A + data + cflag;
+    nes->nes_cpu.C = data1 >> 8;
+    if (!((nes->nes_cpu.A ^ data) & 0x80) && ((nes->nes_cpu.A ^ (uint8_t)data1) & 0x80)) nes->nes_cpu.V = 1;
     else nes->nes_cpu.V = 0;
-    nes->nes_cpu.A = result8;
+    nes->nes_cpu.A = (uint8_t)data1;
     NES_CHECK_N(nes->nes_cpu.A);
     NES_CHECK_Z(nes->nes_cpu.A);
 }
@@ -1566,6 +1565,8 @@ void nes_opcode(nes_t* nes,uint16_t ticks){
                 nes->nes_cpu.P,nes->nes_cpu.C,nes->nes_cpu.Z,nes->nes_cpu.I,nes->nes_cpu.D,nes->nes_cpu.B,nes->nes_cpu.V,nes->nes_cpu.N);
         fprintf(debug_fp,"PC: 0x%04X cycles:%lld \n", nes->nes_cpu.PC,cycles);
         if (cycles == 56955){
+            printf("cycles");
+            printf("cycles");
             printf("cycles");
         }
         
