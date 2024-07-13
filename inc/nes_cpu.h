@@ -30,7 +30,7 @@
 #endif
 
 
-// https://www.nesdev.org/wiki/Controller_reading
+// https://www.nesdev.org/wiki/CPU_memory_map
 #define NES_CPU_RAM_SIZE        0x800   /*  2KB */
 
 struct nes;

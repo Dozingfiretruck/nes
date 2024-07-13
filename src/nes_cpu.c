@@ -119,13 +119,13 @@ static void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
                     memcpy(nes->nes_ppu.oam_data, nes_get_dma_address(nes,data), NES_PPU_OAM_SIZE);
                 }
                 nes->nes_cpu.cycles += 513;
-                nes->nes_cpu.cycles += nes->nes_cpu.cycles & 1; //奇数周期需要sleep 514个CPU时钟周期
+                nes->nes_cpu.cycles += nes->nes_cpu.cycles & 1; //奇数周期需要多sleep 1个CPU时钟周期
             }else if (address < 0x4016 || address == 0x4017){
 #if (NES_ENABLE_SOUND == 1)
                 nes_write_apu_register(nes, address,data);
 #endif
             }else{
-                nes_printf("nes_write address %04X not sPport\n",address);
+                nes_printf("nes_write address %04X not suport\n",address);
             }
             return;
         case 3://$6000-$7FFF SRAM
@@ -142,13 +142,16 @@ static void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
     }
 }
 
-#define NES_PUSH(nes,data)     nes_write_cpu(nes,0x100 + nes->nes_cpu.SP--,(data))
-#define NES_PUSHW(nes,data)    NES_PUSH(nes, (data) >> 8 ); NES_PUSH(nes, (data) & 0xff)
-
-#define NES_POP(nes)        nes_read_cpu(nes, 0x100 + ++(nes->nes_cpu.SP))
-
-#define NES_CHECK_N(x)      nes->nes_cpu.N = ((uint8_t)(x) & 0x80)>>7
-#define NES_CHECK_Z(x)      nes->nes_cpu.Z = ((uint8_t)(x) == 0)
+// 入栈
+#define NES_PUSH(nes,data)      (nes->nes_cpu.cpu_ram + 0x100)[nes->nes_cpu.SP--] = (uint8_t)(data)
+#define NES_PUSHW(nes,data)     NES_PUSH(nes, ((data) >> 8) ); NES_PUSH(nes, ((data) & 0xff))
+// 出栈
+#define NES_POP(nes)            ((nes->nes_cpu.cpu_ram + 0x100)[++nes->nes_cpu.SP])
+#define NES_POPW(nes)           ((uint16_t)NES_POP(nes)|(uint16_t)(NES_POP(nes) << 8))
+// 状态寄存器检查位
+#define NES_CHECK_N(x)          nes->nes_cpu.N = ((uint8_t)(x) & 0x80)>>7
+#define NES_CHECK_Z(x)          nes->nes_cpu.Z = ((uint8_t)(x) == 0)
+#define NES_CHECK_NZ(x)         NES_CHECK_N(x);NES_CHECK_Z(x)
 
 // https://www.nesdev.org/6502_cn.txt
 
@@ -272,8 +275,7 @@ static inline uint16_t nes_ind(nes_t* nes){
 */
 static void nes_ora(nes_t* nes){
     nes->nes_cpu.A |= nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
-    NES_CHECK_N(nes->nes_cpu.A);
-    NES_CHECK_Z(nes->nes_cpu.A);
+    NES_CHECK_NZ(nes->nes_cpu.A);
 }
 
 /* 
@@ -283,8 +285,7 @@ static void nes_ora(nes_t* nes){
 */
 static void nes_and(nes_t* nes){
     nes->nes_cpu.A &= nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
-    NES_CHECK_N(nes->nes_cpu.A);
-    NES_CHECK_Z(nes->nes_cpu.A);
+    NES_CHECK_NZ(nes->nes_cpu.A);
 }
 
 /* 
@@ -294,8 +295,7 @@ static void nes_and(nes_t* nes){
 */
 static void nes_eor(nes_t* nes){
     nes->nes_cpu.A ^= nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
-    NES_CHECK_N(nes->nes_cpu.A);
-    NES_CHECK_Z(nes->nes_cpu.A);
+    NES_CHECK_NZ(nes->nes_cpu.A);
 }
 
 /* 
@@ -313,8 +313,7 @@ static void nes_adc(nes_t* nes){
     else nes->nes_cpu.V = 0;
 
     nes->nes_cpu.A = result8;
-    NES_CHECK_N(nes->nes_cpu.A);
-    NES_CHECK_Z(nes->nes_cpu.A);
+    NES_CHECK_NZ(nes->nes_cpu.A);
 }
 
 /* 
@@ -332,8 +331,7 @@ static void nes_sbc(nes_t* nes){
     else nes->nes_cpu.V = 0;
 
     nes->nes_cpu.A = result8;
-    NES_CHECK_N(nes->nes_cpu.A);
-    NES_CHECK_Z(nes->nes_cpu.A);
+    NES_CHECK_NZ(nes->nes_cpu.A);
 }
 
 /*
@@ -344,8 +342,7 @@ static void nes_sbc(nes_t* nes){
 static void nes_cmp(nes_t* nes){
     const uint16_t value = (uint16_t)nes->nes_cpu.A - (uint16_t)nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     nes->nes_cpu.C = !(value >> 15);
-    NES_CHECK_N((uint8_t)value);
-    NES_CHECK_Z((uint8_t)value);
+    NES_CHECK_NZ((uint8_t)value);
 }
 
 /*
@@ -356,8 +353,7 @@ static void nes_cmp(nes_t* nes){
 static void nes_cpx(nes_t* nes){
     const uint16_t value = (uint16_t)nes->nes_cpu.X - (uint16_t)nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     nes->nes_cpu.C = !(value >> 15);
-    NES_CHECK_N((uint8_t)value);
-    NES_CHECK_Z((uint8_t)value);
+    NES_CHECK_NZ((uint8_t)value);
 }
 
 /*
@@ -368,8 +364,7 @@ static void nes_cpx(nes_t* nes){
 static void nes_cpy(nes_t* nes){
     const uint16_t value = (uint16_t)nes->nes_cpu.Y - (uint16_t)nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     nes->nes_cpu.C = !(value >> 15);
-    NES_CHECK_N((uint8_t)value);
-    NES_CHECK_Z((uint8_t)value);
+    NES_CHECK_NZ((uint8_t)value);
 }
 
 /*
@@ -381,8 +376,7 @@ static void nes_dec(nes_t* nes){
     uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     uint8_t data = nes_read_cpu(nes,address)-1;
     nes_write_cpu(nes,address, data);
-    NES_CHECK_N(data);
-    NES_CHECK_Z(data);
+    NES_CHECK_NZ(data);
 }
 
 /*
@@ -414,8 +408,7 @@ static void nes_inc(nes_t* nes){
     uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     uint8_t data = nes_read_cpu(nes,address)+1;
     nes_write_cpu(nes,address,data);
-    NES_CHECK_N(data);
-    NES_CHECK_Z(data);
+    NES_CHECK_NZ(data);
 }
 
 /*
@@ -450,13 +443,11 @@ static void nes_asl(nes_t* nes){
         nes->nes_cpu.C = data >> 7;
         data <<= 1;
         nes_write_cpu(nes,address,data);
-        NES_CHECK_N(data);
-        NES_CHECK_Z(data);
+        NES_CHECK_NZ(data);
     }else{
         nes->nes_cpu.C = nes->nes_cpu.A >> 7;
         nes->nes_cpu.A <<= 1;
-        NES_CHECK_N(nes->nes_cpu.A);
-        NES_CHECK_Z(nes->nes_cpu.A);
+        NES_CHECK_NZ(nes->nes_cpu.A);
     }
 }
 
@@ -473,16 +464,14 @@ static void nes_rol(nes_t* nes){
         data |= nes->nes_cpu.C;
         nes->nes_cpu.C = (uint8_t)(data>>8);
         nes_write_cpu(nes,address,(uint8_t)data);
-        NES_CHECK_N(data);
-        NES_CHECK_Z(data);
+        NES_CHECK_NZ(data);
     }else{
         uint16_t data = nes->nes_cpu.A;
         data <<= 1;
         data |= nes->nes_cpu.C;
         nes->nes_cpu.C = (uint8_t)(data>>8);
         nes->nes_cpu.A = (uint8_t)data;
-        NES_CHECK_N(nes->nes_cpu.A);
-        NES_CHECK_Z(nes->nes_cpu.A);
+        NES_CHECK_NZ(nes->nes_cpu.A);
     }
 }
 
@@ -497,14 +486,12 @@ static void nes_lsr(nes_t* nes){
         uint8_t value = nes_read_cpu(nes,address);
         nes->nes_cpu.C = value & 0x01;
         value >>= 1;
-        NES_CHECK_N(value);
-        NES_CHECK_Z(value);
+        NES_CHECK_NZ(value);
         nes_write_cpu(nes,address,value);
     }else{
         nes->nes_cpu.C = nes->nes_cpu.A & 0x01;
         nes->nes_cpu.A >>= 1;
-        NES_CHECK_N(nes->nes_cpu.A);
-        NES_CHECK_Z(nes->nes_cpu.A);
+        NES_CHECK_NZ(nes->nes_cpu.A);
     }
 }
 
@@ -521,16 +508,14 @@ static void nes_ror(nes_t* nes){
         nes->nes_cpu.C = data & 0x01;
         data >>= 1;
         nes_write_cpu(nes,address,(uint8_t)data);
-        NES_CHECK_N(data);
-        NES_CHECK_Z(data);
+        NES_CHECK_NZ(data);
     }else{
         uint16_t data = nes->nes_cpu.A;
         data |= (uint16_t)nes->nes_cpu.C << 8;
         nes->nes_cpu.C = data & 0x01;
         data >>= 1;
         nes->nes_cpu.A = (uint8_t)data;
-        NES_CHECK_N(nes->nes_cpu.A);
-        NES_CHECK_Z(nes->nes_cpu.A);
+        NES_CHECK_NZ(nes->nes_cpu.A);
     }
 }
 
@@ -543,8 +528,7 @@ static void nes_ror(nes_t* nes){
 */
 static void nes_lda(nes_t* nes){
     nes->nes_cpu.A = nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
-    NES_CHECK_N(nes->nes_cpu.A);
-    NES_CHECK_Z(nes->nes_cpu.A);
+    NES_CHECK_NZ(nes->nes_cpu.A);
 }
 
 /*
@@ -563,8 +547,7 @@ static void nes_sta(nes_t* nes){
 */
 static void nes_ldx(nes_t* nes){
     nes->nes_cpu.X = nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
-    NES_CHECK_N(nes->nes_cpu.X);
-    NES_CHECK_Z(nes->nes_cpu.X);
+    NES_CHECK_NZ(nes->nes_cpu.X);
 }
 
 /*
@@ -583,8 +566,7 @@ static void nes_stx(nes_t* nes){
 */
 static void nes_ldy(nes_t* nes){
     nes->nes_cpu.Y = nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
-    NES_CHECK_N(nes->nes_cpu.Y);
-    NES_CHECK_Z(nes->nes_cpu.Y);
+    NES_CHECK_NZ(nes->nes_cpu.Y);
 }
 
 /*
@@ -603,8 +585,7 @@ static void nes_sty(nes_t* nes){
 */
 static void nes_tax(nes_t* nes){
     nes->nes_cpu.X=nes->nes_cpu.A;
-    NES_CHECK_N(nes->nes_cpu.X);
-    NES_CHECK_Z(nes->nes_cpu.X);
+    NES_CHECK_NZ(nes->nes_cpu.X);
 }
 
 /*
@@ -614,8 +595,7 @@ static void nes_tax(nes_t* nes){
 */
 static void nes_txa(nes_t* nes){
     nes->nes_cpu.A=nes->nes_cpu.X;
-    NES_CHECK_N(nes->nes_cpu.A);
-    NES_CHECK_Z(nes->nes_cpu.A);
+    NES_CHECK_NZ(nes->nes_cpu.A);
 }
 
 /*
@@ -625,8 +605,7 @@ static void nes_txa(nes_t* nes){
 */
 static void nes_tay(nes_t* nes){
     nes->nes_cpu.Y=nes->nes_cpu.A;
-    NES_CHECK_N(nes->nes_cpu.Y);
-    NES_CHECK_Z(nes->nes_cpu.Y);
+    NES_CHECK_NZ(nes->nes_cpu.Y);
 }
 
 /*
@@ -636,8 +615,7 @@ static void nes_tay(nes_t* nes){
 */
 static void nes_tya(nes_t* nes){
     nes->nes_cpu.A=nes->nes_cpu.Y;
-    NES_CHECK_N(nes->nes_cpu.A);
-    NES_CHECK_Z(nes->nes_cpu.A);
+    NES_CHECK_NZ(nes->nes_cpu.A);
 }
 
 /*
@@ -647,8 +625,7 @@ static void nes_tya(nes_t* nes){
 */
 static void nes_tsx(nes_t* nes){
     nes->nes_cpu.X=nes->nes_cpu.SP;
-    NES_CHECK_N(nes->nes_cpu.X);
-    NES_CHECK_Z(nes->nes_cpu.X);
+    NES_CHECK_NZ(nes->nes_cpu.X);
 }
 
 /*
@@ -667,8 +644,7 @@ static void nes_txs(nes_t* nes){
 */
 static void nes_pla(nes_t* nes){
     nes->nes_cpu.A = NES_POP(nes);
-    NES_CHECK_N(nes->nes_cpu.A);
-    NES_CHECK_Z(nes->nes_cpu.A);
+    NES_CHECK_NZ(nes->nes_cpu.A);
 }
 
 /*
@@ -838,8 +814,7 @@ static void nes_rti(nes_t* nes){
     nes->nes_cpu.U = 1;
     nes->nes_cpu.B = 1;
     // PC:=+(S)
-    nes->nes_cpu.PC = (uint16_t)NES_POP(nes);
-    nes->nes_cpu.PC |= (uint16_t)NES_POP(nes) << 8;
+    nes->nes_cpu.PC = (uint16_t)NES_POPW(nes);
     // 清计数
     
 }
@@ -851,7 +826,7 @@ static void nes_rti(nes_t* nes){
 
 */
 static void nes_jsr(nes_t* nes){
-    uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
+    const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     NES_PUSHW(nes,nes->nes_cpu.PC-1);
     nes->nes_cpu.PC = address;
 }
@@ -863,8 +838,7 @@ static void nes_jsr(nes_t* nes){
 
 */
 static void nes_rts(nes_t* nes){
-    nes->nes_cpu.PC = (uint16_t)NES_POP(nes);
-    nes->nes_cpu.PC |= (uint16_t)NES_POP(nes) << 8;
+    nes->nes_cpu.PC = (uint16_t)NES_POPW(nes);
     nes->nes_cpu.PC++;
 }
 
@@ -978,8 +952,7 @@ static void nes_slo(nes_t* nes){
     nes_write_cpu(nes,address,data);
     // ora
     nes->nes_cpu.A |= data;
-    NES_CHECK_N(nes->nes_cpu.A);
-    NES_CHECK_Z(nes->nes_cpu.A);
+    NES_CHECK_NZ(nes->nes_cpu.A);
 }
 
 /*
@@ -997,8 +970,7 @@ static void nes_rla(nes_t* nes){
     nes_write_cpu(nes,address,(uint8_t)data);
     // and
     nes->nes_cpu.A &= (uint8_t)data;
-    NES_CHECK_N(nes->nes_cpu.A);
-    NES_CHECK_Z(nes->nes_cpu.A);
+    NES_CHECK_NZ(nes->nes_cpu.A);
 }
 
 /*
@@ -1015,8 +987,7 @@ static void nes_sre(nes_t* nes){
     nes_write_cpu(nes,address,data);
     // eor
     nes->nes_cpu.A ^= data;
-    NES_CHECK_N(nes->nes_cpu.A);
-    NES_CHECK_Z(nes->nes_cpu.A);
+    NES_CHECK_NZ(nes->nes_cpu.A);
 }
 
 /*
@@ -1038,8 +1009,7 @@ static void nes_rra(nes_t* nes){
     if (!((nes->nes_cpu.A ^ data) & 0x80) && ((nes->nes_cpu.A ^ (uint8_t)data1) & 0x80)) nes->nes_cpu.V = 1;
     else nes->nes_cpu.V = 0;
     nes->nes_cpu.A = (uint8_t)data1;
-    NES_CHECK_N(nes->nes_cpu.A);
-    NES_CHECK_Z(nes->nes_cpu.A);
+    NES_CHECK_NZ(nes->nes_cpu.A);
 }
 
 /*
@@ -1058,8 +1028,7 @@ static void nes_sax(nes_t* nes){
 */
 static void nes_lax(nes_t* nes){
     nes->nes_cpu.X = nes->nes_cpu.A = nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
-    NES_CHECK_N(nes->nes_cpu.X);
-    NES_CHECK_Z(nes->nes_cpu.X);
+    NES_CHECK_NZ(nes->nes_cpu.X);
 }
 
 /*
@@ -1076,8 +1045,7 @@ static void nes_dcp(nes_t* nes){
     // cmp
     const uint16_t data1 = (uint16_t)nes->nes_cpu.A - (uint16_t)data;
     nes->nes_cpu.C = !(data1 >> 15);
-    NES_CHECK_N((uint8_t)data1);
-    NES_CHECK_Z((uint8_t)data1);
+    NES_CHECK_NZ((uint8_t)data1);
 }
 
 /*
@@ -1099,8 +1067,7 @@ static void nes_isc(nes_t* nes){
     else nes->nes_cpu.V = 0;
 
     nes->nes_cpu.A = data2;
-    NES_CHECK_Z(nes->nes_cpu.A);
-    NES_CHECK_N(nes->nes_cpu.A);
+    NES_CHECK_NZ(nes->nes_cpu.A);
 }
 
 /*
@@ -1110,8 +1077,7 @@ static void nes_isc(nes_t* nes){
 */
 static void nes_anc(nes_t* nes){
     nes->nes_cpu.A &= nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
-    NES_CHECK_Z(nes->nes_cpu.A);
-    NES_CHECK_N(nes->nes_cpu.A);
+    NES_CHECK_NZ(nes->nes_cpu.A);
     nes->nes_cpu.C = nes->nes_cpu.A >> 7;
 }
 
@@ -1132,8 +1098,7 @@ static void nes_alr(nes_t* nes){
 static void nes_arr(nes_t* nes){
     nes->nes_cpu.A &= nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     nes->nes_cpu.A = (nes->nes_cpu.A>>1)|(nes->nes_cpu.C<<7);
-    NES_CHECK_Z(nes->nes_cpu.A);
-    NES_CHECK_N(nes->nes_cpu.A);
+    NES_CHECK_NZ(nes->nes_cpu.A);
     nes->nes_cpu.C = (nes->nes_cpu.A >> 6)&1;
     if (((nes->nes_cpu.A >> 5) ^ (nes->nes_cpu.A >> 6)) & 1) nes->nes_cpu.V = 1;
     else nes->nes_cpu.V = 0;
@@ -1146,8 +1111,7 @@ static void nes_arr(nes_t* nes){
 */
 static void nes_xaa(nes_t* nes){
     nes->nes_cpu.A = nes->nes_cpu.X & nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
-    NES_CHECK_Z(nes->nes_cpu.A);
-    NES_CHECK_N(nes->nes_cpu.A);
+    NES_CHECK_NZ(nes->nes_cpu.A);
     nes->nes_cpu.C = nes->nes_cpu.A >> 7;
 }
 
@@ -1159,8 +1123,7 @@ static void nes_xaa(nes_t* nes){
 static void nes_axs(nes_t* nes){
     uint16_t data = (nes->nes_cpu.A & nes->nes_cpu.X) - nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     nes->nes_cpu.X = (uint8_t)data;
-    NES_CHECK_Z(nes->nes_cpu.X);
-    NES_CHECK_N(nes->nes_cpu.X);
+    NES_CHECK_NZ(nes->nes_cpu.X);
     nes->nes_cpu.C = !(data >> 15);
 }
 
