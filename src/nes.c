@@ -60,7 +60,7 @@ static void nes_render_background_line(nes_t* nes,uint16_t scanline,nes_color_t*
     const uint8_t tile_y = (const uint8_t)nes->nes_ppu.v.coarse_y;
     uint8_t nametable_id = (uint8_t)nes->nes_ppu.v.nametable;
     for (uint8_t tile_x = dx; tile_x < 32; tile_x++){
-        const uint32_t pattern_id = nes->nes_ppu.name_table[nametable_id][tile_x + (tile_y << 5)];
+        const uint8_t pattern_id = nes->nes_ppu.name_table[nametable_id][tile_x + (tile_y << 5)];
         const uint8_t* bit0_p = nes->nes_ppu.pattern_table[nes->nes_ppu.CTRL_B ? 4 : 0] + pattern_id * 16;
         const uint8_t* bit1_p = bit0_p + 8;
         const uint8_t bit0 = bit0_p[dy];
@@ -78,7 +78,7 @@ static void nes_render_background_line(nes_t* nes,uint16_t scanline,nes_color_t*
     }
     nametable_id ^= nes->nes_rom.mirroring_type ? 1:2;
     for (uint8_t tile_x = 0; tile_x <= dx; tile_x++){
-        const uint32_t pattern_id = nes->nes_ppu.name_table[nametable_id][tile_x + (tile_y << 5)];
+        const uint8_t pattern_id = nes->nes_ppu.name_table[nametable_id][tile_x + (tile_y << 5)];
         const uint8_t* bit0_p = nes->nes_ppu.pattern_table[nes->nes_ppu.CTRL_B ? 4 : 0] + pattern_id * 16;
         const uint8_t* bit1_p = bit0_p + 8;
         const uint8_t bit0 = bit0_p[dy];
@@ -126,7 +126,7 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
                                         + (nes->nes_ppu.CTRL_H?(nes->nes_ppu.sprite_info[i].tile_index_8x16 << 1 ):(nes->nes_ppu.sprite_info[i].tile_index_number)) * 16;
         const uint8_t* sprite_bit1_p = sprite_bit0_p + 8;
 
-        uint8_t dy = scanline - sprite_y;
+        uint8_t dy = (uint8_t)(scanline - sprite_y);
 
         if (nes->nes_ppu.CTRL_H){
             if (nes->nes_ppu.sprite_info[i].flip_v){
@@ -205,7 +205,7 @@ sprite0:
                                     + (nes->nes_ppu.CTRL_H?(nes->nes_ppu.sprite_info[0].tile_index_8x16 << 1 ):(nes->nes_ppu.sprite_info[0].tile_index_number)) * 16;
     const uint8_t* sprite_bit1_p = sprite_bit0_p + 8;
 
-    uint8_t dy = scanline - sprite_y;
+    uint8_t dy = (uint8_t)(scanline - sprite_y);
 
     if (nes->nes_ppu.CTRL_H){
         if (nes->nes_ppu.sprite_info[0].flip_v){
@@ -234,15 +234,19 @@ sprite0:
 
     const uint8_t sprite_date = sprite_bit0 | sprite_bit1;
     if (sprite_date && nes->nes_ppu.MASK_b && nes->nes_ppu.STATUS_S == 0){
+        // printf("scanline:%d x:%d MASK_m:%d MASK_M:%d\n",
+        //     scanline,nes->nes_ppu.x,nes->nes_ppu.MASK_m,nes->nes_ppu.MASK_M);
         const uint8_t nametable_id = (uint8_t)nes->nes_ppu.v.nametable;
         const uint8_t tile_x = (nes->nes_ppu.sprite_info[0].x) >> 3;
-        const uint8_t tile_y = scanline >> 3;
-        const uint32_t pattern_id = nes->nes_ppu.name_table[nametable_id][tile_x + (tile_y << 5)];
+        const uint8_t tile_y = (uint8_t)(scanline >> 3);
+        const uint8_t pattern_id = nes->nes_ppu.name_table[nametable_id][tile_x + (tile_y << 5)];
         const uint8_t* bit0_p = nes->nes_ppu.pattern_table[nes->nes_ppu.CTRL_B ? 4 : 0] + pattern_id * 16;
         const uint8_t* bit1_p = bit0_p + 8;
-        const uint8_t background_date = bit0_p[dy] | bit1_p[dy]<<1;
-        if (sprite_date == background_date){
+        const uint8_t background_date = bit0_p[dy] | bit1_p[dy] << 1;
+        if (sprite_date & background_date){
             nes->nes_ppu.STATUS_S = 1;
+            // printf("scanline:%d sprite_bit0:%d sprite_bit1:%d sprite_date:%d bit0_p:%d bit1_p:%d background_date:%d \n",
+            // scanline,sprite_bit0,sprite_bit1,sprite_date,bit0_p[dy],bit1_p[dy],background_date);
         }
     }
     if (nes->nes_ppu.STATUS_O == 1){
@@ -252,9 +256,9 @@ sprite0:
     uint8_t p = nes->nes_ppu.sprite_info[0].x;
     if (nes->nes_ppu.sprite_info[0].flip_h){
         for (int8_t m = 0; m <= 7; m++){
-            const uint8_t low_bit = ((sprite_bit0 >> m) & 0x01) | ((sprite_bit1 >> m)<<1 & 0x02);
+            const uint8_t low_bit = ((sprite_bit0 >> m) & 0x01) | ((sprite_bit1 >> m) << 1 & 0x02);
             const uint8_t palette_index = (nes->nes_ppu.sprite_info[0].sprite_palette << 2) | low_bit;
-            if (palette_index%4 != 0){
+            if (palette_index % 4 != 0){
                 if (nes->nes_ppu.sprite_info[0].priority){
                     if (draw_data[p] == background_color){
                         draw_data[p] = nes->nes_ppu.sprite_palette[palette_index];
@@ -271,7 +275,7 @@ sprite0:
         for (int8_t m = 7; m >= 0; m--){
             const uint8_t low_bit = ((sprite_bit0 >> m) & 0x01) | ((sprite_bit1 >> m)<<1 & 0x02);
             const uint8_t palette_index = (nes->nes_ppu.sprite_info[0].sprite_palette << 2) | low_bit;
-            if (palette_index%4 != 0){
+            if (palette_index % 4 != 0){
                 if (nes->nes_ppu.sprite_info[0].priority){
                     if (draw_data[p] == background_color){
                         draw_data[p] = nes->nes_ppu.sprite_palette[palette_index];
@@ -379,19 +383,18 @@ void nes_run(nes_t* nes){
         }
 #endif
         nes_opcode(nes,NES_PPU_CPU_CLOCKS); //240 Post-render line
-
-        nes->nes_ppu.STATUS_V = 1;// Set VBlank flag
+        
+        nes->nes_ppu.STATUS_V = 1;// Set VBlank flag (241 line)
         if (nes->nes_ppu.CTRL_V) {
             nes->nes_cpu.irq_nmi=1;
         }
-        for(; scanline < 261; scanline++){ // 241-260行 垂直空白行 x20
+
+        for(uint8_t i = 0; i < 20; i++){ // 241-260行 垂直空白行 x20
             nes_opcode(nes,NES_PPU_CPU_CLOCKS);
         }
+        nes->nes_ppu.ppu_status = 0;    // Clear:VBlank,Sprite 0,Overflow
+        nes_opcode(nes,NES_PPU_CPU_CLOCKS); // Pre-render scanline (-1 or 261)
 
-        nes->nes_ppu.ppu_status &= 0x10; // Clear:VBlank,Sprite 0,Overflow
-        // nes->nes_ppu.ppu_status = 0;
-        nes_opcode(nes,NES_PPU_CPU_CLOCKS); // 261 Pre-render line
-        //do more
         if (nes->nes_ppu.MASK_b){
             // https://www.nesdev.org/wiki/PPU_scrolling#During_dots_280_to_304_of_the_pre-render_scanline_(end_of_vblank)
             // v: GHIA.BC DEF..... <- t: GHIA.BC DEF.....

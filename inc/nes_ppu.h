@@ -98,8 +98,7 @@ typedef struct nes_ppu{
     };
     union {
         struct {
-            uint8_t  :4;    
-            uint8_t STATUS_F:1;             /*  VRAM write flag: 0 = write valid, 1 = write ignored */
+            uint8_t  :5;    
             uint8_t STATUS_O:1;             /*  Sprite overflow. The intent was for this flag to be set
                                                 whenever more than eight sprites appear on a scanline, but a
                                                 hardware bug causes the actual behavior to be more complicated

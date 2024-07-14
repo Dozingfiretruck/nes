@@ -1230,7 +1230,7 @@ void nes_cpu_init(nes_t* nes){
 // https://www.nesdev.org/wiki/CPU_unofficial_opcodes
 // https://www.oxyron.de/html/opcodes02.html
 
-static const nes_opcode_t nes_opcode_table[] = {
+static const nes_opcode_t nes_opcode_table[256] = {
     {nes_brk,	NULL,	    7   },      // 0x00     BRK         7
     {nes_ora,   nes_izx,    6   },      // 0x01     ORA IZX     6
     {NULL,	    NULL,	    0   },      // 0x02     KIL         0
