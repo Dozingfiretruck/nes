@@ -71,16 +71,14 @@ static inline uint8_t nes_read_ppu_memory(nes_t* nes){
 static inline void nes_write_ppu_memory(nes_t* nes,uint8_t data){
     const uint16_t address = nes->nes_ppu.v_reg & (uint16_t)0x3FFF;
     if (address < (uint16_t)0x3F00) {
-        const uint16_t index = address >> 10;
-        const uint16_t offset = address & (uint16_t)0x3FF;
-        nes->nes_ppu.chr_banks[index][offset] = data;
+        nes->nes_ppu.chr_banks[(uint8_t)(address >> 10)][(uint16_t)(address & (uint16_t)0x3FF)] = data;
     } else {
         if (address & (uint16_t)0x03) {
-            nes->nes_ppu.palette_indexes[address & (uint16_t)0x1f] = data;
+            nes->nes_ppu.palette_indexes[address & (uint16_t)0x1f] = data & 0x3F;
         } else {
             const uint16_t offset = address & (uint16_t)0x0f;
-            nes->nes_ppu.palette_indexes[offset] = data;
-            nes->nes_ppu.palette_indexes[offset | (uint16_t)0x10] = data;
+            nes->nes_ppu.palette_indexes[offset] = data & 0x3F;
+            nes->nes_ppu.palette_indexes[offset | 0x10] = data & 0x3F;
         }
     }
 }
