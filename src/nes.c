@@ -276,9 +276,6 @@ sprite0:
             // scanline,sprite_bit0,sprite_bit1,sprite_date,bit0_p[dy],bit1_p[dy],background_date);
         }
     }
-    if (nes->nes_ppu.STATUS_O == 1){
-        return;
-    }
     
     uint8_t p = nes->nes_ppu.sprite_info[0].x;
     if (nes->nes_ppu.sprite_info[0].flip_h){
