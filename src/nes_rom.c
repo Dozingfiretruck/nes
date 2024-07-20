@@ -68,7 +68,13 @@ nes_t* nes_load_file(const char* file_path ){
             nes->nes_rom.prg_rom_size = ((nes_header_info.prg_rom_size_m << 8) & 0xF00) | nes_header_info.prg_rom_size_l;
             nes->nes_rom.chr_rom_size = ((nes_header_info.chr_rom_size_m << 8) & 0xF00) | nes_header_info.chr_rom_size_l;
         }else{
+            uint8_t idx = 4;
+            uint8_t* nes_header = (uint8_t*)&nes_header_info;
             nes->nes_rom.mapper_number = nes_header_info.mapper_number_l & 0x0F;
+            for (idx = 4; idx < 8 && nes_header[8+idx] == 0; ++idx);
+            if (idx==8){
+                nes->nes_rom.mapper_number |= ((nes_header_info.mapper_number_m << 4) & 0xF0);
+            }
             nes->nes_rom.prg_rom_size = nes_header_info.prg_rom_size_l;
             nes->nes_rom.chr_rom_size = nes_header_info.chr_rom_size_l;
         }
@@ -97,7 +103,9 @@ nes_t* nes_load_file(const char* file_path ){
     }
     nes_fclose(nes_file);
     nes_init(nes);
-    nes_load_mapper(nes);
+    if(nes_load_mapper(nes)){
+        goto error;
+    }
     nes->nes_mapper.mapper_init(nes);
     return nes;
 error:
