@@ -29,11 +29,11 @@ static inline uint8_t nes_read_ppu_memory(nes_t* nes){
     const uint16_t address = nes->nes_ppu.v_reg & (uint16_t)0x3FFF;
     const uint16_t index = address >> 10;
     const uint16_t offset = address & (uint16_t)0x3FF;
-    if (address < (uint16_t)0x3F00) {
+    if (address < (uint16_t)0x3F00) {// BANK
         uint8_t data = nes->nes_ppu.buffer;
         nes->nes_ppu.buffer = nes->nes_ppu.chr_banks[index][offset];
         return data;
-    } else {
+    } else {// 调色板
         nes->nes_ppu.buffer = nes->nes_ppu.chr_banks[index][offset];
         return nes->nes_ppu.palette_indexes[address & (uint16_t)0x1f];
     }
@@ -41,15 +41,14 @@ static inline uint8_t nes_read_ppu_memory(nes_t* nes){
 
 static inline void nes_write_ppu_memory(nes_t* nes,uint8_t data){
     const uint16_t address = nes->nes_ppu.v_reg & (uint16_t)0x3FFF;
-    if (address < (uint16_t)0x3F00) {
+    if (address < (uint16_t)0x3F00) {// BANK
         nes->nes_ppu.chr_banks[(uint8_t)(address >> 10)][(uint16_t)(address & (uint16_t)0x3FF)] = data;
-    } else {
-        if (address & (uint16_t)0x03) {
-            nes->nes_ppu.palette_indexes[address & (uint16_t)0x1f] = data & 0x3F;
+    } else {// 调色板
+        if ((uint8_t)address & 0x03) {
+            nes->nes_ppu.palette_indexes[(uint8_t)address & 0x1f] = data & 0x3F;
         } else {
-            const uint16_t offset = address & (uint16_t)0x0f;
-            nes->nes_ppu.palette_indexes[offset] = data & 0x3F;
-            nes->nes_ppu.palette_indexes[offset | 0x10] = data & 0x3F;
+            const uint8_t offset = (uint8_t)address & 0x0f;
+            nes->nes_ppu.palette_indexes[offset] = nes->nes_ppu.palette_indexes[offset | 0x10] = data & 0x3F;
         }
     }
 }

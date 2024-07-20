@@ -1523,15 +1523,15 @@ void nes_opcode(nes_t* nes,uint16_t ticks){
     }
     while (ticks > nes->nes_cpu.cycles){
 #ifdef __DEBUG__
-        fprintf(debug_fp,"A:0x%02X X:0x%02X Y:0x%02X SP:0x%02X \nP:0x%02X \nC:0x%02X Z:0x%02X I:0x%02X D:0x%02X B:0x%02X V:0x%02X N:0x%02X \n",
-                nes->nes_cpu.A,nes->nes_cpu.X,nes->nes_cpu.Y,nes->nes_cpu.SP,
-                nes->nes_cpu.P,nes->nes_cpu.C,nes->nes_cpu.Z,nes->nes_cpu.I,nes->nes_cpu.D,nes->nes_cpu.B,nes->nes_cpu.V,nes->nes_cpu.N);
-        fprintf(debug_fp,"PC: 0x%04X cycles:%lld \n", nes->nes_cpu.PC,cycles);
-        if (cycles == 56955){
-            printf("cycles");
-            printf("cycles");
-            printf("cycles");
-        }
+        // fprintf(debug_fp,"A:0x%02X X:0x%02X Y:0x%02X SP:0x%02X \nP:0x%02X \nC:0x%02X Z:0x%02X I:0x%02X D:0x%02X B:0x%02X V:0x%02X N:0x%02X \n",
+        //         nes->nes_cpu.A,nes->nes_cpu.X,nes->nes_cpu.Y,nes->nes_cpu.SP,
+        //         nes->nes_cpu.P,nes->nes_cpu.C,nes->nes_cpu.Z,nes->nes_cpu.I,nes->nes_cpu.D,nes->nes_cpu.B,nes->nes_cpu.V,nes->nes_cpu.N);
+        // fprintf(debug_fp,"PC: 0x%04X cycles:%lld \n", nes->nes_cpu.PC,cycles);
+        // if (cycles == 56955){
+        //     printf("cycles");
+        //     printf("cycles");
+        //     printf("cycles");
+        // }
         
         cycles_old = nes->nes_cpu.cycles;
 #endif
@@ -1539,8 +1539,8 @@ void nes_opcode(nes_t* nes,uint16_t ticks){
         nes_opcode_table[nes->nes_cpu.opcode].instruction(nes);
         nes->nes_cpu.cycles += nes_opcode_table[nes->nes_cpu.opcode].ticks;
 #ifdef __DEBUG__
-        cycles += nes->nes_cpu.cycles - cycles_old;
-        fprintf(debug_fp,"\nopcode: %s \n",nes_opcode_name[nes->nes_cpu.opcode]);
+        // cycles += nes->nes_cpu.cycles - cycles_old;
+        // fprintf(debug_fp,"\nopcode: %s \n",nes_opcode_name[nes->nes_cpu.opcode]);
 #endif
     }
     nes->nes_cpu.cycles -= ticks;

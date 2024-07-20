@@ -144,7 +144,7 @@ nes_t* nes_load_rom(const uint8_t* nes_rom){
         if ( nes_memcmp( nes_header_info->identification, "NES\x1a", 4 )){
             goto error;
         }
-        uint8_t* nes_bin = nes_rom + sizeof(nes_header_info_t);
+        uint8_t* nes_bin = (uint8_t*)nes_rom + sizeof(nes_header_info_t);
         if (nes_header_info->trainer){
 #if (NES_USE_SRAM == 1)
 #else
