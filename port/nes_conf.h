@@ -29,42 +29,42 @@
     extern "C" {
 #endif
 
-#define NES_ENABLE_SOUND        0       /* enable sound */
-#define NES_USE_SRAM            0       /* use SRAM */
+#define NES_ENABLE_SOUND        (0)       /* enable sound */
+#define NES_USE_SRAM            (0)       /* use SRAM */
 
-#define NES_FRAME_SKIP          0       /* skip frames */
-#define NES_COLOR_DEPTH         32      /* color depth */
-#define NES_COLOR_SWAP          0       /* swap color channels */
-#define NES_RAM_LACK            0       /* lack of RAM */
+#define NES_FRAME_SKIP          (0)       /* skip frames */
+#define NES_COLOR_DEPTH         (32)      /* color depth */
+#define NES_COLOR_SWAP          (0)       /* swap color channels */
+#define NES_RAM_LACK            (0)       /* lack of RAM */
 
-#define NES_USE_FS              1       /* use file system */
+#define NES_USE_FS              (1)       /* use file system */
 
 
 
 #ifndef NES_ENABLE_SOUND
-#define NES_ENABLE_SOUND             1
+#define NES_ENABLE_SOUND        (1)
 #endif
 
 #ifndef NES_USE_FS
-#define NES_USE_FS              0
+#define NES_USE_FS              (0)
 #endif
 
 #ifndef NES_FRAME_SKIP
-#define NES_FRAME_SKIP          0
+#define NES_FRAME_SKIP          (0)
 #endif
 
 #ifndef NES_RAM_LACK
-#define NES_RAM_LACK            0
+#define NES_RAM_LACK            (0)
 #endif
 
 #if (NES_RAM_LACK == 1)
-#define NES_DRAW_SIZE         (NES_WIDTH * NES_HEIGHT / 2) 
+#define NES_DRAW_SIZE           (NES_WIDTH * NES_HEIGHT / 2) 
 #else
-#define NES_DRAW_SIZE         (NES_WIDTH * NES_HEIGHT)
+#define NES_DRAW_SIZE           (NES_WIDTH * NES_HEIGHT)
 #endif
 
 #ifndef NES_COLOR_SWAP
-#define NES_COLOR_SWAP         0
+#define NES_COLOR_SWAP          (0)
 #endif
 
 /* Color depth:
@@ -72,7 +72,7 @@
  * - 32: ARGB8888
  */
 #ifndef NES_COLOR_DEPTH
-#define NES_COLOR_DEPTH         32
+#define NES_COLOR_DEPTH         (32)
 #endif
 
 #if (NES_COLOR_DEPTH == 32)

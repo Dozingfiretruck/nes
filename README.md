@@ -29,7 +29,7 @@ Simulator support：
 
 - [ ] APU
 
-mapper  support：0，2, 3
+mapper  support：0, 2, 3
 
 #### Software Architecture
 The example is based on SDL2 for image and sound output, without special dependencies, and you can port to any hardware by yourself
@@ -61,22 +61,25 @@ mapper 0:
 |   Game    |                  showcase                  |
 | :---------: | :------------------------------------: |
 | Super Mario | ![super_mario](./docs/super_mario.png) |
-
+|   F1 race   |     ![F1_race](./docs/F1_race.png)     |
 
 
 mapper 2:
 
 | Game |             showcase             |
 | :----: | :--------------------------: |
-| Contra1 | ![contra](./docs/Contra1.png) |
-| 恶魔城1 | ![contra](./docs/Castlevania.png) |
-| 西游记1 |   ![contra](./docs/Journey.png)   |
+| Contra1 | ![Contra1](./docs/Contra1.png) |
+| 恶魔城1 | ![Castlevania](./docs/Castlevania.png) |
+| 西游记1 |   ![Journey](./docs/Journey.png)   |
+| mega man | ![mega_man](./docs/mega_man.png) |
+| Lifeporce | ![Lifeporce](./docs/Lifeporce.png) |
 
 mapper 3:
 
 |   Game   |               showcase               |
 | :--------: | :------------------------------: |
 | MapleStory | ![contra](./docs/MapleStory.png) |
+| Donkey kong | ![Donkey_kong](./docs/Donkey_kong.png) |
 
 #### Literature reference
 

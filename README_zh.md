@@ -29,7 +29,7 @@ c语言实现的nes模拟器，要求c11
 
 - [ ] APU
 
-mapper 支持：0，2, 3
+mapper 支持：0, 2, 3
 
 #### 软件架构
 示例基于SDL2进行图像声音输出，没有特殊依赖，您可自行移植至任意硬件
@@ -61,6 +61,7 @@ mapper 0:
 |   游戏名   |                  演示                  |
 | :--------: | :------------------------------------: |
 | 超级马里奥 | ![super_mario](./docs/super_mario.png) |
+|   F1赛车   |     ![F1_race](./docs/F1_race.png)     |
 
 
 
@@ -72,12 +73,14 @@ mapper 2:
 | 恶魔城1 | ![Castlevania](./docs/Castlevania.png) |
 | 西游记1 |   ![Journey](./docs/Journey.png)   |
 | 洛克人 | ![mega_man](./docs/mega_man.png) |
+| 沙罗曼蛇 | ![Lifeporce](./docs/Lifeporce.png) |
 
 mapper 3:
 
-|      游戏名      |                 演示                 |
-| :--------------: | :----------------------------------: |
-| 高桥名人的冒险岛 | ![MapleStory](./docs/MapleStory.png) |
+|      游戏名      |                  演示                  |
+| :--------------: | :------------------------------------: |
+| 高桥名人的冒险岛 |  ![MapleStory](./docs/MapleStory.png)  |
+|      大金刚      | ![Donkey_kong](./docs/Donkey_kong.png) |
 
 
 
