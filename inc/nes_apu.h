@@ -80,6 +80,15 @@ typedef struct {
         uint8_t control3;
     };
     uint8_t length_counter;
+    uint8_t sweep_reload;
+    uint8_t envelope_restart;
+    uint16_t cur_period;
+    uint8_t sweep_divider;
+    uint8_t envelope_divider;
+    uint8_t envelope_volume;
+    uint8_t sample_buffer[NES_APU_SAMPLE_PER_SYNC];
+    uint16_t sample_index;
+    double seq_loc_old;
 } pulse_t;
 
 // https://www.nesdev.org/wiki/APU#Triangle_($4008-$400B)
@@ -108,8 +117,15 @@ typedef struct {
         uint8_t control3;
     };
     uint8_t length_counter;
+    uint8_t linear_counter;
+    uint8_t linear_restart;
+    uint16_t cur_period;
+    uint8_t sample_buffer[NES_APU_SAMPLE_PER_SYNC];
+    uint16_t sample_index;
+    double seq_loc_old;
 } triangle_t;
 
+// https://www.nesdev.org/wiki/APU#Noise_($400C-$400F)
 typedef struct {
     union {
         struct {    
@@ -135,6 +151,21 @@ typedef struct {
         uint8_t control3;
     };
     uint8_t length_counter;
+    uint8_t envelope_restart;
+    uint8_t envelope_divider;
+    uint8_t envelope_volume;
+    uint8_t sample_buffer[NES_APU_SAMPLE_PER_SYNC];
+    uint16_t sample_index;
+    union {
+        struct {    
+            uint16_t lfsr_d0:1;
+            uint16_t lfsr_d1:1;
+            uint16_t :4;
+            uint16_t lfsr_d6:1;
+            uint16_t :9;
+        };
+        uint16_t lfsr;
+    };
 } noise_t;
 
 typedef struct {
@@ -154,10 +185,10 @@ typedef struct {
         };
         uint8_t control1;
     };
-    
-
     uint8_t sample_address;                 /*	Sample address (A) */
     uint8_t sample_length;                  /*	Sample length (L) */
+    uint8_t sample_buffer[NES_APU_SAMPLE_PER_SYNC];
+    uint16_t sample_index;
 } dmc_t;
 
 // https://www.nesdev.org/wiki/APU#Registers
@@ -186,15 +217,16 @@ typedef struct nes_apu{
     union {
         struct {
             uint8_t :6;
-            uint8_t irq_inhibit_flag:1;     /*   IRQ inhibit flag (I)*/
+            uint8_t irq_inhibit_flag:1;     /*  IRQ inhibit flag (I)*/
             uint8_t mode:1;                 /*  Mode (M, 0 = 4-step, 1 = 5-step) */
         };
         uint8_t frame_counter;              //  Frame Counter ($4017)
     };
 
-    uint8_t clock_count;
+    uint64_t clock_count;
     // sample_buffer: pulse1 pulse2 triangle noise dmc output
-    uint8_t sample_buffer[5+1][NES_APU_SAMPLE_PER_SYNC];
+    uint8_t sample_buffer[NES_APU_SAMPLE_PER_SYNC];
+    uint16_t sample_index;
 } nes_apu_t;
 
 void nes_apu_init(nes_t *nes);
