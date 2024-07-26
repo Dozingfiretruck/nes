@@ -27,7 +27,7 @@ Simulator support：
 
 - [x] PPU
 
-- [ ] APU
+- [x] APU
 
 mapper  support：0, 2, 3
 
