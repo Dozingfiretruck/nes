@@ -27,7 +27,7 @@
 
 typedef struct {
     void (*instruction)(nes_t* nes);      //instructions 
-    const uint16_t (*addressing_mode)(nes_t* nes);  //addressing_mode
+    uint16_t (*addressing_mode)(nes_t* nes);  //addressing_mode
     const uint8_t ticks;
 } nes_opcode_t;
 
