@@ -150,12 +150,6 @@ typedef struct {
         };
         uint8_t control3;
     };
-    uint8_t length_counter;
-    uint8_t envelope_restart;
-    uint8_t envelope_divider;
-    uint8_t envelope_volume;
-    uint8_t sample_buffer[NES_APU_SAMPLE_PER_SYNC];
-    uint16_t sample_index;
     union {
         struct {    
             uint16_t lfsr_d0:1;
@@ -166,6 +160,12 @@ typedef struct {
         };
         uint16_t lfsr;
     };
+    uint8_t length_counter;
+    uint8_t envelope_restart;
+    uint8_t envelope_divider;
+    uint8_t envelope_volume;
+    uint8_t sample_buffer[NES_APU_SAMPLE_PER_SYNC];
+    uint16_t sample_index;
 } noise_t;
 
 typedef struct {

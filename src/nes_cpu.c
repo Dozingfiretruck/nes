@@ -133,7 +133,7 @@ static void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
             nes->nes_rom.sram[address & (uint16_t)0x1fff] = data;
 #endif
             return;
-        case 4: case 5: case 6: case 7:
+        case 4: case 5: case 6: case 7: // $8000-$FFFF PRG-ROM
             nes->nes_mapper.mapper_write(nes, address, data);
             return;
         default :
@@ -1218,13 +1218,6 @@ void nes_cpu_init(nes_t* nes){
     nes->nes_cpu.A = nes->nes_cpu.X = nes->nes_cpu.Y = nes->nes_cpu.P = 0;
     nes->nes_cpu.U = nes->nes_cpu.I = 1;
     nes->nes_cpu.SP = 0x00;             // reset: S = $00-$03 = $FD
-    nes_write_cpu(nes,0x4017, 0x00);    // $4017 = $00 (frame irq enabled)
-    nes_write_cpu(nes,0x4015, 0x00);    // $4015 = $00 (all channels disabled)
-    // $4000-$400F = $00
-    // $4010-$4013 = $00
-    for (uint8_t i = 0; i <= 13; i++){
-        nes_write_cpu(nes,0x4000+i, 0x00);
-    }
 }
 
 // https://www.nesdev.org/wiki/CPU_unofficial_opcodes
@@ -1532,8 +1525,7 @@ void nes_opcode(nes_t* nes,uint16_t ticks){
         //     printf("cycles");
         //     printf("cycles");
         // }
-        
-        cycles_old = nes->nes_cpu.cycles;
+        // cycles_old = nes->nes_cpu.cycles;
 #endif
         nes->nes_cpu.opcode = nes_read_cpu(nes,nes->nes_cpu.PC++);
         nes_opcode_table[nes->nes_cpu.opcode].instruction(nes);

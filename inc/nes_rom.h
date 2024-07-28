@@ -34,9 +34,9 @@ typedef struct nes nes_t;
 
 /* INES:    https://www.nesdev.org/wiki/INES */
 /* NES 2.0: https://wiki.nesdev.org/w/index.php/NES_2.0 */
-#define TRAINER_SIZE            (0x200)
-#define PRG_ROM_UNIT_SIZE       (0x4000)
-#define CHR_ROM_UNIT_SIZE       (0x2000)
+#define TRAINER_SIZE            (0x200)     /* 512 */
+#define PRG_ROM_UNIT_SIZE       (0x4000)    /* 16K */
+#define CHR_ROM_UNIT_SIZE       (0x2000)    /* 8K */
 typedef struct {
     uint8_t identification[4];          /*  0-3   Identification String. Must be "NES<EOF>". */
     uint8_t prg_rom_size_l;             /*  4     PRG-ROM size LSB */

@@ -56,8 +56,12 @@ typedef struct {
 
 /* mapper */
 int nes_load_mapper(nes_t* nes);
-void nes_load_prgrom_8k(nes_t* nes,int des, int src);
-void nes_load_chrrom_1k(nes_t* nes,int des, int src);
+/* prg rom */
+void nes_load_prgrom_8k(nes_t* nes,uint8_t des, uint8_t src);
+void nes_load_prgrom_16k(nes_t* nes,uint8_t des, uint8_t src);
+/* chr rom */
+void nes_load_chrrom_1k(nes_t* nes,uint8_t des, uint8_t src);
+void nes_load_chrrom_8k(nes_t* nes,uint8_t des, uint8_t src);
 
 
 int nes_mapper0_init(nes_t* nes);
@@ -65,6 +69,8 @@ int nes_mapper1_init(nes_t* nes);
 int nes_mapper2_init(nes_t* nes);
 int nes_mapper3_init(nes_t* nes);
 int nes_mapper4_init(nes_t* nes);
+int nes_mapper94_init(nes_t* nes);
+int nes_mapper180_init(nes_t* nes);
 
 #ifdef __cplusplus          
     }

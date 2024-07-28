@@ -29,7 +29,7 @@ Simulator support：
 
 - [x] APU
 
-mapper  support：0, 2, 3
+mapper  support：0, 2, 3, 94, 108
 
 #### Software Architecture
 The example is based on SDL2 for image and sound output, without special dependencies, and you can port to any hardware by yourself

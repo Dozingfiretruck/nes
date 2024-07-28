@@ -25,13 +25,13 @@
 
 #include "nes.h"
 
-/* https://www.nesdev.org/wiki/UxROM */
+/* https://www.nesdev.org/wiki/INES_Mapper_180 */
 
 static void nes_mapper_init(nes_t* nes){
-    // CPU $8000-$BFFF: 16 KB switchable PRG ROM bank.
+    // CPU $8000-$BFFF: 16 KB PRG ROM bank, fixed to the first bank
     nes_load_prgrom_16k(nes, 0, 0);
-    // CPU $C000-$FFFF: 16 KB PRG ROM bank, fixed to the last bank.
-    nes_load_prgrom_16k(nes, 1, nes->nes_rom.prg_rom_size - 1);
+    // CPU $C000-$FFFF: 16 KB switchable PRG ROM bank
+    nes_load_prgrom_16k(nes, 1, 0);
     // CHR capacity: 8 KiB ROM.
     nes_load_chrrom_8k(nes, 0, 0);
 }
@@ -39,19 +39,18 @@ static void nes_mapper_init(nes_t* nes){
 /*
     7  bit  0
     ---- ----
-    xxxx pPPP
-         ||||
-         ++++- Select 16 KB PRG ROM bank for CPU $8000-$BFFF
-                (UNROM uses bits 2-0; UOROM uses bits 3-0)
+    xxxx xPPP
+          |||
+          +++-- Select 16 KB PRG ROM bank for CPU $C000-$FFFF
 */
 static void nes_mapper_write(nes_t* nes, uint16_t address, uint8_t date) {
     const uint8_t bank = (date % nes->nes_rom.prg_rom_size);
-    nes_load_prgrom_16k(nes, 0, bank);
+    nes_load_prgrom_16k(nes, 1, bank);
 }
 
 
 
-int nes_mapper2_init(nes_t* nes){
+int nes_mapper180_init(nes_t* nes){
     nes->nes_mapper.mapper_init = nes_mapper_init;
     nes->nes_mapper.mapper_write = nes_mapper_write;
     return 0;
