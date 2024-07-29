@@ -27,7 +27,7 @@
 
 static inline uint8_t nes_read_ppu_memory(nes_t* nes){
     const uint16_t address = nes->nes_ppu.v_reg & (uint16_t)0x3FFF;
-    const uint16_t index = address >> 10;
+    const uint8_t index = address >> 10;
     const uint16_t offset = address & (uint16_t)0x3FF;
     if (address < (uint16_t)0x3F00) {// BANK
         uint8_t data = nes->nes_ppu.buffer;
@@ -162,9 +162,9 @@ void nes_ppu_init(nes_t *nes){
         nes->nes_ppu.name_table[3] = nes->nes_ppu.ppu_vram1;
     }
     // mirrors
-    nes->nes_ppu.chr_banks[12] = nes->nes_ppu.name_table[0];
-    nes->nes_ppu.chr_banks[13] = nes->nes_ppu.name_table[1];
-    nes->nes_ppu.chr_banks[14] = nes->nes_ppu.name_table[2];
-    nes->nes_ppu.chr_banks[15] = nes->nes_ppu.name_table[3];
+    nes->nes_ppu.name_table_mirrors[0] = nes->nes_ppu.name_table[0];
+    nes->nes_ppu.name_table_mirrors[1] = nes->nes_ppu.name_table[1];
+    nes->nes_ppu.name_table_mirrors[2] = nes->nes_ppu.name_table[2];
+    nes->nes_ppu.name_table_mirrors[3] = nes->nes_ppu.name_table[3];
 }
 

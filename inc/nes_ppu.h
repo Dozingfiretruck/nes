@@ -120,6 +120,7 @@ typedef struct nes_ppu{
         struct {
             uint8_t* pattern_table[8];
             uint8_t* name_table[4];
+            uint8_t* name_table_mirrors[4];
         };
         uint8_t* chr_banks[16];             /*  16k chr_banks,without background_palette and sprite_palette
                                                 0 - 3 pattern_table_0 4k

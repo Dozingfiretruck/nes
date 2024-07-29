@@ -103,7 +103,7 @@ static void nes_render_background_line(nes_t* nes,uint16_t scanline,nes_color_t*
         }
         m = 7;
     }
-    nametable_id ^= nes->nes_rom.mirroring_type ? 1:2;
+    nametable_id ^= 1;
     for (uint8_t tile_x = 0; tile_x <= dx; tile_x++){
         const uint8_t pattern_id = nes->nes_ppu.name_table[nametable_id][tile_x + (tile_y << 5)];
         const uint8_t* bit0_p = nes->nes_ppu.pattern_table[nes->nes_ppu.CTRL_B ? 4 : 0] + pattern_id * 16;
@@ -251,8 +251,8 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
 
 void nes_run(nes_t* nes){
     nes_printf("mapper:%03d\n",nes->nes_rom.mapper_number);
-    nes_printf("prg_rom_size:%d*16kb\n",nes->nes_rom.prg_rom_size);
-    nes_printf("chr_rom_size:%d*8kb\n",nes->nes_rom.chr_rom_size);
+    nes_printf("prg_rom_size:%d*16kB\n",nes->nes_rom.prg_rom_size);
+    nes_printf("chr_rom_size:%d*8kB\n",nes->nes_rom.chr_rom_size);
     nes_printf("mirroring_type:%d\n",nes->nes_rom.mirroring_type);
     nes_printf("four_screen:%d\n",nes->nes_rom.four_screen);
     // nes_printf("save_ram:%d\n",nes->nes_rom.save_ram);
