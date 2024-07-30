@@ -32,7 +32,7 @@ static void nes_mapper_init(nes_t* nes){
     // CPU $C000-$FFFF: Last 16 KB of ROM or mirror of $8000-$BFFF.
     nes_load_prgrom_16k(nes, 1, nes->nes_rom.prg_rom_size - 1); // PRG ROM size: 16 KiB or 32 KiB, set mirror.
     // CHR capacity: 8 KiB ROM.
-    nes_load_chrrom_8k(nes,0,0);
+    nes_load_chrrom_8k(nes, 0, 0);
 }
 
 /*

@@ -37,6 +37,17 @@
 struct nes;
 typedef struct nes nes_t;
 
+typedef enum {
+    NES_MIRROR_FOUR_SCREEN  ,
+    NES_MIRROR_HORIZONTAL   ,
+    NES_MIRROR_VERTICAL     ,
+    NES_MIRROR_ONE_SCREEN0  ,
+    NES_MIRROR_ONE_SCREEN1  ,
+    NES_MIRROR_MAPPER       ,
+    NES_MIRROR_COUNT        ,
+    NES_MIRROR_AUTO        ,
+}nes_mirror_type_t;
+
 // https://www.nesdev.org/wiki/PPU_OAM
 typedef struct{
     uint8_t	y;		                        /*  Y position of top of sprite */
@@ -62,15 +73,6 @@ typedef struct{
 
 // https://www.nesdev.org/wiki/PPU_registers
 typedef struct nes_ppu{
-    union {
-        struct {
-            uint8_t ppu_vram0[NES_PPU_VRAM_SIZE / 4];
-            uint8_t ppu_vram1[NES_PPU_VRAM_SIZE / 4];
-            uint8_t ppu_vram2[NES_PPU_VRAM_SIZE / 4];
-            uint8_t ppu_vram3[NES_PPU_VRAM_SIZE / 4];
-        };
-        uint8_t ppu_vram[NES_PPU_VRAM_SIZE];
-    };
     union {
         struct {
             uint8_t CTRL_N:2;               /*  Base nametable address (0 = $2000; 1 = $2400; 2 = $2800; 3 = $2C00) */
@@ -116,21 +118,13 @@ typedef struct nes_ppu{
         };
         uint8_t ppu_status;
     };
-    union {
-        struct {
-            uint8_t* pattern_table[8];
-            uint8_t* name_table[4];
-            uint8_t* name_table_mirrors[4];
-        };
-        uint8_t* chr_banks[16];             /*  16k chr_banks,without background_palette and sprite_palette
-                                                0 - 3 pattern_table_0 4k
-                                                4 - 7 pattern_table_1 4k
-                                                8     name_table_0    1k
-                                                9     name_table_1    1k
-                                                10    name_table_2    1k
-                                                11    name_table_3    1k
-                                                12-15 mirrors */
+    struct {
+        uint8_t x:3;                        /*  Fine X scroll (3 bits) */
+        uint8_t w:1;                        /*  First or second write toggle (1 bit) */
+        uint8_t :4;// 可利用做xxx标志位
     };
+    uint8_t oam_addr;                       /*  OAM read/write address */
+    uint8_t buffer;                         /*  PPU internal buffer */
     union {
 		struct{ // Scroll
 			uint16_t coarse_x  : 5;     
@@ -151,19 +145,14 @@ typedef struct nes_ppu{
 		}t;
         uint16_t t_reg;                     /*  Temporary VRAM address (15 bits); can also be thought of as the address of the top left onscreen tile. */
     };
-    struct {
-        uint8_t x:3;                        /*  Fine X scroll (3 bits) */
-        uint8_t w:1;                        /*  First or second write toggle (1 bit) */
-        uint8_t :4;// 可利用做xxx标志位
-    };
-    uint8_t oam_addr;                       /*  OAM read/write address */
+    uint8_t ppu_vram[4][NES_PPU_VRAM_SIZE/4];
     union {
         sprite_info_t sprite_info[NES_PPU_OAM_SIZE/4];
         uint8_t oam_data[NES_PPU_OAM_SIZE]; /*  OAM data read/write 
                                                 The OAM (Object Attribute Memory) is internal memory inside the PPU that contains a display list of up to 64 sprites, 
                                                 where each sprite's information occupies 4 bytes.*/
     };
-    uint8_t buffer;                         /*  PPU internal buffer */
+    
     uint8_t palette_indexes[0x20];          /*  $3F00-$3F1F Palette RAM indexes */
     union {
         struct {
@@ -172,9 +161,25 @@ typedef struct nes_ppu{
         };
         nes_color_t palette[0x20];
     };
+    union {
+        struct {
+            uint8_t* pattern_table[8];
+            uint8_t* name_table[4];
+            uint8_t* name_table_mirrors[4];
+        };
+        uint8_t* chr_banks[16];             /*  16k chr_banks,without background_palette and sprite_palette
+                                                0 - 3 pattern_table_0 4k
+                                                4 - 7 pattern_table_1 4k
+                                                8     name_table_0    1k
+                                                9     name_table_1    1k
+                                                10    name_table_2    1k
+                                                11    name_table_3    1k
+                                                12-15 mirrors */
+    };
 } nes_ppu_t;
 
 void nes_ppu_init(nes_t *nes);
+void nes_ppu_screen(nes_t *nes);
 uint8_t nes_read_ppu_register(nes_t *nes,uint16_t address);
 void nes_write_ppu_register(nes_t *nes,uint16_t address, uint8_t data);
 

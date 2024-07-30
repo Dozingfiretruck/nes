@@ -43,9 +43,14 @@ static void nes_mapper_init(nes_t* nes){
        | ||
        +-++--- Select 16 KB PRG ROM bank for CPU $8000-$BFFF
 */
+typedef struct {
+    uint8_t :2;
+    uint8_t P:3;
+    uint8_t :3;
+}bank_select_t;
 static void nes_mapper_write(nes_t* nes, uint16_t address, uint8_t date) {
-    const uint8_t bank = ((date>>2) % nes->nes_rom.prg_rom_size);
-    nes_load_prgrom_16k(nes, 0, bank);
+    const bank_select_t* bank_select = (bank_select_t*)&date;
+    nes_load_prgrom_16k(nes, 0, bank_select->P);
 }
 
 

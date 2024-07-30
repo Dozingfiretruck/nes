@@ -28,16 +28,26 @@
 /*
     载入8k PRG-ROM
 */
-void nes_load_prgrom_8k(nes_t* nes,uint8_t des, uint8_t src) {
+void nes_load_prgrom_8k(nes_t* nes,uint8_t des, uint16_t src) {
     nes->nes_cpu.prg_banks[des] = nes->nes_rom.prg_rom + 8 * 1024 * src;
 }
 
 /*
     载入16k PRG-ROM
 */
-void nes_load_prgrom_16k(nes_t* nes,uint8_t des, uint8_t src) {
+void nes_load_prgrom_16k(nes_t* nes,uint8_t des, uint16_t src) {
     nes->nes_cpu.prg_banks[des * 2] = nes->nes_rom.prg_rom + 8 * 1024 * src * 2;
     nes->nes_cpu.prg_banks[des * 2 + 1] = nes->nes_rom.prg_rom + 8 * 1024 * (src * 2 + 1);
+}
+
+/*
+    载入32k PRG-ROM
+*/
+void nes_load_prgrom_32k(nes_t* nes,uint8_t des, uint16_t src) {
+    nes->nes_cpu.prg_banks[0] = nes->nes_rom.prg_rom + 8 * 1024 * src * 4;
+    nes->nes_cpu.prg_banks[1] = nes->nes_rom.prg_rom + 8 * 1024 * (src * 4 + 1);
+    nes->nes_cpu.prg_banks[2] = nes->nes_rom.prg_rom + 8 * 1024 * (src * 4 + 2);
+    nes->nes_cpu.prg_banks[3] = nes->nes_rom.prg_rom + 8 * 1024 * (src * 4 + 3);
 }
 
 /*
@@ -64,7 +74,9 @@ int nes_load_mapper(nes_t* nes){
         NES_CASE_LOAD_MAPPER(2);
         NES_CASE_LOAD_MAPPER(3);
         // NES_CASE_LOAD_MAPPER(4);
+        NES_CASE_LOAD_MAPPER(7);
         NES_CASE_LOAD_MAPPER(94);
+        NES_CASE_LOAD_MAPPER(117);
         NES_CASE_LOAD_MAPPER(180);
         default :
             nes_printf("mapper:%03d is unsupported\n",nes->nes_rom.mapper_number);

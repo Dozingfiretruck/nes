@@ -139,32 +139,38 @@ void nes_write_ppu_register(nes_t* nes,uint16_t address, uint8_t data){
     }
 }
 
-void nes_ppu_init(nes_t *nes){
-    // four_screen
-    if (nes->nes_rom.four_screen) { 
-        nes->nes_ppu.name_table[0] = nes->nes_ppu.ppu_vram0;
-        nes->nes_ppu.name_table[1] = nes->nes_ppu.ppu_vram1;
-        nes->nes_ppu.name_table[2] = nes->nes_ppu.ppu_vram2;
-        nes->nes_ppu.name_table[3] = nes->nes_ppu.ppu_vram3;
+static const uint8_t nes_mirror_table[NES_MIRROR_COUNT][4] ={
+    { 0, 1, 2, 3 }, // NES_MIRROR_FOUR_SCREEN
+    { 0, 0, 1, 1 }, // NES_MIRROR_HORIZONTAL 
+    { 0, 1, 0, 1 }, // NES_MIRROR_VERTICAL   
+    { 0, 0, 0, 0 }, // NES_MIRROR_ONE_SCREEN0
+    { 1, 1, 1, 1 }, // NES_MIRROR_ONE_SCREEN1
+    { 0, 0, 0, 1 }, // NES_MIRROR_MAPPER     
+};
+
+
+void nes_ppu_screen_mirrors(nes_t *nes,nes_mirror_type_t mirror_type){
+    if (mirror_type == NES_MIRROR_AUTO){
+        if (nes->nes_rom.four_screen) { // four_screen
+            mirror_type = NES_MIRROR_FOUR_SCREEN;
+        } else if (nes->nes_rom.mirroring_type) { // Vertical
+            mirror_type = NES_MIRROR_VERTICAL;
+        } else { // Horizontal
+            mirror_type = NES_MIRROR_HORIZONTAL;
+        }
     }
-    // Vertical
-    else if (nes->nes_rom.mirroring_type) {
-        nes->nes_ppu.name_table[0] = nes->nes_ppu.ppu_vram0;
-        nes->nes_ppu.name_table[1] = nes->nes_ppu.ppu_vram1;
-        nes->nes_ppu.name_table[2] = nes->nes_ppu.ppu_vram0;
-        nes->nes_ppu.name_table[3] = nes->nes_ppu.ppu_vram1;
-    }
-    // Horizontal or mapper-controlled
-    else {
-        nes->nes_ppu.name_table[0] = nes->nes_ppu.ppu_vram0;
-        nes->nes_ppu.name_table[1] = nes->nes_ppu.ppu_vram0;
-        nes->nes_ppu.name_table[2] = nes->nes_ppu.ppu_vram1;
-        nes->nes_ppu.name_table[3] = nes->nes_ppu.ppu_vram1;
-    }
+    nes->nes_ppu.name_table[0] = nes->nes_ppu.ppu_vram[nes_mirror_table[mirror_type][0]];
+    nes->nes_ppu.name_table[1] = nes->nes_ppu.ppu_vram[nes_mirror_table[mirror_type][1]];
+    nes->nes_ppu.name_table[2] = nes->nes_ppu.ppu_vram[nes_mirror_table[mirror_type][2]];
+    nes->nes_ppu.name_table[3] = nes->nes_ppu.ppu_vram[nes_mirror_table[mirror_type][3]];
     // mirrors
     nes->nes_ppu.name_table_mirrors[0] = nes->nes_ppu.name_table[0];
     nes->nes_ppu.name_table_mirrors[1] = nes->nes_ppu.name_table[1];
     nes->nes_ppu.name_table_mirrors[2] = nes->nes_ppu.name_table[2];
     nes->nes_ppu.name_table_mirrors[3] = nes->nes_ppu.name_table[3];
+}
+
+void nes_ppu_init(nes_t *nes){
+    nes_ppu_screen_mirrors(nes,NES_MIRROR_AUTO);
 }
 
