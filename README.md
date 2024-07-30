@@ -6,7 +6,7 @@
 
 # nes
 
-#### Introduction
+## Introduction
 The nes simulator implemented in c , requires c11
 
 **attention：**
@@ -29,17 +29,17 @@ Simulator support：
 
 - [x] APU
 
-mapper  support：0, 2, 3, 94, 108
+mapper  support：0, 2, 3, 7, 94, 117, 108
 
-#### Software Architecture
+## Software Architecture
 The example is based on SDL2 for image and sound output, without special dependencies, and you can port to any hardware by yourself
 
 
-#### Compile Tutorial
+## Compile Tutorial
 
 ​	clone repository，install [xmake](https://github.com/xmake-io/xmake)，execute `xmake` directly to compile
 
-#### Instructions
+## Instructions
 
 ​	on linux or macos enter  `./nes xxx.nes` load the game to run
 
@@ -47,41 +47,44 @@ The example is based on SDL2 for image and sound output, without special depende
 
 
 
-#### Key mapping
+## Key mapping
 
 | joystick |  up  | down | left | right | select | start |  A   |  B   |
 | :------: | :--: | :--: | :--: | :---: | :----: | :---: | :--: | :--: |
 |    P1    |  W   |  S   |  A   |   D   |   V    |   B   |  J   |  K   |
 |    P2    |  ↑   |  ↓   |  ←   |   →   |   1    |   2   |  5   |  6   |
 
-#### showcase
+## showcase
 
-mapper 0:
+**mapper 0:**
 
-|   Game    |                  showcase                  |
-| :---------: | :------------------------------------: |
-| Super Mario | ![super_mario](./docs/super_mario.png) |
-|   F1 race   |     ![F1_race](./docs/F1_race.png)     |
+| ![Super Mario Bros](./docs/Super Mario Bros.png) | ![F1_race](./docs/F1_race.png) | ![Star Luster (J)](./docs/Star Luster (J).png) | ![Ikki (J)](./docs/Ikki (J).png) |
+| :----------------------------------------------: | :----------------------------: | :--------------------------------------------: | -------------------------------- |
+|   ![Circus Charlie](./docs/Circus Charlie.png)   |                                |                                                |                                  |
+
+**mapper 2:**
 
 
-mapper 2:
+|  ![Contra1](./docs/Contra1.png)  | ![Castlevania](./docs/Castlevania.png) | ![Journey](./docs/Journey.png) | ![Lifeporce](./docs/Lifeporce.png) |
+| :------------------------------: | :------------------------------------: | :----------------------------: | ---------------------------------- |
+| ![mega_man](./docs/mega_man.png) |  ![Athena (J)](./docs/Athena (J).png)  |                                |                                    |
 
-| Game |             showcase             |
-| :----: | :--------------------------: |
-| Contra1 | ![Contra1](./docs/Contra1.png) |
-| 恶魔城1 | ![Castlevania](./docs/Castlevania.png) |
-| 西游记1 |   ![Journey](./docs/Journey.png)   |
-| mega man | ![mega_man](./docs/mega_man.png) |
-| Lifeporce | ![Lifeporce](./docs/Lifeporce.png) |
+**mapper 3:**
 
-mapper 3:
+| ![contra](./docs/MapleStory.png) | ![Donkey_kong](./docs/Donkey_kong.png) |
+| :------------------------------: | :------------------------------------: |
 
-|   Game   |               showcase               |
-| :--------: | :------------------------------: |
-| MapleStory | ![contra](./docs/MapleStory.png) |
-| Donkey kong | ![Donkey_kong](./docs/Donkey_kong.png) |
 
-#### Literature reference
+
+**mapper 94:**
+
+![Senjou no Ookami](D:/code/codeup/nes_github/docs/Senjou no Ookami (J).png)
+
+**mapper 180:**
+
+![Crazy Climber](./docs/Crazy Climber (J).png)
+
+## Literature reference
 
 https://www.nesdev.org/
 
