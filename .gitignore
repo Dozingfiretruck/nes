@@ -40,9 +40,6 @@
 *.idb
 *.pdb
 
-.vscode
-.xmake
-
 # Kernel Module Compile Results
 *.mod*
 *.cmd
@@ -52,9 +49,13 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+
+.vscode
+.xmake
+
 *.nes
 build
-
+vsxmake2022
 
 
 
