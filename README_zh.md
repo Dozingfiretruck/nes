@@ -58,16 +58,16 @@ mapper 支持：0, 2, 3, 7, 94, 117, 108
 
 **mapper 0:**
 
-| ![Super Mario Bros](./docs/Super Mario Bros.png) | ![F1_race](./docs/F1_race.png) | ![Star Luster (J)](./docs/Star Luster (J).png) | ![Ikki (J)](./docs/Ikki (J).png) |
-| :----------------------------------------------: | :----------------------------: | :--------------------------------------------: | -------------------------------- |
-|   ![Circus Charlie](./docs/Circus Charlie.png)   |                                |                                                |                                  |
+| ![Super Mario Bros](./docs/SuperMarioBros.png) | ![F1_race](./docs/F1_race.png) | ![Star Luster (J)](./docs/StarLuster(J).png) | ![Ikki (J)](./docs/Ikki(J).png) |
+| :--------------------------------------------: | :----------------------------: | :------------------------------------------: | ------------------------------- |
+|  ![Circus Charlie](./docs/CircusCharlie.png)   |                                |                                              |                                 |
 
 **mapper 2:**
 
 
 |  ![Contra1](./docs/Contra1.png)  | ![Castlevania](./docs/Castlevania.png) | ![Journey](./docs/Journey.png) | ![Lifeporce](./docs/Lifeporce.png) |
 | :------------------------------: | :------------------------------------: | :----------------------------: | ---------------------------------- |
-| ![mega_man](./docs/mega_man.png) |  ![Athena (J)](./docs/Athena (J).png)  |                                |                                    |
+| ![mega_man](./docs/mega_man.png) |  ![Athena (J)](./docs/Athena(J).png)   |                                |                                    |
 
 **mapper 3:**
 
@@ -78,11 +78,11 @@ mapper 支持：0, 2, 3, 7, 94, 117, 108
 
 **mapper 94:**
 
-![Senjou no Ookami](./docs/Senjou no Ookami (J).png)
+![Senjou no Ookami](./docs/Senjou_no_Ookami(J).png)
 
 **mapper 180:**
 
-![Crazy Climber](./docs/Crazy Climber (J).png)
+![Crazy Climber](./docs/CrazyClimber(J).png)
 
 ## 文献参考
 
