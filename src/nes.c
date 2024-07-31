@@ -1,27 +1,18 @@
 /*
- * MIT License
+ * Copyright 2023-2024 Dozingfiretruck
  *
- * Copyright (c) 2023 Dozingfiretruck
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 
 #include "nes.h"
 
@@ -88,6 +79,14 @@ static void nes_render_background_line(nes_t* nes,uint16_t scanline,nes_color_t*
     uint8_t nametable_id = (uint8_t)nes->nes_ppu.v.nametable;
     for (uint8_t tile_x = dx; tile_x < 32; tile_x++){
         const uint8_t pattern_id = nes->nes_ppu.name_table[nametable_id][tile_x + (tile_y << 5)];
+        // if (pattern_id == 0x40 || pattern_id == 0x41){
+        //     printf("scanline:%d pattern_id:0x%02x dx:%d dy:%d tile_x:%d tile_y:%d\n",scanline,pattern_id,dx,dy,tile_x,tile_y);
+        // }
+        // if (scanline == 170 && tile_x == 10)
+        // {
+        //     printf("scanline:%d pattern_id:0x%02x dx:%d dy:%d tile_x:%d tile_y:%d\n",scanline,pattern_id,dx,dy,tile_x,tile_y);
+        // }
+        
         const uint8_t* bit0_p = nes->nes_ppu.pattern_table[nes->nes_ppu.CTRL_B ? 4 : 0] + pattern_id * 16;
         const uint8_t* bit1_p = bit0_p + 8;
         const uint8_t bit0 = bit0_p[dy];

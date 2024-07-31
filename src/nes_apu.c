@@ -1,27 +1,18 @@
 /*
- * MIT License
+ * Copyright 2023-2024 Dozingfiretruck
  *
- * Copyright (c) 2023 Dozingfiretruck
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 
 #include "nes.h"
 
@@ -151,6 +142,9 @@ static void nes_apu_play_pulse(nes_apu_t* apu,uint8_t pulse_id){
     uint64_t cpu_loc_old = apu->clock_count * NES_CPU_CLOCK_FREQ / 240;
     for (uint64_t sample_loc = apu->clock_count * NES_APU_SAMPLE_RATE / 240 + 1; sample_loc <= (apu->clock_count + 1) * NES_APU_SAMPLE_RATE / 240; sample_loc++){
         uint8_t mute = 0;
+        if (pulse->sample_index >= NES_APU_SAMPLE_PER_SYNC){
+            break;
+        }
         if ((!enabled) || (pulse->length_counter == 0)){
             mute = 1;
             pulse->sample_buffer[pulse->sample_index++] = 0;
@@ -181,6 +175,9 @@ static void nes_apu_play_triangle(nes_apu_t* apu){
     triangle_t* triangle = &apu->triangle;
     uint64_t cpu_loc_old = apu->clock_count * NES_CPU_CLOCK_FREQ / 240;
     for (uint64_t sample_loc = apu->clock_count * NES_APU_SAMPLE_RATE / 240 + 1; sample_loc <= (apu->clock_count + 1) * NES_APU_SAMPLE_RATE / 240; sample_loc++){
+        if (triangle->sample_index >= NES_APU_SAMPLE_PER_SYNC){
+            break;
+        }
         if ((!apu->status_triangle) || (triangle->length_counter == 0) || (triangle->linear_counter == 0)){
             triangle->sample_buffer[triangle->sample_index++] = 0;
             triangle->seq_loc_old = 0;
@@ -204,12 +201,15 @@ static void nes_apu_play_noise(nes_apu_t* apu){
     uint8_t volume;
     uint64_t cpu_loc_old = apu->clock_count * NES_CPU_CLOCK_FREQ / 240;
     for (uint64_t sample_loc = apu->clock_count * NES_APU_SAMPLE_RATE / 240 + 1; sample_loc <= (apu->clock_count + 1) * NES_APU_SAMPLE_RATE / 240; sample_loc++){
+        if (noise->sample_index >= NES_APU_SAMPLE_PER_SYNC){
+            break;
+        }
         if ((!apu->status_noise) || (noise->length_counter == 0)){
             noise->sample_buffer[noise->sample_index++] = 0;
             continue;
         }
         const uint64_t cpu_loc = sample_loc* NES_CPU_CLOCK_FREQ / NES_APU_SAMPLE_RATE;
-        const uint64_t lfsr_count = (cpu_loc / noise->noise_period) - (cpu_loc_old / noise->noise_period);
+        const uint64_t lfsr_count = (cpu_loc / (noise->noise_period + 1)) - (cpu_loc_old / (noise->noise_period + 1));
         cpu_loc_old = cpu_loc;
         if (noise->loop_noise){//短模式
             for (uint64_t t = 0; t < lfsr_count; t++){
@@ -229,8 +229,8 @@ static void nes_apu_play_noise(nes_apu_t* apu){
     }
 }
 
-// https://www.nesdev.org/wiki/APU_Noise
-static void nes_apu_play_pcm(nes_apu_t* apu){
+// https://www.nesdev.org/wiki/APU_DMC
+static void nes_apu_play_dmc(nes_apu_t* apu){
 
 }
 
@@ -239,15 +239,15 @@ static inline void nes_apu_play(nes_t* nes){
     nes_apu_play_pulse(&nes->nes_apu,2);
     nes_apu_play_triangle(&nes->nes_apu);
     nes_apu_play_noise(&nes->nes_apu);
-    nes_apu_play_pcm(&nes->nes_apu);
+    nes_apu_play_dmc(&nes->nes_apu);
 
     if (nes->nes_apu.clock_count % 4 == 3){
         // https://www.nesdev.org/wiki/APU_Mixer
         nes_memset(nes->nes_apu.sample_buffer, 0, NES_APU_SAMPLE_PER_SYNC);
         for (int t = 0; t <= NES_APU_SAMPLE_PER_SYNC - 1; t++){
             // 这里采用线性近似方法 https://www.nesdev.org/wiki/APU_Mixer#Linear_Approximation
-            double volume_total = 0.00752 * (nes->nes_apu.pulse1.sample_buffer[t] + nes->nes_apu.pulse2.sample_buffer[t]);
-            volume_total += 0.00851 * nes->nes_apu.triangle.sample_buffer[t] + 0.00494 * nes->nes_apu.noise.sample_buffer[t] + 0.00335 * nes->nes_apu.dmc.sample_buffer[t];
+            float volume_total = 0.00752f * (nes->nes_apu.pulse1.sample_buffer[t] + nes->nes_apu.pulse2.sample_buffer[t]);
+            volume_total += 0.00851f * nes->nes_apu.triangle.sample_buffer[t] + 0.00494f * nes->nes_apu.noise.sample_buffer[t] + 0.00335f * nes->nes_apu.dmc.sample_buffer[t];
             nes->nes_apu.sample_buffer[t] = (uint8_t)(volume_total * 256);
         }
         nes_memset(nes->nes_apu.pulse1.sample_buffer, 0, NES_APU_SAMPLE_PER_SYNC);
@@ -331,7 +331,6 @@ void nes_apu_init(nes_t *nes){
     nes->nes_apu.status = 0;
     nes->nes_apu.noise.lfsr = 1;
 }
-
 
 uint8_t nes_read_apu_register(nes_t *nes,uint16_t address){
     uint8_t data = 0;
