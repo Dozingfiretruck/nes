@@ -29,7 +29,7 @@ Simulator support：
 
 - [x] APU
 
-mapper  support：0, 2, 3, 7, 94, 117, 108
+mapper  support：0, 2, 3, 7, 94, 117, 180
 
 ## Software Architecture
 The example is based on SDL2 for image and sound output, without special dependencies, and you can port to any hardware by yourself
@@ -51,8 +51,8 @@ The example is based on SDL2 for image and sound output, without special depende
 
 | joystick |  up  | down | left | right | select | start |  A   |  B   |
 | :------: | :--: | :--: | :--: | :---: | :----: | :---: | :--: | :--: |
-|    P1    |  W   |  S   |  A   |   D   |   V    |   B   |  J   |  K   |
-|    P2    |  ↑   |  ↓   |  ←   |   →   |   1    |   2   |  5   |  6   |
+|    P1    | `W`  | `S`  | `A`  |  `D`  |  `V`   |  `B`  | `J`  | `K`  |
+|    P2    | `↑`  | `↓`  | `←`  |  `→`  |  `1`   |  `2`  | `5`  | `6`  |
 
 ## showcase
 
