@@ -20,7 +20,7 @@
     extern "C" {
 #endif
 
-#define NES_ENABLE_SOUND        (0)       /* enable sound */
+#define NES_ENABLE_SOUND        (1)       /* enable sound */
 #define NES_USE_SRAM            (0)       /* use SRAM */
 
 #define NES_FRAME_SKIP          (0)       /* skip frames */
