@@ -28,7 +28,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
       - name: prepare software
         run: |
-          scoop install xmake
+          winget install xmake
           xmake update
         # uses: xmake-io/github-action-setup-xmake@v1
         # with:

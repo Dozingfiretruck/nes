@@ -27,9 +27,9 @@ jobs:
       - name: prepare software
         run: |
           sudo add-apt-repository ppa:xmake-io/xmake -y
-          sudo dpkg --add-architecture i386
+          # sudo dpkg --add-architecture i386
           sudo apt-get update -y
-          sudo apt-get install -y lib32z1 libc6:i386 libgcc1:i386 libstdc++5:i386 libstdc++6:i386
+          # sudo apt-get install -y lib32z1 libc6:i386 libgcc1:i386 libstdc++5:i386 libstdc++6:i386
           sudo apt-get install -y git make gcc p7zip-full libsdl2-dev xmake
           sudo apt-get upgrade -y
           xmake update
