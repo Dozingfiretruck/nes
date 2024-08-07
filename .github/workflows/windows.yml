@@ -32,9 +32,8 @@ jobs:
           iwr -useb get.scoop.sh | iex
           scoop install xmake
           scoop prefix xmake >> %PATH%
+          scoop prefix xrepo >> %PATH%
           xmake update
-          xmake --version
-          xrepo --version
         # uses: xmake-io/github-action-setup-xmake@v1
         # with:
         #   xmake-version: latest
