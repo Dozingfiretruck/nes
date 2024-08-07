@@ -27,16 +27,11 @@ jobs:
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
       - name: prepare software
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+      - name: build
         run: |
-          set-executionpolicy remotesigned -scope currentuser
-          iwr -useb get.scoop.sh | iex
-          scoop install xmake
-          xmake update
-          # uses: xmake-io/github-action-setup-xmake@v1
-          # with:
-          #   xmake-version: latest
-          #   - name: build
-          #     run: |
           xrepo update-repo
           xmake -v -y
           cp build/windows/${{ matrix.arch }}/release/nes.exe nes-windows-${{ matrix.arch }}.exe
