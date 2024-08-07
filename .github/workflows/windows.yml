@@ -28,7 +28,9 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
       - name: prepare software
         run: |
-          winget install xmake
+          set-executionpolicy remotesigned -scope currentuser
+          iwr -useb get.scoop.sh | iex
+          scoop install xmake
           xmake update
         # uses: xmake-io/github-action-setup-xmake@v1
         # with:
