@@ -39,6 +39,34 @@ The example is based on SDL2 for image and sound output, without special depende
 
 ​	clone repository，install [xmake](https://github.com/xmake-io/xmake)，execute `xmake` directly to compile
 
+### Compile Preparation
+
+#### Windows:	
+
+​	install MSVC([Visual Studio 2022](https://visualstudio.microsoft.com/zh-hans/vs/))
+
+​	install [xmake](https://github.com/xmake-io/xmake)
+
+#### Linux(Ubuntu):
+
+```shell
+sudo add-apt-repository ppa:xmake-io/xmake -y
+sudo apt-get update -y
+sudo apt-get install -y git make gcc p7zip-full libsdl2-dev xmake
+```
+
+#### Macox:
+
+```shell
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+brew update
+brew install make gcc sdl2 xmake
+```
+
+### Compilation Method
+
+​	clone repository，execute `xmake` directly to compile
+
 ## Instructions
 
 ​	on linux or macos enter  `./nes xxx.nes` load the game to run

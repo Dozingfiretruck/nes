@@ -37,15 +37,39 @@ mapper 支持：0, 2, 3, 7, 94, 117, 180
 
 ## 编译教程
 
-​	克隆本仓库，安装 [xmake](https://github.com/xmake-io/xmake)，直接执行 xmake 编译即可 
+### 编译准备
+
+#### Windows:	
+
+​	安装MSVC([Visual Studio 2022](https://visualstudio.microsoft.com/zh-hans/vs/))
+
+​	安装 [xmake](https://github.com/xmake-io/xmake)
+
+#### Linux(Ubuntu):
+
+```shell
+sudo add-apt-repository ppa:xmake-io/xmake -y
+sudo apt-get update -y
+sudo apt-get install -y git make gcc p7zip-full libsdl2-dev xmake
+```
+
+#### Macox:
+
+```shell
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+brew update
+brew install make gcc sdl2 xmake
+```
+
+### 编译方法
+
+​	克隆本仓库，直接执行 `xmake` 编译即可 
 
 ## 使用说明
 
-​	linux或macos下输入 `./nes xxx.nes` 加载要运行的游戏
+​	Linux或Macos下输入 `./nes xxx.nes` 加载要运行的游戏
 
-​	windows下输入 `.\nes.exe xxx.nes` 加载要运行的游戏
-
-
+​	Windows下输入 `.\nes.exe xxx.nes` 加载要运行的游戏
 
 ## 按键映射
 
