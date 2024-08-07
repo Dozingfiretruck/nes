@@ -31,7 +31,10 @@ jobs:
           set-executionpolicy remotesigned -scope currentuser
           iwr -useb get.scoop.sh | iex
           scoop install xmake
+          scoop prefix xmake >> %PATH%
           xmake update
+          xmake --version
+          xrepo --version
         # uses: xmake-io/github-action-setup-xmake@v1
         # with:
         #   xmake-version: latest
