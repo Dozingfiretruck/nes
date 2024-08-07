@@ -31,14 +31,12 @@ jobs:
           set-executionpolicy remotesigned -scope currentuser
           iwr -useb get.scoop.sh | iex
           scoop install xmake
-          scoop prefix xmake >> %PATH%
-          scoop prefix xrepo >> %PATH%
           xmake update
-        # uses: xmake-io/github-action-setup-xmake@v1
-        # with:
-        #   xmake-version: latest
-      - name: build
-        run: |
+          # uses: xmake-io/github-action-setup-xmake@v1
+          # with:
+          #   xmake-version: latest
+          #   - name: build
+          #     run: |
           xrepo update-repo
           xmake -v -y
           cp build/windows/${{ matrix.arch }}/release/nes.exe nes-windows-${{ matrix.arch }}.exe
