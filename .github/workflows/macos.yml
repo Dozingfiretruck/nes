@@ -26,11 +26,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: prepare software
         run: |
+          ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
           brew update
-          brew install make gcc sdl2
-      - uses: xmake-io/github-action-setup-xmake@v1
-        with:
-          xmake-version: latest
+          brew install make gcc sdl2 xmake
+          xmake update
+    #   - uses: xmake-io/github-action-setup-xmake@v1
+    #     with:
+    #       xmake-version: latest
       - name: build
         run: |
           xrepo update-repo

@@ -27,9 +27,12 @@ jobs:
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
       - name: prepare software
-        uses: xmake-io/github-action-setup-xmake@v1
-        with:
-          xmake-version: latest
+        run: |
+          scoop install xmake
+          xmake update
+        # uses: xmake-io/github-action-setup-xmake@v1
+        # with:
+        #   xmake-version: latest
       - name: build
         run: |
           xrepo update-repo
