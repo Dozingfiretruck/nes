@@ -1,19 +1,23 @@
 **English** | [中文](./README_zh.md) 
 
-![github license](https://img.shields.io/github/license/Dozingfiretruck/nes)![linux](https://github.com/Dozingfiretruck/nes/actions/workflows/windows.yml/badge.svg?branch=master)![linux](https://github.com/Dozingfiretruck/nes/actions/workflows/linux.yml/badge.svg?branch=master)![linux](https://github.com/Dozingfiretruck/nes/actions/workflows/macos.yml/badge.svg?branch=master)
+![github license](https://img.shields.io/github/license/Dozingfiretruck/nes)![Windows](https://github.com/Dozingfiretruck/nes/actions/workflows/windows.yml/badge.svg?branch=master)![Linux](https://github.com/Dozingfiretruck/nes/actions/workflows/linux.yml/badge.svg?branch=master)![Macos](https://github.com/Dozingfiretruck/nes/actions/workflows/macos.yml/badge.svg?branch=master)
 
 
 
-# nes
+# nes simulator 
+
+github: [Dozingfiretruck/nes: A NES emulator in C (github.com)](https://github.com/Dozingfiretruck/nes) (recommend)
+
+gitee: [nes: c语言实现的nes模拟器 (gitee.com)](https://gitee.com/Dozingfiretruck/nes) (updates may not be timely due to synchronization issues)
 
 ## Introduction
-The nes simulator implemented in c , requires c11
+​	The nes simulator implemented in C , requires `C11` or above
 
 **attention：**
 
-**This repository is only for the nes simulator and does not provide the game ！！！**
+​	**This repository is only for the nes simulator and does not provide the game ！！！**
 
-Platform support:
+**Platform support:**
 
 - [x] Windows
 
@@ -21,7 +25,7 @@ Platform support:
 
 - [x] MacOS
 
-Simulator support：
+**Simulator support：**
 
 - [x] CPU
 
@@ -29,10 +33,12 @@ Simulator support：
 
 - [x] APU
 
-mapper  support：0, 2, 3, 7, 94, 117, 180
+**mapper  support：**
+
+​	0, 2, 3, 7, 94, 117, 180
 
 ## Software Architecture
-The example is based on SDL2 for image and sound output, without special dependencies, and you can port to any hardware by yourself
+​	The example is based on SDL2 for image and sound output, without special dependencies, and you can port to any hardware by yourself
 
 
 ## Compile Tutorial

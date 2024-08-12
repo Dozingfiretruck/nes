@@ -1,19 +1,23 @@
 [**English**](./README.md)  | **中文**
 
-![github license](https://img.shields.io/github/license/Dozingfiretruck/nes)![windows](https://github.com/Dozingfiretruck/nes/actions/workflows/windows.yml/badge.svg?branch=master)![linux](https://github.com/Dozingfiretruck/nes/actions/workflows/linux.yml/badge.svg?branch=master)![macos](https://github.com/Dozingfiretruck/nes/actions/workflows/macos.yml/badge.svg?branch=master)
+![github license](https://img.shields.io/github/license/Dozingfiretruck/nes)![Windows](https://github.com/Dozingfiretruck/nes/actions/workflows/windows.yml/badge.svg?branch=master)![Linux](https://github.com/Dozingfiretruck/nes/actions/workflows/linux.yml/badge.svg?branch=master)![Macos](https://github.com/Dozingfiretruck/nes/actions/workflows/macos.yml/badge.svg?branch=master)
 
 
 
-# nes
+# nes 模拟器
+
+github: [Dozingfiretruck/nes: A NES emulator in C (github.com)](https://github.com/Dozingfiretruck/nes) (推荐)
+
+gitee: [nes: c语言实现的nes模拟器 (gitee.com)](https://gitee.com/Dozingfiretruck/nes) (由于同步问题可能导致更新不及时)
 
 ## 介绍
-c语言实现的nes模拟器，要求c11
+​	C语言实现的nes模拟器，要求C语言标准: **C11** 以上
 
 **注意：**
 
-**本仓库仅为nes模拟器，不提供游戏本体！！！**
+​	**本仓库仅为nes模拟器，不提供游戏本体！！！**
 
-平台支持:
+**平台支持:**
 
 - [x] Windows
 
@@ -21,7 +25,7 @@ c语言实现的nes模拟器，要求c11
 
 - [x] MacOS
 
-模拟器支持情况：
+**模拟器支持情况：**
 
 - [x] CPU
 
@@ -29,10 +33,12 @@ c语言实现的nes模拟器，要求c11
 
 - [x] APU
 
-mapper 支持：0, 2, 3, 7, 94, 117, 180
+**mapper 支持：**
+
+​	0, 2, 3, 7, 94, 117, 180
 
 ## 软件架构
-示例基于SDL2进行图像声音输出，没有特殊依赖，您可自行移植至任意硬件
+​	示例基于SDL2进行图像声音输出，没有特殊依赖，您可自行移植至任意硬件
 
 
 ## 编译教程
