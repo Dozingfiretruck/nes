@@ -79,8 +79,6 @@ brew install make gcc sdl2 xmake
 
 ​	on windows enter `.\nes.exe xxx.nes` load the game to run
 
-
-
 ## Key mapping
 
 | joystick |  up  | down | left | right | select | start |  A   |  B   |
@@ -88,7 +86,30 @@ brew install make gcc sdl2 xmake
 |    P1    | `W`  | `S`  | `A`  |  `D`  |  `V`   |  `B`  | `J`  | `K`  |
 |    P2    | `↑`  | `↓`  | `←`  |  `→`  |  `1`   |  `2`  | `5`  | `6`  |
 
-## showcase
+**Note: P2 uses numberic keypad**
+
+## Transplant instructions
+
+​	The source code in the `inc`and `src` directories does not need to be modified, only the three files in the `port` directory `nes_conf.h` `nes_port.c` `nes_port.h`
+
+- `nes_conf.h` is the configuration file, which can be configured according to your needs
+- `nes_port.h` is the migrating header file, which usually only needs to be migrated nes_printf
+- `nes_port.c is the main migration file, and all functions need to be migrated
+
+
+
+​	**Note: If the target platform for migration has weak performance and small space, some macro configurations are specially reserved:**
+
+- `NES_ENABLE_SOUND` can be set to 0 to turn off the APU to increase the running speed
+- `NES_RAM_LACK` can be set to 1, using a half-screen refresh to reduce RAM consumption (running at a slower speed)
+- You can configure `NES_FRAME_SKIP` to skip frames
+- If SPI 8-byte transmission is used for embedded platforms, the color anomaly configuration `NES_COLOR_SWAP` can be used to switch the large and small ends
+
+
+
+​	**In addition, the APU synthesis uses single floating-point calculations, and the code can optimize the single-floating-point calculation acceleration or not use single-floating-point calculations to speed up the operation in `nes_apu.c`**
+
+## Showcase
 
 **mapper 0:**
 
