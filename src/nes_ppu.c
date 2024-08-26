@@ -142,11 +142,11 @@ static const uint8_t nes_mirror_table[NES_MIRROR_COUNT][4] ={
 
 void nes_ppu_screen_mirrors(nes_t *nes,nes_mirror_type_t mirror_type){
     if (mirror_type == NES_MIRROR_AUTO){
-        if (nes->nes_rom.four_screen) { // four_screen
+        if (nes->nes_rom.four_screen) {             // four_screen
             mirror_type = NES_MIRROR_FOUR_SCREEN;
-        } else if (nes->nes_rom.mirroring_type) { // Vertical
+        } else if (nes->nes_rom.mirroring_type) {   // Vertical
             mirror_type = NES_MIRROR_VERTICAL;
-        } else { // Horizontal
+        } else {                                    // Horizontal
             mirror_type = NES_MIRROR_HORIZONTAL;
         }
     }
