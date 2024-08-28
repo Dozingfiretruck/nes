@@ -35,9 +35,9 @@ jobs:
         run: |
           xrepo update-repo
           xmake -v -y
-          cp build/macosx/${{ matrix.arch }}/release/nes nes-macos-${{ matrix.arch }}.app
+          cp build/macosx/${{ matrix.arch }}/release/nes nes-macos-${{ matrix.arch }}.AppImage
 
       - uses: actions/upload-artifact@v4
         with:
-          name: nes-macos-${{ matrix.arch }}.app
-          path: nes-macos-${{ matrix.arch }}.app
+          name: nes-macos-${{ matrix.arch }}.AppImage
+          path: nes-macos-${{ matrix.arch }}.AppImage

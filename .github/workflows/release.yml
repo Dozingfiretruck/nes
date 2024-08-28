@@ -49,7 +49,7 @@ jobs:
         run: |
             xrepo update-repo
             xmake -v -y
-            cp build/macosx/${{ matrix.arch }}/release/nes nes-macos-${{ matrix.arch }}.bin
+            cp build/macosx/${{ matrix.arch }}/release/nes nes-macos-${{ matrix.arch }}.AppImage
                     
       - name: Publish file to release
         uses: svenstaro/upload-release-action@v2
@@ -58,7 +58,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file_glob: true
-          file: nes-macos-${{ matrix.arch }}.bin
+          file: nes-macos-${{ matrix.arch }}.AppImage
           tag: ${{ github.ref }}
           overwrite: true
 
@@ -96,11 +96,11 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file_glob: true
-          file: nes-macos-${{ matrix.arch }}.bin
+          file: nes-linux-${{ matrix.arch }}.bin
           tag: ${{ github.ref }}
           overwrite: true
 
-  build:
+  windows:
     needs: release
     strategy:
       matrix:
@@ -131,7 +131,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file_glob: true
-          file: nes-macos-${{ matrix.arch }}.exe
+          file: nes-windows-${{ matrix.arch }}.exe
           tag: ${{ github.ref }}
           overwrite: true
 
