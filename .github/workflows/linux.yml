@@ -33,9 +33,6 @@ jobs:
           sudo apt-get install -y git make gcc p7zip-full libsdl2-dev xmake
           sudo apt-get upgrade -y
           xmake update
-    #   - uses: xmake-io/github-action-setup-xmake@v1
-    #     with:
-    #       xmake-version: latest
       - name: build
         run: |
           xrepo update-repo

@@ -12,6 +12,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v2
@@ -30,14 +31,16 @@ jobs:
         run: echo ${{ github.sha }} > test.txt
 
       - name: Publish file to release
-        uses: actions/upload-release-asset@v1.0.2
+        uses: svenstaro/upload-release-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./test.txt
-          asset_name: test.txt
-          asset_content_type: application/zip
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file_glob: true
+          file: ./test.txt
+          tag: ${{ github.ref }}
+          overwrite: true
+
 
 
 
