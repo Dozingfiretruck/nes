@@ -27,9 +27,35 @@ jobs:
             draft: false
             prerelease: false
 
-      - name: test txt
-        run: echo ${{ github.sha }} > test.txt
+  macos:
+    needs: release
+    strategy:
+        matrix:
+          os: [macos-latest]
+          arch: [arm64]
+    runs-on: ${{ matrix.os }}
+    concurrency:
+        group: ${{ matrix.os }}-${{ matrix.arch }}
+        cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: prepare software
+        run: |
+            ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+            brew update
+            brew install make sdl2 xmake
+            xmake update
+      - name: build
+        run: |
+            xrepo update-repo
+            xmake -v -y
+            cp build/macosx/${{ matrix.arch }}/release/nes nes-macos-${{ matrix.arch }}.app
 
+      - uses: actions/upload-artifact@v4
+        with:
+            name: nes-macos-${{ matrix.arch }}.app
+            path: nes-macos-${{ matrix.arch }}.app
+                    
       - name: Publish file to release
         uses: svenstaro/upload-release-action@v2
         env:
@@ -37,7 +63,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file_glob: true
-          file: ./test.txt
+          file: nes-macos-${{ matrix.arch }}.app
           tag: ${{ github.ref }}
           overwrite: true
 
