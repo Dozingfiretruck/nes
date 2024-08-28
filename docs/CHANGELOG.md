@@ -4,11 +4,23 @@
 
 ## master (unreleased)
 
+
+
+## v0.0.2
+
 ### ADD:
+
+- APU
+- Mapper support 3,7,94,117,180
+- Merge threads
 
 ### FIX:
 
+- Background drawing mirroring error
+
 ### DEL:
+
+-  Delete llvm
 
 
 
@@ -26,12 +38,19 @@ The first beta version, which already supports CUP, PPU, mapper0 2, is already p
 
 ## master (开发中)
 
+
+
+## v0.0.2
+
 ### 新增：
 
-- mapper3支持
+- APU
+- mapper 支持 3,7,94,117,180
 - 合并线程
 
 ### 修复：
+
+- 背景绘制镜像错误
 
 ### 删除:
 
