@@ -1,10 +1,14 @@
 [**English**](./README.md)  | **中文**
 
-![github license](https://img.shields.io/github/license/Dozingfiretruck/nes)![Windows](https://github.com/Dozingfiretruck/nes/actions/workflows/windows.yml/badge.svg?branch=master)![Linux](https://github.com/Dozingfiretruck/nes/actions/workflows/linux.yml/badge.svg?branch=master)![Macos](https://github.com/Dozingfiretruck/nes/actions/workflows/macos.yml/badge.svg?branch=master)
-
 
 
 # nes 模拟器
+
+[![Pull Requests Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)[![first-timers-only Friendly](https://img.shields.io/badge/first--timers--only-friendly-blue.svg)](http://www.firsttimersonly.com/)
+
+![github license](https://img.shields.io/github/license/Dozingfiretruck/nes)[![Latest Release](https://img.shields.io/github/v/release/Dozingfiretruck/nes?label=Release&logo=github)](https://github.com/Dozingfiretruck/nes/releases/latest)![Windows](https://github.com/Dozingfiretruck/nes/actions/workflows/windows.yml/badge.svg?branch=master)![Linux](https://github.com/Dozingfiretruck/nes/actions/workflows/linux.yml/badge.svg?branch=master)![Macos](https://github.com/Dozingfiretruck/nes/actions/workflows/macos.yml/badge.svg?branch=master)
+
+
 
 github: [Dozingfiretruck/nes: A NES emulator in C (github.com)](https://github.com/Dozingfiretruck/nes) (推荐)
 
@@ -13,9 +17,9 @@ gitee: [nes: c语言实现的nes模拟器 (gitee.com)](https://gitee.com/Dozingf
 ## 介绍
 ​	C语言实现的nes模拟器，要求C语言标准: **C11** 以上
 
-**注意：**
+​	**注意：本仓库仅为nes模拟器，不提供游戏本体！！！**
 
-​	**本仓库仅为nes模拟器，不提供游戏本体！！！**
+
 
 **平台支持:**
 

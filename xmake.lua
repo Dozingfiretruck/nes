@@ -1,5 +1,4 @@
 set_project("nes")
-set_version("0.0.1")
 set_xmakever("2.9.4")
 add_rules("mode.debug", "mode.release")
 
