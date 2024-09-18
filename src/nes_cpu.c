@@ -87,7 +87,7 @@ static inline const uint8_t* nes_get_dma_address(nes_t* nes,uint8_t data) {
     }
 }
 
-static void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
+static inline void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
     switch (address >> 13){
         case 0://$0000-$1FFF 2KB internal RAM + Mirrors of $0000-$07FF
             nes->nes_cpu.cpu_ram[address & (uint16_t)0x07ff] = data;
@@ -104,10 +104,10 @@ static void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
                     uint8_t* dst = nes->nes_ppu.oam_data;
                     const uint8_t len = nes->nes_ppu.oam_addr;
                     const uint8_t* src = nes_get_dma_address(nes,data);
-                    memcpy(dst, src + len, len);
-                    memcpy(dst + len, src, NES_PPU_OAM_SIZE - len);
+                    nes_memcpy(dst, src + len, len);
+                    nes_memcpy(dst + len, src, NES_PPU_OAM_SIZE - len);
                 } else {
-                    memcpy(nes->nes_ppu.oam_data, nes_get_dma_address(nes,data), NES_PPU_OAM_SIZE);
+                    nes_memcpy(nes->nes_ppu.oam_data, nes_get_dma_address(nes,data), NES_PPU_OAM_SIZE);
                 }
                 nes->nes_cpu.cycles += 513;
                 nes->nes_cpu.cycles += nes->nes_cpu.cycles & 1; //奇数周期需要多sleep 1个CPU时钟周期
@@ -264,7 +264,7 @@ static inline uint16_t nes_ind(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *
 */
-static void nes_ora(nes_t* nes){
+static inline void nes_ora(nes_t* nes){
     nes->nes_cpu.A |= nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     NES_CHECK_NZ(nes->nes_cpu.A);
 }
@@ -274,7 +274,7 @@ static void nes_ora(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *
 */
-static void nes_and(nes_t* nes){
+static inline void nes_and(nes_t* nes){
     nes->nes_cpu.A &= nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     NES_CHECK_NZ(nes->nes_cpu.A);
 }
@@ -284,7 +284,7 @@ static void nes_and(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *
 */
-static void nes_eor(nes_t* nes){
+static inline void nes_eor(nes_t* nes){
     nes->nes_cpu.A ^= nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     NES_CHECK_NZ(nes->nes_cpu.A);
 }
@@ -294,7 +294,7 @@ static void nes_eor(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *  *              *  *
 */
-static void nes_adc(nes_t* nes){
+static inline void nes_adc(nes_t* nes){
     const uint8_t src = nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     const uint16_t result16 = nes->nes_cpu.A + src + nes->nes_cpu.C;
     nes->nes_cpu.C = result16 >> 8;
@@ -312,7 +312,7 @@ static void nes_adc(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *  *              *  *
 */
-static void nes_sbc(nes_t* nes){
+static inline void nes_sbc(nes_t* nes){
     const uint8_t src = nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     const uint16_t result16 = nes->nes_cpu.A - src - !nes->nes_cpu.C;
     nes->nes_cpu.C = !(result16 >> 8);
@@ -330,7 +330,7 @@ static void nes_sbc(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  *
 */
-static void nes_cmp(nes_t* nes){
+static inline void nes_cmp(nes_t* nes){
     const uint16_t value = (uint16_t)nes->nes_cpu.A - (uint16_t)nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     nes->nes_cpu.C = !(value >> 15);
     NES_CHECK_NZ((uint8_t)value);
@@ -341,7 +341,7 @@ static void nes_cmp(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  *
 */
-static void nes_cpx(nes_t* nes){
+static inline void nes_cpx(nes_t* nes){
     const uint16_t value = (uint16_t)nes->nes_cpu.X - (uint16_t)nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     nes->nes_cpu.C = !(value >> 15);
     NES_CHECK_NZ((uint8_t)value);
@@ -352,7 +352,7 @@ static void nes_cpx(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  *
 */
-static void nes_cpy(nes_t* nes){
+static inline void nes_cpy(nes_t* nes){
     const uint16_t value = (uint16_t)nes->nes_cpu.Y - (uint16_t)nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     nes->nes_cpu.C = !(value >> 15);
     NES_CHECK_NZ((uint8_t)value);
@@ -363,7 +363,7 @@ static void nes_cpy(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  
 */
-static void nes_dec(nes_t* nes){
+static inline void nes_dec(nes_t* nes){
     uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     uint8_t data = nes_read_cpu(nes,address)-1;
     nes_write_cpu(nes,address, data);
@@ -375,7 +375,7 @@ static void nes_dec(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  
 */
-static void nes_dex(nes_t* nes){
+static inline void nes_dex(nes_t* nes){
     NES_CHECK_N(--nes->nes_cpu.X);
     NES_CHECK_Z(nes->nes_cpu.X);
 }
@@ -385,7 +385,7 @@ static void nes_dex(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  
 */
-static void nes_dey(nes_t* nes){
+static inline void nes_dey(nes_t* nes){
     NES_CHECK_N(--nes->nes_cpu.Y);
     NES_CHECK_Z(nes->nes_cpu.Y);
 }
@@ -395,7 +395,7 @@ static void nes_dey(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  
 */
-static void nes_inc(nes_t* nes){
+static inline void nes_inc(nes_t* nes){
     uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     uint8_t data = nes_read_cpu(nes,address)+1;
     nes_write_cpu(nes,address,data);
@@ -407,7 +407,7 @@ static void nes_inc(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  
 */
-static void nes_inx(nes_t* nes){
+static inline void nes_inx(nes_t* nes){
     NES_CHECK_N(++nes->nes_cpu.X);
     NES_CHECK_Z(nes->nes_cpu.X);
 }
@@ -417,7 +417,7 @@ static void nes_inx(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  
 */
-static void nes_iny(nes_t* nes){
+static inline void nes_iny(nes_t* nes){
     NES_CHECK_N(++nes->nes_cpu.Y);
     NES_CHECK_Z(nes->nes_cpu.Y);
 }
@@ -427,7 +427,7 @@ static void nes_iny(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  *
 */
-static void nes_asl(nes_t* nes){
+static inline void nes_asl(nes_t* nes){
     if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode){
         uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
         uint8_t data = nes_read_cpu(nes,address);
@@ -447,7 +447,7 @@ static void nes_asl(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  *
 */
-static void nes_rol(nes_t* nes){
+static inline void nes_rol(nes_t* nes){
     if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode){
         uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
         uint16_t data = nes_read_cpu(nes,address);
@@ -471,7 +471,7 @@ static void nes_rol(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  *
 */
-static void nes_lsr(nes_t* nes){
+static inline void nes_lsr(nes_t* nes){
     if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode){
         uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
         uint8_t value = nes_read_cpu(nes,address);
@@ -491,7 +491,7 @@ static void nes_lsr(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  *
 */
-static void nes_ror(nes_t* nes){
+static inline void nes_ror(nes_t* nes){
     if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) {
         uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
         uint16_t data = nes_read_cpu(nes,address);
@@ -517,7 +517,7 @@ static void nes_ror(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  
 */
-static void nes_lda(nes_t* nes){
+static inline void nes_lda(nes_t* nes){
     nes->nes_cpu.A = nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     NES_CHECK_NZ(nes->nes_cpu.A);
 }
@@ -527,7 +527,7 @@ static void nes_lda(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_sta(nes_t* nes){
+static inline void nes_sta(nes_t* nes){
     nes_write_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes),nes->nes_cpu.A);
 }
 
@@ -536,7 +536,7 @@ static void nes_sta(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  
 */
-static void nes_ldx(nes_t* nes){
+static inline void nes_ldx(nes_t* nes){
     nes->nes_cpu.X = nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     NES_CHECK_NZ(nes->nes_cpu.X);
 }
@@ -546,7 +546,7 @@ static void nes_ldx(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_stx(nes_t* nes){
+static inline void nes_stx(nes_t* nes){
     nes_write_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes),nes->nes_cpu.X);
 }
 
@@ -555,7 +555,7 @@ static void nes_stx(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  
 */
-static void nes_ldy(nes_t* nes){
+static inline void nes_ldy(nes_t* nes){
     nes->nes_cpu.Y = nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     NES_CHECK_NZ(nes->nes_cpu.Y);
 }
@@ -565,7 +565,7 @@ static void nes_ldy(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_sty(nes_t* nes){
+static inline void nes_sty(nes_t* nes){
     nes_write_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes),nes->nes_cpu.Y);
 }
 
@@ -574,7 +574,7 @@ static void nes_sty(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  
 */
-static void nes_tax(nes_t* nes){
+static inline void nes_tax(nes_t* nes){
     nes->nes_cpu.X=nes->nes_cpu.A;
     NES_CHECK_NZ(nes->nes_cpu.X);
 }
@@ -584,7 +584,7 @@ static void nes_tax(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  
 */
-static void nes_txa(nes_t* nes){
+static inline void nes_txa(nes_t* nes){
     nes->nes_cpu.A=nes->nes_cpu.X;
     NES_CHECK_NZ(nes->nes_cpu.A);
 }
@@ -594,7 +594,7 @@ static void nes_txa(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  
 */
-static void nes_tay(nes_t* nes){
+static inline void nes_tay(nes_t* nes){
     nes->nes_cpu.Y=nes->nes_cpu.A;
     NES_CHECK_NZ(nes->nes_cpu.Y);
 }
@@ -604,7 +604,7 @@ static void nes_tay(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  
 */
-static void nes_tya(nes_t* nes){
+static inline void nes_tya(nes_t* nes){
     nes->nes_cpu.A=nes->nes_cpu.Y;
     NES_CHECK_NZ(nes->nes_cpu.A);
 }
@@ -614,7 +614,7 @@ static void nes_tya(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  
 */
-static void nes_tsx(nes_t* nes){
+static inline void nes_tsx(nes_t* nes){
     nes->nes_cpu.X=nes->nes_cpu.SP;
     NES_CHECK_NZ(nes->nes_cpu.X);
 }
@@ -624,7 +624,7 @@ static void nes_tsx(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_txs(nes_t* nes){
+static inline void nes_txs(nes_t* nes){
     nes->nes_cpu.SP=nes->nes_cpu.X;
 }
 
@@ -633,7 +633,7 @@ static void nes_txs(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  
 */
-static void nes_pla(nes_t* nes){
+static inline void nes_pla(nes_t* nes){
     nes->nes_cpu.A = NES_POP(nes);
     NES_CHECK_NZ(nes->nes_cpu.A);
 }
@@ -643,7 +643,7 @@ static void nes_pla(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_pha(nes_t* nes){
+static inline void nes_pha(nes_t* nes){
     NES_PUSH(nes,nes->nes_cpu.A);
 }
 
@@ -652,7 +652,7 @@ static void nes_pha(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *  *        *  *  *  *
 */
-static void nes_plp(nes_t* nes){
+static inline void nes_plp(nes_t* nes){
     nes->nes_cpu.P = NES_POP(nes);
     nes->nes_cpu.U = 1;
     nes->nes_cpu.B = 0;
@@ -666,7 +666,7 @@ static void nes_plp(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_php(nes_t* nes){
+static inline void nes_php(nes_t* nes){
     nes->nes_cpu.U = 1;
     nes->nes_cpu.B = 1;
     NES_PUSH(nes,nes->nes_cpu.P);
@@ -687,7 +687,7 @@ static inline void nes_branch(nes_t* nes,const uint16_t address) {
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_bpl(nes_t* nes){
+static inline void nes_bpl(nes_t* nes){
     const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     if (nes->nes_cpu.N==0){
         nes_branch(nes,address);
@@ -699,7 +699,7 @@ static void nes_bpl(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_bmi(nes_t* nes){
+static inline void nes_bmi(nes_t* nes){
     const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     if (nes->nes_cpu.N){
         nes_branch(nes,address);
@@ -711,7 +711,7 @@ static void nes_bmi(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_bvc(nes_t* nes){
+static inline void nes_bvc(nes_t* nes){
     const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     if (nes->nes_cpu.V==0){
         nes_branch(nes,address);
@@ -723,7 +723,7 @@ static void nes_bvc(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_bvs(nes_t* nes){
+static inline void nes_bvs(nes_t* nes){
     const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     if (nes->nes_cpu.V){
         nes_branch(nes,address);
@@ -735,7 +735,7 @@ static void nes_bvs(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_bcc(nes_t* nes){
+static inline void nes_bcc(nes_t* nes){
     const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     if (nes->nes_cpu.C==0){
         nes_branch(nes,address);
@@ -747,7 +747,7 @@ static void nes_bcc(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_bcs(nes_t* nes){
+static inline void nes_bcs(nes_t* nes){
     const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     if (nes->nes_cpu.C){
         nes_branch(nes,address);
@@ -759,7 +759,7 @@ static void nes_bcs(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_bne(nes_t* nes){
+static inline void nes_bne(nes_t* nes){
     const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     if (nes->nes_cpu.Z==0){
         nes_branch(nes,address);
@@ -771,7 +771,7 @@ static void nes_bne(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_beq(nes_t* nes){
+static inline void nes_beq(nes_t* nes){
     const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     if (nes->nes_cpu.Z){
         nes_branch(nes,address);
@@ -783,7 +783,7 @@ static void nes_beq(nes_t* nes){
     N  V  U  B  D  I  Z  C
              1     1
 */
-static void nes_brk(nes_t* nes){
+static inline void nes_brk(nes_t* nes){
     nes->nes_cpu.PC++;
     NES_PUSHW(nes,nes->nes_cpu.PC);
     nes->nes_cpu.U = 1;
@@ -799,7 +799,7 @@ static void nes_brk(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *  *        *  *  *  *
 */
-static void nes_rti(nes_t* nes){
+static inline void nes_rti(nes_t* nes){
     // P:=+(S)
     nes->nes_cpu.P = NES_POP(nes);
     nes->nes_cpu.U = 1;
@@ -816,7 +816,7 @@ static void nes_rti(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_jsr(nes_t* nes){
+static inline void nes_jsr(nes_t* nes){
     const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     NES_PUSHW(nes,nes->nes_cpu.PC-1);
     nes->nes_cpu.PC = address;
@@ -828,7 +828,7 @@ static void nes_jsr(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_rts(nes_t* nes){
+static inline void nes_rts(nes_t* nes){
     nes->nes_cpu.PC = (uint16_t)NES_POPW(nes);
     nes->nes_cpu.PC++;
 }
@@ -838,7 +838,7 @@ static void nes_rts(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_jmp(nes_t* nes){
+static inline void nes_jmp(nes_t* nes){
     nes->nes_cpu.PC=nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
 }
 
@@ -847,7 +847,7 @@ static void nes_jmp(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *  *              *  
 */
-static void nes_bit(nes_t* nes){
+static inline void nes_bit(nes_t* nes){
     const uint8_t value = nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     nes->nes_cpu.V = (value >> 6) & 1;
     NES_CHECK_N(value);
@@ -859,7 +859,7 @@ static void nes_bit(nes_t* nes){
     N  V  U  B  D  I  Z  C
                          0
 */
-static void nes_clc(nes_t* nes){
+static inline void nes_clc(nes_t* nes){
     nes->nes_cpu.C=0;
 }
 
@@ -868,7 +868,7 @@ static void nes_clc(nes_t* nes){
     N  V  U  B  D  I  Z  C
                          1
 */
-static void nes_sec(nes_t* nes){
+static inline void nes_sec(nes_t* nes){
     nes->nes_cpu.C=1;
 }
 
@@ -877,7 +877,7 @@ static void nes_sec(nes_t* nes){
     N  V  U  B  D  I  Z  C
                 0         
 */
-static void nes_cld(nes_t* nes){
+static inline void nes_cld(nes_t* nes){
     nes->nes_cpu.D=0;
 }
 
@@ -886,7 +886,7 @@ static void nes_cld(nes_t* nes){
     N  V  U  B  D  I  Z  C
                 1         
 */
-static void nes_sed(nes_t* nes){
+static inline void nes_sed(nes_t* nes){
     nes->nes_cpu.D=1;
 }
 
@@ -895,7 +895,7 @@ static void nes_sed(nes_t* nes){
     N  V  U  B  D  I  Z  C
                    0      
 */
-static void nes_cli(nes_t* nes){
+static inline void nes_cli(nes_t* nes){
     nes->nes_cpu.I=0;
     // irq_counter
 }
@@ -905,7 +905,7 @@ static void nes_cli(nes_t* nes){
     N  V  U  B  D  I  Z  C
                    1      
 */
-static void nes_sei(nes_t* nes){
+static inline void nes_sei(nes_t* nes){
     nes->nes_cpu.I=1;
 }
 
@@ -914,7 +914,7 @@ static void nes_sei(nes_t* nes){
     N  V  U  B  D  I  Z  C
        0                  
 */
-static void nes_clv(nes_t* nes){
+static inline void nes_clv(nes_t* nes){
     nes->nes_cpu.V=0;
 }
 
@@ -923,7 +923,7 @@ static void nes_clv(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_nop(nes_t* nes){
+static inline void nes_nop(nes_t* nes){
     if (nes_opcode_table[nes->nes_cpu.opcode].addressing_mode) nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
 }
 
@@ -934,7 +934,7 @@ static void nes_nop(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  *
 */
-static void nes_slo(nes_t* nes){
+static inline void nes_slo(nes_t* nes){
     uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     uint8_t data = nes_read_cpu(nes,address);
     // asl
@@ -951,7 +951,7 @@ static void nes_slo(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  *
 */
-static void nes_rla(nes_t* nes){
+static inline void nes_rla(nes_t* nes){
     uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     uint16_t data = nes_read_cpu(nes,address);
     // rol
@@ -969,7 +969,7 @@ static void nes_rla(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  *
 */
-static void nes_sre(nes_t* nes){
+static inline void nes_sre(nes_t* nes){
     uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     uint8_t data = nes_read_cpu(nes,address);
     // lsr
@@ -986,7 +986,7 @@ static void nes_sre(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *  *              *  *
 */
-static void nes_rra(nes_t* nes){
+static inline void nes_rra(nes_t* nes){
     uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     uint16_t data = nes_read_cpu(nes,address);
     // ror
@@ -1008,7 +1008,7 @@ static void nes_rra(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_sax(nes_t* nes){
+static inline void nes_sax(nes_t* nes){
     nes_write_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes),nes->nes_cpu.A & nes->nes_cpu.X);
 }
 
@@ -1017,7 +1017,7 @@ static void nes_sax(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  
 */
-static void nes_lax(nes_t* nes){
+static inline void nes_lax(nes_t* nes){
     nes->nes_cpu.X = nes->nes_cpu.A = nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     NES_CHECK_NZ(nes->nes_cpu.X);
 }
@@ -1027,7 +1027,7 @@ static void nes_lax(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  *
 */
-static void nes_dcp(nes_t* nes){
+static inline void nes_dcp(nes_t* nes){
     uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     uint8_t data = nes_read_cpu(nes,address);
     // dec
@@ -1044,7 +1044,7 @@ static void nes_dcp(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *  *              *  *
 */
-static void nes_isc(nes_t* nes){
+static inline void nes_isc(nes_t* nes){
     uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     uint8_t data = nes_read_cpu(nes,address);
     // inc
@@ -1066,7 +1066,7 @@ static void nes_isc(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  *
 */
-static void nes_anc(nes_t* nes){
+static inline void nes_anc(nes_t* nes){
     nes->nes_cpu.A &= nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     NES_CHECK_NZ(nes->nes_cpu.A);
     nes->nes_cpu.C = nes->nes_cpu.A >> 7;
@@ -1077,7 +1077,7 @@ static void nes_anc(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  *
 */
-static void nes_alr(nes_t* nes){
+static inline void nes_alr(nes_t* nes){
     nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
 }
 
@@ -1086,7 +1086,7 @@ static void nes_alr(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *  *              *  *
 */
-static void nes_arr(nes_t* nes){
+static inline void nes_arr(nes_t* nes){
     nes->nes_cpu.A &= nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     nes->nes_cpu.A = (nes->nes_cpu.A>>1)|(nes->nes_cpu.C<<7);
     NES_CHECK_NZ(nes->nes_cpu.A);
@@ -1100,7 +1100,7 @@ static void nes_arr(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  
 */
-static void nes_xaa(nes_t* nes){
+static inline void nes_xaa(nes_t* nes){
     nes->nes_cpu.A = nes->nes_cpu.X & nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
     NES_CHECK_NZ(nes->nes_cpu.A);
     nes->nes_cpu.C = nes->nes_cpu.A >> 7;
@@ -1111,7 +1111,7 @@ static void nes_xaa(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  *
 */
-static void nes_axs(nes_t* nes){
+static inline void nes_axs(nes_t* nes){
     uint16_t data = (nes->nes_cpu.A & nes->nes_cpu.X) - nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     nes->nes_cpu.X = (uint8_t)data;
     NES_CHECK_NZ(nes->nes_cpu.X);
@@ -1123,7 +1123,7 @@ static void nes_axs(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_ahx(nes_t* nes){
+static inline void nes_ahx(nes_t* nes){
     nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
 }
 
@@ -1132,7 +1132,7 @@ static void nes_ahx(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_shy(nes_t* nes){
+static inline void nes_shy(nes_t* nes){
     nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
 }
 
@@ -1141,7 +1141,7 @@ static void nes_shy(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_shx(nes_t* nes){
+static inline void nes_shx(nes_t* nes){
     nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
 }
 
@@ -1150,7 +1150,7 @@ static void nes_shx(nes_t* nes){
     N  V  U  B  D  I  Z  C
 
 */
-static void nes_tas(nes_t* nes){
+static inline void nes_tas(nes_t* nes){
     nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
     
 }
@@ -1160,7 +1160,7 @@ static void nes_tas(nes_t* nes){
     N  V  U  B  D  I  Z  C
     *                 *  
 */
-static void nes_las(nes_t* nes){
+static inline void nes_las(nes_t* nes){
     nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
 }
 
@@ -1171,7 +1171,7 @@ static void nes_las(nes_t* nes){
     $FFFE = IRQ vector
 */
 
-static void nes_nmi(nes_t* nes){
+static inline void nes_nmi(nes_t* nes){
     NES_PUSHW(nes,nes->nes_cpu.PC);
     nes->nes_cpu.U = 1;
     nes->nes_cpu.B = 0;

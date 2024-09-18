@@ -266,15 +266,7 @@ void nes_run(nes_t* nes){
         nes_palette_generate(nes);
 
         if (nes->nes_ppu.MASK_b == 0){
-#if (NES_RAM_LACK == 1)
-            for (size_t i = 0; i < NES_HEIGHT * NES_WIDTH / 2; i++){
-                nes->nes_draw_data[i] = nes->nes_ppu.background_palette[0];
-            }
-#else
-            for (size_t i = 0; i < NES_HEIGHT * NES_WIDTH; i++){
-                nes->nes_draw_data[i] = nes->nes_ppu.background_palette[0];
-            }
-#endif
+            nes_memset(nes->nes_draw_data, nes->nes_ppu.background_palette[0], sizeof(nes_color_t) * NES_DRAW_SIZE);
         }
 #if (NES_ENABLE_SOUND==1)
         nes_apu_frame(nes);

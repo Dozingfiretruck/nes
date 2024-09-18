@@ -47,6 +47,8 @@ typedef struct {
 
 /* mapper */
 int nes_load_mapper(nes_t* nes);
+
+
 /* prg rom */
 void nes_load_prgrom_8k(nes_t* nes,uint8_t des, uint16_t src);
 void nes_load_prgrom_16k(nes_t* nes,uint8_t des, uint16_t src);
