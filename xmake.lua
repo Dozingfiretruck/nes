@@ -1,5 +1,5 @@
 set_project("nes")
-set_xmakever("2.9.4")
+set_xmakever("2.9.7")
 add_rules("mode.debug", "mode.release")
 
 if is_mode("debug") then
@@ -23,7 +23,7 @@ set_languages("c11")
 -- end
 
 -- [[ add SDL2 ]]
-add_requires("libsdl")
+add_requires("libsdl", {configs = {sdlmain = false}})
 add_packages("libsdl")
 
 target("nes", function ()

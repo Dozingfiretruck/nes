@@ -17,7 +17,7 @@
 #include "nes.h"
 
 
-int main(int argc, char *argv[]){
+int main(int argc, char** argv){
     if (argc == 2){
         const char* nes_file_path = argv[1];
         size_t nes_file_path_len = strlen(nes_file_path);
