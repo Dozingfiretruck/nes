@@ -38,6 +38,10 @@ nes_t* nes_load_file(const char* file_path ){
 
 #if (NES_USE_SRAM == 1)
     nes->nes_rom.sram = (uint8_t*)nes_malloc(SRAM_SIZE);
+    if (nes->nes_rom.sram == NULL) {
+        goto error;
+    }
+    memset(nes->nes_rom.sram, 0x00, SRAM_SIZE);
 #endif
     if (nes_fread(&nes_header_info, sizeof(nes_header_info), 1, nes_file)) {
         if ( nes_memcmp( nes_header_info.identification, "NES\x1a", 4 )){
@@ -69,9 +73,9 @@ nes_t* nes_load_file(const char* file_path ){
             nes->nes_rom.prg_rom_size = nes_header_info.prg_rom_size_l;
             nes->nes_rom.chr_rom_size = nes_header_info.chr_rom_size_l;
         }
-        nes->nes_rom.mirroring_type = (nes_header_info.mirroring);
-        nes->nes_rom.four_screen = (nes_header_info.four_screen);
-        nes->nes_rom.save_ram = (nes_header_info.save);
+        nes->nes_rom.mirroring_type = nes_header_info.mirroring;
+        nes->nes_rom.four_screen = nes_header_info.four_screen;
+        nes->nes_rom.save_ram = nes_header_info.save;
 
         nes->nes_rom.prg_rom = (uint8_t*)nes_malloc(PRG_ROM_UNIT_SIZE * nes->nes_rom.prg_rom_size);
         if (nes->nes_rom.prg_rom == NULL) {
