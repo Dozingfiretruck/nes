@@ -27,7 +27,17 @@
     extern "C" {
 #endif
 
+#define NES_VERSION_MAJOR       0
+#define NES_VERSION_MINOR       0
+#define NES_VERSION_PATCH       1
+
+#define STRINGIFY_HELPER(x)     #x
+#define NES_VERSION_STRING      STRINGIFY_HELPER(NES_VERSION_MAJOR) "." STRINGIFY_HELPER(NES_VERSION_MINOR) "." STRINGIFY_HELPER(NES_VERSION_PATCH)
+
 #define NES_NAME                "NES"
+
+#define NES_URL                 "https://github.com/Dozingfiretruck/nes"
+
 #define NES_WIDTH               256
 #define NES_HEIGHT              240
 

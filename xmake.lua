@@ -23,8 +23,8 @@ set_languages("c11")
 -- end
 
 -- [[ add SDL2 ]]
-add_requires("libsdl", {configs = {sdlmain = false}})
-add_packages("libsdl")
+add_requires("libsdl3")
+add_packages("libsdl3")
 
 target("nes", function ()
     set_kind("binary")
