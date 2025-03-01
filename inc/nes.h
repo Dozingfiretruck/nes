@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef _NES_
-#define _NES_
+#pragma once
 
 #include "nes_port.h"
 #include "nes_rom.h"
@@ -45,7 +44,7 @@
 #define NES_CPU_CLOCK_FREQ      (1789773) // 21.47~ MHz ÷ 12 = 1.789773 MHz
 
 // https://www.nesdev.org/w/images/default/4/4f/Ppu.svg
-#define NES_PPU_CPU_CLOCKS		(113)     // 341 × 4÷12 = 113 2⁄3
+#define NES_PPU_CPU_CLOCKS		(113)     // 341 × 4 ÷ 12 = 113 2⁄3
 
 #define NES_OK                  (0) 
 #define NES_ERROR               (-1)
@@ -95,4 +94,3 @@ void nes_frame(nes_t* nes);
     }
 #endif
 
-#endif// _NES_

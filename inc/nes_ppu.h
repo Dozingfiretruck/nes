@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef _NES_PPU_
-#define _NES_PPU_
+#pragma once
 
 #include "nes_conf.h"
 
@@ -178,5 +177,3 @@ void nes_write_ppu_register(nes_t *nes,uint16_t address, uint8_t data);
 #ifdef __cplusplus          
     }
 #endif
-
-#endif// _NES_PPU_

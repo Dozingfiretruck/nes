@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef _NES_CONF_
-#define _NES_CONF_
+#pragma once
 
 #ifdef __cplusplus
     extern "C" {
@@ -57,5 +56,3 @@
 #ifdef __cplusplus          
     }
 #endif
-
-#endif// _NES_CONF_

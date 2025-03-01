@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef _NES_ROM_
-#define _NES_ROM_
+#pragma once
 
 #ifdef __cplusplus
     extern "C" {
@@ -114,4 +113,3 @@ int nes_unload_rom(nes_t* nes);
     }
 #endif
 
-#endif// _NES_ROM_

@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef _NES_APU_
-#define _NES_APU_
+#pragma once
 
 #ifdef __cplusplus
     extern "C" {
@@ -232,5 +231,3 @@ void nes_write_apu_register(nes_t* nes,uint16_t address,uint8_t data);
     }
 #endif
 
-
-#endif// _NES_APU_

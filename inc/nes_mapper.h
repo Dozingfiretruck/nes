@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef _NES_MAPPER_
-#define _NES_MAPPER_
+#pragma once
 
 #ifdef __cplusplus
     extern "C" {
@@ -341,10 +340,7 @@ int nes_mapper255_init(nes_t* nes);
 /* NES 2.0 mappers 256-511 */
 
 
-
-
 #ifdef __cplusplus          
     }
 #endif
 
-#endif// _NES_MAPPER_
