@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef _NES_PORT_
-#define _NES_PORT_
+#pragma once
 
 #include <stdint.h>
 #include <stdio.h>
@@ -58,4 +57,3 @@ int nes_sound_output(uint8_t *buffer, size_t len);
     }
 #endif
 
-#endif// _NES_PORT_

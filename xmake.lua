@@ -15,6 +15,11 @@ end
 set_warnings("allextra")
 set_languages("c11")
 
+if is_plat("wasm") then
+    add_requires("emscripten")
+    set_toolchains("emcc@emscripten")
+end
+
 -- TODO
 -- if is_host("windows") then
 -- elseif is_host("linux") then
