@@ -20,11 +20,11 @@
 
 static void nes_mapper_init(nes_t* nes){
     // CPU $8000-$BFFF: 16 KB switchable PRG ROM bank.
-    nes_load_prgrom_16k(nes, 0, 0);
+    NES_LOAD_PRGROM_16K(nes, 0, 0);
     // CPU $C000-$FFFF: 16 KB PRG ROM bank, fixed to the last bank.
-    nes_load_prgrom_16k(nes, 1, nes->nes_rom.prg_rom_size - 1);
+    NES_LOAD_PRGROM_16K(nes, 1, nes->nes_rom.prg_rom_size - 1);
     // CHR capacity: 8 KiB ROM.
-    nes_load_chrrom_8k(nes, 0, 0);
+    NES_LOAD_CHRROM_8K(nes, 0, 0);
 }
 
 /*
@@ -41,7 +41,7 @@ typedef struct {
 }bank_select_t;
 static void nes_mapper_write(nes_t* nes, uint16_t address, uint8_t date) {
     const bank_select_t* bank_select = (bank_select_t*)&date;
-    nes_load_prgrom_16k(nes, 0, bank_select->P);
+    NES_LOAD_PRGROM_16K(nes, 0, bank_select->P);
 }
 
 

@@ -16,47 +16,6 @@
 
 #include "nes.h"
 
-/*
-    载入8k PRG-ROM
-*/
-void nes_load_prgrom_8k(nes_t* nes,uint8_t des, uint16_t src) {
-    nes->nes_cpu.prg_banks[des] = nes->nes_rom.prg_rom + 8 * 1024 * src;
-}
-
-/*
-    载入16k PRG-ROM
-*/
-void nes_load_prgrom_16k(nes_t* nes,uint8_t des, uint16_t src) {
-    nes->nes_cpu.prg_banks[des * 2] = nes->nes_rom.prg_rom + 8 * 1024 * src * 2;
-    nes->nes_cpu.prg_banks[des * 2 + 1] = nes->nes_rom.prg_rom + 8 * 1024 * (src * 2 + 1);
-}
-
-/*
-    载入32k PRG-ROM
-*/
-void nes_load_prgrom_32k(nes_t* nes,uint8_t des, uint16_t src) {
-    nes->nes_cpu.prg_banks[0] = nes->nes_rom.prg_rom + 8 * 1024 * src * 4;
-    nes->nes_cpu.prg_banks[1] = nes->nes_rom.prg_rom + 8 * 1024 * (src * 4 + 1);
-    nes->nes_cpu.prg_banks[2] = nes->nes_rom.prg_rom + 8 * 1024 * (src * 4 + 2);
-    nes->nes_cpu.prg_banks[3] = nes->nes_rom.prg_rom + 8 * 1024 * (src * 4 + 3);
-}
-
-/*
-    载入1k CHR-ROM
-*/
-void nes_load_chrrom_1k(nes_t* nes,uint8_t des, uint8_t src) {
-    nes->nes_ppu.pattern_table[des] = nes->nes_rom.chr_rom + 1024 * src;
-}
-
-/*
-    载入8k CHR-ROM
-*/
-void nes_load_chrrom_8k(nes_t* nes,uint8_t des, uint8_t src) {
-    for (size_t i = 0; i < 8; i++){
-        nes->nes_ppu.pattern_table[des + i] = nes->nes_rom.chr_rom + 1024 * (src * 8 + i);
-    }
-}
-
 #define NES_CASE_LOAD_MAPPER(mapper_id) case mapper_id: return nes_mapper##mapper_id##_init(nes)
 
 int nes_load_mapper(nes_t* nes){

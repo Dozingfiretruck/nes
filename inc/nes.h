@@ -41,10 +41,11 @@
 #define NES_WIDTH               256
 #define NES_HEIGHT              240
 
-#define NES_CPU_CLOCK_FREQ      (1789773)
+// https://www.nesdev.org/wiki/Cycle_reference_chart
+#define NES_CPU_CLOCK_FREQ      (1789773) // 21.47~ MHz ÷ 12 = 1.789773 MHz
 
 // https://www.nesdev.org/w/images/default/4/4f/Ppu.svg
-#define NES_PPU_CPU_CLOCKS		(113)     // 113 = 341/3
+#define NES_PPU_CPU_CLOCKS		(113)     // 341 × 4÷12 = 113 2⁄3
 
 #define NES_OK                  (0) 
 #define NES_ERROR               (-1)

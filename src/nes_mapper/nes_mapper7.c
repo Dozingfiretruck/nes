@@ -19,9 +19,9 @@
 /* https://www.nesdev.org/wiki/AxROM */
 static void nes_mapper_init(nes_t* nes){
     // CPU $8000-$FFFF: 32 KB switchable PRG ROM bank
-    nes_load_prgrom_32k(nes, 0, 0);
+    NES_LOAD_PRGROM_32K(nes, 0, 0);
     // CHR capacity: 8 KiB ROM.
-    nes_load_chrrom_8k(nes, 0, 0);
+    NES_LOAD_CHRROM_8K(nes, 0, 0);
 }
 
 /*
@@ -42,7 +42,7 @@ typedef struct {
 
 static void nes_mapper_write(nes_t* nes, uint16_t address, uint8_t date) {
     const bank_select_t* bank_select = (bank_select_t*)&date;
-    nes_load_prgrom_32k(nes, 0, bank_select->P);
+    NES_LOAD_PRGROM_32K(nes, 0, bank_select->P);
     nes_ppu_screen_mirrors(nes, bank_select->M?NES_MIRROR_ONE_SCREEN1:NES_MIRROR_ONE_SCREEN0);
 }
 
