@@ -25,8 +25,59 @@
     extern "C" {
 #endif
 
-/* log */
-#define nes_log_printf(format,...)  printf(format, ##__VA_ARGS__)
+#if defined(__ARMCC_VERSION)
+#define NES_WEAK                     __attribute__((weak))
+#elif defined(__IAR_SYSTEMS_ICC__)
+#define NES_WEAK                     __weak
+#elif defined(__GNUC__)
+#define NES_WEAK                     __attribute__((weak))
+#elif defined(_MSC_VER)
+#define NES_WEAK                    
+#else
+#define NES_WEAK                     __attribute__((weak))
+#endif
+
+#ifndef NES_ENABLE_SOUND
+#define NES_ENABLE_SOUND        (0)
+#endif
+
+#ifndef NES_USE_FS
+#define NES_USE_FS              (0)
+#endif
+
+#ifndef NES_FRAME_SKIP
+#define NES_FRAME_SKIP          (0)
+#endif
+
+#ifndef NES_RAM_LACK
+#define NES_RAM_LACK            (0)
+#endif
+
+#if (NES_RAM_LACK == 1)
+#define NES_DRAW_SIZE           (NES_WIDTH * NES_HEIGHT / 2) 
+#else
+#define NES_DRAW_SIZE           (NES_WIDTH * NES_HEIGHT)
+#endif
+
+#ifndef NES_COLOR_SWAP
+#define NES_COLOR_SWAP          (0)
+#endif
+
+/* Color depth:
+ * - 16: RGB565
+ * - 32: ARGB8888
+ */
+#ifndef NES_COLOR_DEPTH
+#define NES_COLOR_DEPTH         (32)
+#endif
+
+#if (NES_COLOR_DEPTH == 32)
+#define nes_color_t uint32_t
+#elif (NES_COLOR_DEPTH == 16)
+#define nes_color_t uint16_t
+#else
+#error "no supprt color depth"
+#endif
 
 /* memory */
 void *nes_malloc(int num);
@@ -52,4 +103,3 @@ int nes_sound_output(uint8_t *buffer, size_t len);
 #ifdef __cplusplus          
     }
 #endif
-

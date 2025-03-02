@@ -59,7 +59,24 @@ int nes_fclose(FILE *stream ){
 }
 #endif
 
-static void nes_wait(uint32_t ms){
+int nes_log_printf(const char *format, ...){
+    va_list args;
+    va_start(args, format);
+    vprintf(format, args);
+    va_end(args);
+
+    size_t len;
+    va_list args;
+    if (luat_log_level_cur > level) return;
+    char log_printf_buff[LOGLOG_SIZE]  = {0};
+    va_start(args, format);
+    len = vsnprintf_(log_printf_buff, LOGLOG_SIZE - 2, format, args);
+    va_end(args);
+    if (len > 0) {
+        log_printf_buff[len] = '\n';
+        luat_log_write(log_printf_buff, len + 1);
+    }
+
 }
 
 #if (NES_ENABLE_SOUND == 1)

@@ -32,23 +32,6 @@
 #define NES_RAM_LACK            (0)       /* lack of RAM */
 
 #define NES_USE_FS              (1)       /* use file system */
-
-/* Color depth:
- * - 16: RGB565
- * - 32: ARGB8888
- */
-#ifndef NES_COLOR_DEPTH
-#define NES_COLOR_DEPTH         (32)
-#endif
-
-#if (NES_COLOR_DEPTH == 32)
-#define nes_color_t uint32_t
-#elif (NES_COLOR_DEPTH == 16)
-#define nes_color_t uint16_t
-#else
-#error "no supprt color depth"
-#endif
-
 /*
 *  - NES_LOG_LEVEL_NONE     Do not log anything.
 *  - NES_LOG_LEVEL_ERROR    Log error.
@@ -57,6 +40,9 @@
 *  - NES_LOG_LEVEL_DEBUG    Log debug.
 */
 #define NES_LOG_LEVEL NES_LOG_LEVEL_INFO
+
+/* log */
+#define nes_log_printf(format,...)  printf(format, ##__VA_ARGS__)
 
 #ifdef __cplusplus          
     }

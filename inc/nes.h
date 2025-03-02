@@ -15,7 +15,7 @@
  */
 #pragma once
 
-#include "nes_port.h"
+#include "nes_default.h"
 #include "nes_log.h"
 #include "nes_rom.h"
 #include "nes_cpu.h"
@@ -49,32 +49,6 @@
 
 #define NES_OK                  (0) 
 #define NES_ERROR               (-1)
-
-#ifndef NES_ENABLE_SOUND
-#define NES_ENABLE_SOUND        (0)
-#endif
-
-#ifndef NES_USE_FS
-#define NES_USE_FS              (0)
-#endif
-
-#ifndef NES_FRAME_SKIP
-#define NES_FRAME_SKIP          (0)
-#endif
-
-#ifndef NES_RAM_LACK
-#define NES_RAM_LACK            (0)
-#endif
-
-#if (NES_RAM_LACK == 1)
-#define NES_DRAW_SIZE           (NES_WIDTH * NES_HEIGHT / 2) 
-#else
-#define NES_DRAW_SIZE           (NES_WIDTH * NES_HEIGHT)
-#endif
-
-#ifndef NES_COLOR_SWAP
-#define NES_COLOR_SWAP          (0)
-#endif
 
 typedef struct nes{
     uint8_t nes_quit;

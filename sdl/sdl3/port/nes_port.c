@@ -61,11 +61,6 @@ int nes_fclose(FILE *stream ){
 }
 #endif
 
-/* wait */
-static void nes_wait(uint32_t ms){
-    SDL_Delay(ms);
-}
-
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
 static SDL_Texture *framebuffer = NULL;
@@ -279,7 +274,7 @@ void nes_frame(nes_t* nes){
     SDL_RenderTexture(renderer, framebuffer, NULL, NULL);
     SDL_RenderPresent(renderer);
     sdl_event(nes);
-    nes_wait(FRAMES_PER_SECOND);
+    SDL_Delay(FRAMES_PER_SECOND);
 }
 
 
