@@ -5,14 +5,15 @@ project(nes)
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
-file(GLOB SRCS
-        src/*.c
-        src/nes_mapper/*.c
+set(NES_DIRS "../..")
+
+file(GLOB_RECURSE SRCS
+        ${NES_DIRS}/src/*.c
         port/*.c
         main.c
         )
 list(APPEND INCS 
-        inc
+        ${NES_DIRS}/inc
         port
         )
 include_directories(${INCS})

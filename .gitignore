@@ -54,7 +54,8 @@ dkms.conf
 .xmake
 
 *.nes
-build
+*.NES
+**/build
 vsxmake2022
 
 

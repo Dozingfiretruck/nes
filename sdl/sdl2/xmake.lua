@@ -1,5 +1,5 @@
 set_project("nes")
-set_xmakever("2.9.7")
+set_xmakever("2.9.8")
 add_rules("mode.debug", "mode.release")
 
 if is_mode("debug") then
@@ -28,15 +28,17 @@ end
 -- end
 
 -- [[ add SDL2 ]]
-add_requires("libsdl3")
-add_packages("libsdl3")
+add_requires("libsdl2", {configs = {sdlmain = false}})
+add_packages("libsdl2")
 
 target("nes", function ()
     set_kind("binary")
 
-    add_includedirs("inc")
+    local nes_dir = "../.."
+    add_includedirs(nes_dir .. "/inc")
+    add_files(nes_dir .. "/src/**.c")
+
     add_includedirs("port")
-    add_files("src/**.c")
     add_files("port/*.c")
     
     add_files("main.c")
