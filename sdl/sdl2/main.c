@@ -18,18 +18,20 @@
 
 
 int main(int argc, char** argv){
+    nes_t* nes = nes_init();
     if (argc == 2){
         const char* nes_file_path = argv[1];
         size_t nes_file_path_len = strlen(nes_file_path);
         if (memcmp(nes_file_path+nes_file_path_len-4,".nes",4)==0 || memcmp(nes_file_path+nes_file_path_len-4,".NES",4)==0){
             printf("nes_file_path:%s\n",nes_file_path);
-            nes_t* nes = nes_load_file(nes_file_path);
-            if (!nes){
+            int ret = nes_load_file(nes, nes_file_path);
+            if (ret){
                 printf("nes load file fail\n");
                 goto error;
             }
             nes_run(nes);
             nes_unload_file(nes);
+            nes_deinit(nes);
             return 0;
         }else{
             printf("Please enter xxx.nes\n");
@@ -40,6 +42,7 @@ int main(int argc, char** argv){
         goto error;
     }
 error:
+    nes_deinit(nes);
     getchar();
     return -1;
 }

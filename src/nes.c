@@ -39,20 +39,29 @@ static nes_color_t nes_palette[]={
 #endif /* NES_COLOR_DEPTH */
 };
 
-int nes_init(nes_t *nes){
+nes_t* nes_init(void){
+    nes_t* nes = (nes_t *)nes_malloc(sizeof(nes_t));
+    if (nes == NULL) {
+        return NULL;
+    }
+    memset(nes, 0, sizeof(nes_t));
     nes_initex(nes);
     nes_cpu_init(nes);
 #if (NES_ENABLE_SOUND==1)
     nes_apu_init(nes);
 #endif
     nes_ppu_init(nes);
-    return 0;
+    return nes;
 }
 
 int nes_deinit(nes_t *nes){
     nes->nes_quit = 1;
     nes_deinitex(nes);
-    return 0;
+    if (nes){
+        nes_free(nes);
+        nes = NULL;
+    }
+    return NES_OK;
 }
 
 static inline void nes_palette_generate(nes_t* nes){

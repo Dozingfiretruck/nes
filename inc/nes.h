@@ -80,14 +80,21 @@ typedef struct nes{
 } nes_t;
 
 
-int nes_init(nes_t *nes);
+nes_t* nes_init(void);
 int nes_deinit(nes_t *nes);
-
-int nes_initex(nes_t* nes);
-int nes_deinitex(nes_t* nes);
 
 void nes_run(nes_t* nes);
 
+#if (NES_USE_FS == 1)
+int nes_load_file(nes_t* nes, const char* file_path);
+int nes_unload_file(nes_t* nes);
+#endif
+
+int nes_load_rom(nes_t* nes, const uint8_t* nes_rom);
+int nes_unload_rom(nes_t* nes);
+
+int nes_initex(nes_t* nes);
+int nes_deinitex(nes_t* nes);
 void nes_frame(nes_t* nes);
 
 #ifdef __cplusplus          

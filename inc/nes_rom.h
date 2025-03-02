@@ -101,14 +101,6 @@ typedef struct nes_rom_info{
     uint8_t  save_ram;                  /*  0: Not present 1: Present */
 } nes_rom_info_t;
 
-#if (NES_USE_FS == 1)
-nes_t* nes_load_file(const char* file_path);
-int nes_unload_file(nes_t* nes);
-#endif
-
-nes_t* nes_load_rom(const uint8_t* nes_rom);
-int nes_unload_rom(nes_t* nes);
-
 #ifdef __cplusplus          
     }
 #endif
