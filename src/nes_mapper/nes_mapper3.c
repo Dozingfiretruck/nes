@@ -19,11 +19,11 @@
 /* https://www.nesdev.org/wiki/INES_Mapper_003 */
 static void nes_mapper_init(nes_t* nes){
     // CPU $8000-$BFFF: First 16 KB of ROM.
-    NES_LOAD_PRGROM_16K(nes, 0, 0);
+    nes_load_prgrom_16k(nes, 0, 0);
     // CPU $C000-$FFFF: Last 16 KB of ROM or mirror of $8000-$BFFF.
-    NES_LOAD_PRGROM_16K(nes, 1, nes->nes_rom.prg_rom_size - 1); // PRG ROM size: 16 KiB or 32 KiB, set mirror.
+    nes_load_prgrom_16k(nes, 1, nes->nes_rom.prg_rom_size - 1); // PRG ROM size: 16 KiB or 32 KiB, set mirror.
     // CHR capacity: 8 KiB ROM.
-    NES_LOAD_CHRROM_8K(nes, 0, 0);
+    nes_load_chrrom_8k(nes, 0, 0);
 }
 
 /*
@@ -37,7 +37,7 @@ static void nes_mapper_init(nes_t* nes){
 */
 static void nes_mapper_write(nes_t* nes, uint16_t address, uint8_t date) {
     const uint8_t bank = (date % nes->nes_rom.chr_rom_size);
-    NES_LOAD_CHRROM_8K(nes, 0, bank);
+    nes_load_chrrom_8k(nes, 0, bank);
 }
 
 int nes_mapper3_init(nes_t* nes){

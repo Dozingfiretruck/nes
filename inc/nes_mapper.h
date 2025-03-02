@@ -44,42 +44,18 @@ typedef struct {
     void (*mapper_render_screen)(nes_t* nes, uint8_t mode );
 } nes_mapper_t;
 
+/* prg rom */
+void nes_load_prgrom_8k(nes_t* nes,uint8_t des, uint16_t src);
+void nes_load_prgrom_16k(nes_t* nes,uint8_t des, uint16_t src);
+void nes_load_prgrom_32k(nes_t* nes,uint8_t des, uint16_t src);
+
+/* chr rom */
+void nes_load_chrrom_1k(nes_t* nes,uint8_t des, uint8_t src);
+void nes_load_chrrom_8k(nes_t* nes,uint8_t des, uint8_t src);
+
 /* mapper */
 int nes_load_mapper(nes_t* nes);
 
-
-/* prg rom */
-/* 载入8k PRG-ROM */
-#define NES_LOAD_PRGROM_8K(nes,des,src) { \
-    nes->nes_cpu.prg_banks[des] = nes->nes_rom.prg_rom + 8 * 1024 * src; \
-}
-/* 载入16k PRG-ROM */
-#define NES_LOAD_PRGROM_16K(nes,des,src) { \
-    nes->nes_cpu.prg_banks[des * 2] = nes->nes_rom.prg_rom + 8 * 1024 * src * 2; \
-    nes->nes_cpu.prg_banks[des * 2 + 1] = nes->nes_rom.prg_rom + 8 * 1024 * (src * 2 + 1); \
-}
-/* 载入32k PRG-ROM */
-#define NES_LOAD_PRGROM_32K(nes,des,src) { \
-    nes->nes_cpu.prg_banks[0] = nes->nes_rom.prg_rom + 8 * 1024 * src * 4; \
-    nes->nes_cpu.prg_banks[1] = nes->nes_rom.prg_rom + 8 * 1024 * (src * 4 + 1); \
-    nes->nes_cpu.prg_banks[2] = nes->nes_rom.prg_rom + 8 * 1024 * (src * 4 + 2); \
-    nes->nes_cpu.prg_banks[3] = nes->nes_rom.prg_rom + 8 * 1024 * (src * 4 + 3); \
-}
-/* chr rom */
-/* 载入1k CHR-ROM */
-#define NES_LOAD_CHRROM_1K(nes,des,src) { \
-    nes->nes_ppu.pattern_table[des] = nes->nes_rom.chr_rom + 1024 * src; \
-}
-/* 载入8k CHR-ROM */
-#define NES_LOAD_CHRROM_8K(nes,des,src) { \
-    for (size_t i = 0; i < 8; i++){ \
-        nes->nes_ppu.pattern_table[des + i] = nes->nes_rom.chr_rom + 1024 * (src * 8 + i); \
-    } \
-}
-
-
-
-/* mapper */
 /* iNES 1.0 mapper */
 int nes_mapper0_init(nes_t* nes);
 int nes_mapper1_init(nes_t* nes);

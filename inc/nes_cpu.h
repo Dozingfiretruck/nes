@@ -23,12 +23,12 @@
 // https://www.nesdev.org/wiki/CPU_memory_map
 #define NES_CPU_RAM_SIZE        0x800   /*  2KB */
 
-struct nes;
-typedef struct nes nes_t;
-
 #define NES_VERCTOR_NMI         0xFFFA  /*  NMI vector (NMI=not maskable interupts) */
 #define NES_VERCTOR_RESET       0xFFFC  /*  Reset vector */
 #define NES_VERCTOR_IRQBRK      0xFFFE  /*  IRQ vector */
+
+struct nes;
+typedef struct nes nes_t;
 
 /*
 Bit No. 15      14      13      12      11      10      9       8

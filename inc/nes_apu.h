@@ -19,12 +19,11 @@
     extern "C" {
 #endif
 
-struct nes;
-typedef struct nes nes_t;
-
 #define NES_APU_SAMPLE_RATE         (44100)
 #define NES_APU_SAMPLE_PER_SYNC     (NES_APU_SAMPLE_RATE/60)
 
+struct nes;
+typedef struct nes nes_t;
 
 // https://www.nesdev.org/wiki/APU
 // https://www.nesdev.org/apu_ref.txt
