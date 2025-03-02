@@ -235,7 +235,7 @@ int nes_initex(nes_t *nes){
 #if (NES_ENABLE_SOUND == 1)
     SDL_AudioSpec desired = {
         .freq = NES_APU_SAMPLE_RATE,
-        .format = AUDIO_U8,
+        .format = AUDIO_S8,
         .channels = SDL_AUDIO_NUM_CHANNELS,
         .samples = NES_APU_SAMPLE_PER_SYNC,
         .callback = AudioCallback,

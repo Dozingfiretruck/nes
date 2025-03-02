@@ -62,15 +62,15 @@ uint8_t nes_read_ppu_register(nes_t* nes,uint16_t address){
             nes->nes_ppu.v_reg += (uint16_t)((nes->nes_ppu.CTRL_I) ? 32 : 1);
             break;
         default :
-            nes_printf("nes_read_ppu_register error %04X\n",address);
+        NES_LOG_ERROR("nes_read_ppu_register error %04X\n",address);
             break;
     }
-    // nes_printf("nes_read_ppu_register %04X %02X\n",address,data);
+    // NES_LOG_DEBUG("nes_read_ppu_register %04X %02X\n",address,data);
     return data;
 }
 
 void nes_write_ppu_register(nes_t* nes,uint16_t address, uint8_t data){
-    // nes_printf("nes_write_ppu_register %04X %02X\n",address,data);
+    // NES_LOG_DEBUG("nes_write_ppu_register %04X %02X\n",address,data);
     switch (address & (uint16_t)0x07){
         case 0://Controller ($2000) > write
             // t: ....GH.. ........ <- d: ......GH
@@ -125,7 +125,7 @@ void nes_write_ppu_register(nes_t* nes,uint16_t address, uint8_t data){
             nes->nes_ppu.v_reg += (uint16_t)((nes->nes_ppu.CTRL_I) ? 32 : 1);
             break;
         default :
-            nes_printf("nes_write_ppu_register error %04X %02X\n",address,data);
+            NES_LOG_ERROR("nes_write_ppu_register error %04X %02X\n",address,data);
             break;
     }
 }

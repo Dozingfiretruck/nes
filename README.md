@@ -97,7 +97,7 @@ brew install make gcc sdl2 xmake
 ​	The source code in the `inc`and `src` directories does not need to be modified, only the three files in the `port` directory `nes_conf.h` `nes_port.c` `nes_port.h`
 
 - `nes_conf.h` is the configuration file, which can be configured according to your needs
-- `nes_port.h` is the migrating header file, which usually only needs to be migrated nes_printf
+- `nes_port.h` is the migrating header file, which usually only needs to be migrated nes_log_printf
 - `nes_port.c is the main migration file, and all functions need to be migrated
 
 

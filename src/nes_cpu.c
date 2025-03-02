@@ -33,7 +33,7 @@ static inline uint8_t nes_read_joypad(nes_t* nes,uint16_t address){
         state = (nes->nes_cpu.joypad.joypad & (0x80 >> (nes->nes_cpu.joypad.offset2 & nes->nes_cpu.joypad.mask))) ? 1 : 0;
         nes->nes_cpu.joypad.offset2++;
     }
-    // nes_printf("nes_read joypad %04X %d %02X %d\n",address,nes->nes_cpu.joypad.mask,nes->nes_cpu.joypad.joypad,state);
+    // NES_LOG_DEBUG("nes_read joypad %04X %d %02X %d\n",address,nes->nes_cpu.joypad.mask,nes->nes_cpu.joypad.joypad,state);
     return state;
 }
 
@@ -41,7 +41,7 @@ static inline void nes_write_joypad(nes_t* nes,uint8_t data){
     nes->nes_cpu.joypad.mask = (data & 1)?0x00:0x07;
     if (data & 1)
         nes->nes_cpu.joypad.offset1 = nes->nes_cpu.joypad.offset2 = 0;
-    // nes_printf("nes_write joypad %04X %02X %d\n",address,data,nes->nes_cpu.joypad.mask);
+    // NES_LOG_DEBUG("nes_write joypad %04X %02X %d\n",address,data,nes->nes_cpu.joypad.mask);
 }
 
 static inline uint8_t nes_read_cpu(nes_t* nes,uint16_t address){
@@ -58,7 +58,7 @@ static inline uint8_t nes_read_cpu(nes_t* nes,uint16_t address){
                 return nes_read_apu_register(nes, address);
 #endif
             }else{
-                nes_printf("nes_read address %04X not sPport\n",address);
+                NES_LOG_ERROR("nes_read address %04X not sPport\n",address);
             }
             return 0;
         case 3://$6000-$7FFF SRAM
@@ -70,7 +70,7 @@ static inline uint8_t nes_read_cpu(nes_t* nes,uint16_t address){
         case 4: case 5: case 6: case 7:
             return nes->nes_cpu.prg_banks[(address >> 13)-4][address & (uint16_t)0x1fff];
         default :
-            nes_printf("nes_read_cpu error %04X\n",address);
+            NES_LOG_ERROR("nes_read_cpu error %04X\n",address);
             return 0;
     }
 }
@@ -82,7 +82,7 @@ static inline const uint8_t* nes_get_dma_address(nes_t* nes,uint8_t data) {
         case 4: case 5: case 6: case 7:// 高一位为1, [$8000, $10000) PRG-ROM
             return nes->nes_cpu.prg_banks[(data >> 4)&0x03] + ((uint16_t)(data & 0x0f) << 8);
         default:
-            nes_printf("nes_get_dma_address error %02X\n",data);
+            NES_LOG_ERROR("nes_get_dma_address error %02X\n",data);
             return NULL;
     }
 }
@@ -99,7 +99,7 @@ static inline void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
             if (address == 0x4016)
                 nes_write_joypad(nes,data);
             else if (address == 0x4014){
-                // nes_printf("nes_write DMA data:0x%02X oam_addr:0x%02X\n",data,nes->nes_ppu.oam_addr);
+                // NES_LOG_DEBUG("nes_write DMA data:0x%02X oam_addr:0x%02X\n",data,nes->nes_ppu.oam_addr);
                 if (nes->nes_ppu.oam_addr) {
                     uint8_t* dst = nes->nes_ppu.oam_data;
                     const uint8_t len = nes->nes_ppu.oam_addr;
@@ -116,7 +116,7 @@ static inline void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
                 nes_write_apu_register(nes, address,data);
 #endif
             }else{
-                nes_printf("nes_write address %04X not suport\n",address);
+                NES_LOG_ERROR("nes_write address %04X not suport\n",address);
             }
             return;
         case 3://$6000-$7FFF SRAM
@@ -128,7 +128,7 @@ static inline void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
             nes->nes_mapper.mapper_write(nes, address, data);
             return;
         default :
-            nes_printf("nes_write_ppu_register error %04X %02X\n",address,data);
+            NES_LOG_ERROR("nes_write_ppu_register error %04X %02X\n",address,data);
             return;
     }
 }

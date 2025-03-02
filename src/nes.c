@@ -252,19 +252,19 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
 // https://www.nesdev.org/wiki/PPU_rendering
 
 void nes_run(nes_t* nes){
-    nes_printf("mapper:%03d\n",nes->nes_rom.mapper_number);
-    nes_printf("prg_rom_size:%d*16kB\n",nes->nes_rom.prg_rom_size);
-    nes_printf("chr_rom_size:%d*8kB\n",nes->nes_rom.chr_rom_size);
-    nes_printf("mirroring_type:%d\n",nes->nes_rom.mirroring_type);
-    nes_printf("four_screen:%d\n",nes->nes_rom.four_screen);
-    // nes_printf("save_ram:%d\n",nes->nes_rom.save_ram);
+    NES_LOG_DEBUG("mapper:%03d\n",nes->nes_rom.mapper_number);
+    NES_LOG_DEBUG("prg_rom_size:%d*16kB\n",nes->nes_rom.prg_rom_size);
+    NES_LOG_DEBUG("chr_rom_size:%d*8kB\n",nes->nes_rom.chr_rom_size);
+    NES_LOG_DEBUG("mirroring_type:%d\n",nes->nes_rom.mirroring_type);
+    NES_LOG_DEBUG("four_screen:%d\n",nes->nes_rom.four_screen);
+    // NES_LOG_DEBUG("save_ram:%d\n",nes->nes_rom.save_ram);
 
     nes_cpu_reset(nes);
     uint64_t frame_cnt = 0;
     uint16_t scanline = 0;
 
     while (!nes->nes_quit){
-        // nes_printf("frame_cnt:%d\n",frame_cnt);
+        // NES_LOG_DEBUG("frame_cnt:%d\n",frame_cnt);
         frame_cnt++;
         nes_palette_generate(nes);
 

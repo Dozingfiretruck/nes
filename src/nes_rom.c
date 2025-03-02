@@ -26,7 +26,7 @@ int nes_load_file(nes_t* nes, const char* file_path ){
 
     void* nes_file = nes_fopen(file_path, "rb");
     if (nes_file == NULL){
-        nes_printf("nes_load_file: failed to open file %s\n", file_path);
+        NES_LOG_ERROR("nes_load_file: failed to open file %s\n", file_path);
         goto error;
     }
 #if (NES_USE_SRAM == 1)

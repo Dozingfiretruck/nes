@@ -26,11 +26,7 @@
 #endif
 
 /* log */
-#ifdef __DEBUG__
-#define nes_printf(format,...)  printf("%s " format,__func__,##__VA_ARGS__)
-#else
-#define nes_printf(format,...)
-#endif
+#define nes_log_printf(format,...)  printf(format, ##__VA_ARGS__)
 
 /* memory */
 void *nes_malloc(int num);

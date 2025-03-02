@@ -70,7 +70,7 @@ int nes_load_mapper(nes_t* nes){
         NES_CASE_LOAD_MAPPER(117);
         NES_CASE_LOAD_MAPPER(180);
         default :
-            nes_printf("mapper:%03d is unsupported\n",nes->nes_rom.mapper_number);
+            NES_LOG_ERROR("mapper:%03d is unsupported\n",nes->nes_rom.mapper_number);
             return NES_ERROR;
     }
 }

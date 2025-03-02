@@ -16,6 +16,7 @@
 #pragma once
 
 #include "nes_port.h"
+#include "nes_log.h"
 #include "nes_rom.h"
 #include "nes_cpu.h"
 #include "nes_ppu.h"
@@ -48,6 +49,14 @@
 
 #define NES_OK                  (0) 
 #define NES_ERROR               (-1)
+
+#ifndef NES_ENABLE_SOUND
+#define NES_ENABLE_SOUND        (0)
+#endif
+
+#ifndef NES_USE_FS
+#define NES_USE_FS              (0)
+#endif
 
 #ifndef NES_FRAME_SKIP
 #define NES_FRAME_SKIP          (0)

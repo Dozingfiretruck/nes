@@ -23,6 +23,11 @@
 #define NES_USE_SRAM            (0)       /* use SRAM */
 
 #define NES_FRAME_SKIP          (0)       /* skip frames */
+
+/* Color depth:
+ * - 16: RGB565
+ * - 32: ARGB8888
+ */
 #define NES_COLOR_DEPTH         (32)      /* color depth */
 #define NES_COLOR_SWAP          (0)       /* swap color channels */
 #define NES_RAM_LACK            (0)       /* lack of RAM */

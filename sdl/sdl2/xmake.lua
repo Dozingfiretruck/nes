@@ -5,7 +5,6 @@ add_rules("mode.debug", "mode.release")
 if is_mode("debug") then
     set_symbols("debug")
     set_optimize("none")
-    add_defines("__DEBUG__")
 else
     set_strip("all")
     set_symbols("hidden")
