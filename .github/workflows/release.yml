@@ -48,8 +48,10 @@ jobs:
       - name: build
         run: |
             xrepo update-repo
+            cd ./sdl/sdl2
             xmake -v -y
-            cp build/macosx/${{ matrix.arch }}/release/nes nes-macos-${{ matrix.arch }}.AppImage
+            cp build/macosx/${{ matrix.arch }}/release/nes ../../nes-macos-${{ matrix.arch }}.AppImage
+            cd ../../
                     
       - name: Publish file to release
         uses: svenstaro/upload-release-action@v2
@@ -86,8 +88,10 @@ jobs:
       - name: build
         run: |
           xrepo update-repo
+          cd ./sdl/sdl2
           xmake -v -y
-          cp build/linux/${{ matrix.arch }}/release/nes nes-linux-${{ matrix.arch }}.bin
+          cp build/linux/${{ matrix.arch }}/release/nes ../../nes-linux-${{ matrix.arch }}.bin
+          cd ../../
 
       - name: Publish file to release
         uses: svenstaro/upload-release-action@v2
@@ -121,8 +125,10 @@ jobs:
       - name: build
         run: |
           xrepo update-repo
+          cd ./sdl/sdl2
           xmake -v -y
-          cp build/windows/${{ matrix.arch }}/release/nes.exe nes-windows-${{ matrix.arch }}.exe
+          cp build/windows/${{ matrix.arch }}/release/nes.exe ../../nes-windows-${{ matrix.arch }}.exe
+          cd ../../
         
       - name: Publish file to release
         uses: svenstaro/upload-release-action@v2
