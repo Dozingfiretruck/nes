@@ -15,7 +15,7 @@
  */
 #include "nes.h"
 
-#include "SDL2/SDL.h"
+#include <SDL.h>
 
 /* memory */
 void *nes_malloc(int num){
