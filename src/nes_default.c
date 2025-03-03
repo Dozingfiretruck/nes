@@ -17,6 +17,8 @@
 #include "nes_default.h"
 
 #ifndef _MSC_VER
+#include <stdlib.h>
+
 
 /* memory */
 NES_WEAK void *nes_malloc(int num){
