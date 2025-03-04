@@ -34,7 +34,7 @@ int nes_load_file(nes_t* nes, const char* file_path ){
     if (nes->nes_rom.sram == NULL) {
         goto error;
     }
-    memset(nes->nes_rom.sram, 0x00, SRAM_SIZE);
+    nes_memset(nes->nes_rom.sram, 0x00, SRAM_SIZE);
 #endif
     if (nes_fread(&nes_header_info, sizeof(nes_header_info), 1, nes_file)) {
         if ( nes_memcmp( nes_header_info.identification, "NES\x1a", 4 )){
