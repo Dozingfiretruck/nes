@@ -36,6 +36,7 @@ static void nes_mapper_init(nes_t* nes){
     CNROM only implements the lowest 2 bits, capping it at 32 KiB CHR. Other boards may implement 4 or more bits for larger CHR.
 */
 static void nes_mapper_write(nes_t* nes, uint16_t address, uint8_t date) {
+    (void)address;
     const uint8_t bank = (date % nes->nes_rom.chr_rom_size);
     nes_load_chrrom_8k(nes, 0, bank);
 }

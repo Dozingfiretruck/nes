@@ -44,7 +44,7 @@ nes_t* nes_init(void){
     if (nes == NULL) {
         return NULL;
     }
-    memset(nes, 0, sizeof(nes_t));
+    nes_memset(nes, 0, sizeof(nes_t));
     nes_initex(nes);
     return nes;
 }
@@ -69,6 +69,7 @@ static inline void nes_palette_generate(nes_t* nes){
 }
 
 static void nes_render_background_line(nes_t* nes,uint16_t scanline,nes_color_t* draw_data){
+    (void)scanline;
     uint8_t p = 0;
     int8_t m = 7 - nes->nes_ppu.x;
     const uint8_t dx = (const uint8_t)nes->nes_ppu.v.coarse_x;

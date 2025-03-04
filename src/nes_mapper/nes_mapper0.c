@@ -30,8 +30,10 @@ static void nes_mapper_init(nes_t* nes){
     nes_load_chrrom_8k(nes, 0, 0);
 }
 
-static void nes_mapper_write(nes_t* nes, uint16_t write_addr, uint8_t data ){
-
+static void nes_mapper_write(nes_t* nes, uint16_t write_addr, uint8_t data){
+    (void)nes;
+    (void)write_addr;
+    (void)data;
 }
 
 int nes_mapper0_init(nes_t* nes){

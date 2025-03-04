@@ -40,6 +40,7 @@ typedef struct {
 }bank_select_t;
 
 static void nes_mapper_write(nes_t* nes, uint16_t address, uint8_t date) {
+    (void)address;
     const bank_select_t* bank_select = (bank_select_t*)&date;
     nes_load_prgrom_16k(nes, 1, bank_select->P);
 }

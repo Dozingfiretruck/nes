@@ -35,6 +35,7 @@ void nes_load_prgrom_16k(nes_t* nes,uint8_t des, uint16_t src) {
     load 32k PRG-ROM
 */
 void nes_load_prgrom_32k(nes_t* nes,uint8_t des, uint16_t src) {
+    (void)des;
     nes->nes_cpu.prg_banks[0] = nes->nes_rom.prg_rom + 8 * 1024 * src * 4;
     nes->nes_cpu.prg_banks[1] = nes->nes_rom.prg_rom + 8 * 1024 * (src * 4 + 1);
     nes->nes_cpu.prg_banks[2] = nes->nes_rom.prg_rom + 8 * 1024 * (src * 4 + 2);

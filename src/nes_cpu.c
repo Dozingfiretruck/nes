@@ -138,7 +138,6 @@ static inline void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
 #define NES_PUSHW(nes,data)     NES_PUSH(nes, ((data) >> 8) ); NES_PUSH(nes, ((data) & 0xff))
 // 出栈
 #define NES_POP(nes)            ((nes->nes_cpu.cpu_ram + 0x100)[++nes->nes_cpu.SP])
-#define NES_POPW(nes)           ((uint16_t)NES_POP(nes)|(uint16_t)(NES_POP(nes) << 8))
 // 状态寄存器检查位
 #define NES_CHECK_N(x)          nes->nes_cpu.N = ((uint8_t)(x) & 0x80)>>7
 #define NES_CHECK_Z(x)          nes->nes_cpu.Z = ((uint8_t)(x) == 0)
@@ -176,8 +175,9 @@ static inline uint16_t nes_rel(nes_t* nes){
     a:Absolute::Fetches the value from a 16-bit address anywhere in memory.
 */
 static inline uint16_t nes_abs(nes_t* nes){
-    uint16_t address = nes_read_cpu(nes,nes->nes_cpu.PC++)|(uint16_t)nes_read_cpu(nes,nes->nes_cpu.PC++) << 8;
-    return address;
+    const uint8_t low_byte = nes_read_cpu(nes, nes->nes_cpu.PC++);
+    const uint8_t high_byte = nes_read_cpu(nes, nes->nes_cpu.PC++);
+    return (uint16_t)high_byte << 8 | low_byte;
 }
 
 /*
@@ -805,7 +805,9 @@ static inline void nes_rti(nes_t* nes){
     nes->nes_cpu.U = 1;
     nes->nes_cpu.B = 1;
     // PC:=+(S)
-    nes->nes_cpu.PC = (uint16_t)NES_POPW(nes);
+    const uint8_t low_byte = (nes->nes_cpu.cpu_ram + 0x100)[++nes->nes_cpu.SP];
+    const uint8_t high_byte = (nes->nes_cpu.cpu_ram + 0x100)[++nes->nes_cpu.SP];
+    nes->nes_cpu.PC =  (uint16_t)high_byte << 8 | low_byte;
     // 清计数
     
 }
@@ -829,7 +831,9 @@ static inline void nes_jsr(nes_t* nes){
 
 */
 static inline void nes_rts(nes_t* nes){
-    nes->nes_cpu.PC = (uint16_t)NES_POPW(nes);
+    const uint8_t low_byte = (nes->nes_cpu.cpu_ram + 0x100)[++nes->nes_cpu.SP];
+    const uint8_t high_byte = (nes->nes_cpu.cpu_ram + 0x100)[++nes->nes_cpu.SP];
+    nes->nes_cpu.PC =  (uint16_t)high_byte << 8 | low_byte;
     nes->nes_cpu.PC++;
 }
 

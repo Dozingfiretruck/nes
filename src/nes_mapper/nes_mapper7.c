@@ -41,6 +41,7 @@ typedef struct {
 }bank_select_t;
 
 static void nes_mapper_write(nes_t* nes, uint16_t address, uint8_t date) {
+    (void)address;
     const bank_select_t* bank_select = (bank_select_t*)&date;
     nes_load_prgrom_32k(nes, 0, bank_select->P);
     nes_ppu_screen_mirrors(nes, bank_select->M?NES_MIRROR_ONE_SCREEN1:NES_MIRROR_ONE_SCREEN0);

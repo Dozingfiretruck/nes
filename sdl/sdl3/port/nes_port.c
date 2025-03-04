@@ -191,6 +191,7 @@ static SDL_AudioStream* nes_audio_stream = NULL;
 
 static uint8_t apu_output = 0;
 static void AudioCallback(void* userdata, SDL_AudioStream* astream, int additional_amount, int total_amount) {
+    (void)total_amount;
     nes_t *nes = (nes_t*)userdata;
     static int total = NES_APU_SAMPLE_PER_SYNC;
     if (apu_output){
@@ -210,6 +211,8 @@ static void AudioCallback(void* userdata, SDL_AudioStream* astream, int addition
 }
 
 int nes_sound_output(uint8_t *buffer, size_t len){
+    (void)buffer;
+    (void)len;
     apu_output = 1;
     return 0;
 }
@@ -248,6 +251,7 @@ int nes_initex(nes_t *nes){
 }
 
 int nes_deinitex(nes_t *nes){
+    (void)nes;
     SDL_DestroyTexture(framebuffer);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

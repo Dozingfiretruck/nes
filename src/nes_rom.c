@@ -173,5 +173,6 @@ error:
 }
 
 int nes_unload_rom(nes_t* nes){
+    (void)nes;
     return NES_OK;
 }
