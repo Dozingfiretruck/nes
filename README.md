@@ -42,7 +42,7 @@ gitee: [nes: c语言实现的nes模拟器 (gitee.com)](https://gitee.com/Dozingf
 ​	0, 2, 3, 7, 94, 117, 180
 
 ## Software Architecture
-​	The example is based on SDL2 for image and sound output, without special dependencies, and you can port to any hardware by yourself
+​	The example is based on SDL for image and sound output, without special dependencies, and you can port to any hardware by yourself
 
 
 ## Compile Tutorial
@@ -96,9 +96,8 @@ brew install make gcc sdl2 xmake
 
 ​	The source code in the `inc`and `src` directories does not need to be modified, only the three files in the `port` directory `nes_conf.h` `nes_port.c` `nes_port.h`
 
-- `nes_conf.h` is the configuration file, which can be configured according to your needs
-- `nes_port.h` is the migrating header file, which usually only needs to be migrated nes_log_printf
-- `nes_port.c is the main migration file, and all functions need to be migrated
+- `nes_conf.h` is a configuration file, configure according to your needs, such as printing extra definitions, the implementation of `nes_log_printf`
+- `nes_port.c` is the main porting file, which needs to be ported according to the needs
 
 
 

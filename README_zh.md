@@ -42,7 +42,7 @@ gitee: [nes: c语言实现的nes模拟器 (gitee.com)](https://gitee.com/Dozingf
 ​	0, 2, 3, 7, 94, 117, 180
 
 ## 软件架构
-​	示例基于SDL2进行图像声音输出，没有特殊依赖，您可自行移植至任意硬件
+​	示例基于SDL进行图像声音输出，没有特殊依赖，您可自行移植至任意硬件
 
 
 ## 编译教程
@@ -94,9 +94,8 @@ brew install make gcc sdl2 xmake
 
 ​	`inc` 和 `src` 目录下的源码无需修改，只需要修改`port`目录下的三个文件 `nes_conf.h` `nes_port.c` `nes_port.h`
 
-- `nes_conf.h`为配置文件，根据自己需求配置即可
-- `nes_port.h`为移植头文件，通常只需要移植nes_printf即可
-- `nes_port.c`为主要移植文件，需要移植所有函数
+- `nes_conf.h`为配置文件，根据自己需求配置即可,如需打印额外定义 nes_log_printf 的实现
+- `nes_port.c`为主要移植文件，需要根据需求进行移植
 
 
 
