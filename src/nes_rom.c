@@ -90,6 +90,11 @@ int nes_load_file(nes_t* nes, const char* file_path ){
         goto error;
     }
     nes_fclose(nes_file);
+    nes_cpu_init(nes);
+#if (NES_ENABLE_SOUND==1)
+    nes_apu_init(nes);
+#endif
+    nes_ppu_init(nes);
     if(nes_load_mapper(nes)){
         goto error;
     }
@@ -150,7 +155,14 @@ int nes_load_rom(nes_t* nes, const uint8_t* nes_rom){
     if (nes->nes_rom.chr_rom_size){
         nes->nes_rom.chr_rom = nes_bin;
     }
-    nes_load_mapper(nes);
+    nes_cpu_init(nes);
+#if (NES_ENABLE_SOUND==1)
+    nes_apu_init(nes);
+#endif
+    nes_ppu_init(nes);
+    if(nes_load_mapper(nes)){
+        return NES_ERROR;
+    }
     nes->nes_mapper.mapper_init(nes);
     return NES_OK;
 error:

@@ -15,8 +15,6 @@
  */
 #pragma once
 
-#include "nes_default.h"
-
 #ifdef __cplusplus
     extern "C" {
 #endif

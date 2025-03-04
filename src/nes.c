@@ -46,11 +46,6 @@ nes_t* nes_init(void){
     }
     memset(nes, 0, sizeof(nes_t));
     nes_initex(nes);
-    nes_cpu_init(nes);
-#if (NES_ENABLE_SOUND==1)
-    nes_apu_init(nes);
-#endif
-    nes_ppu_init(nes);
     return nes;
 }
 

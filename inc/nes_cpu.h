@@ -86,8 +86,8 @@ typedef struct nes_cpu{
     };
     uint8_t irq_counter;
     uint8_t irq_nmi;
-    uint32_t cycles;
-    uint8_t opcode;     
+    uint8_t opcode;
+    uint16_t cycles;
     uint8_t cpu_ram[NES_CPU_RAM_SIZE];
     uint8_t* prg_banks[4];              /*  4 bank ( 8Kb * 4 ) = 32KB  */
     nes_joypad_t joypad;
