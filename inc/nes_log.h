@@ -43,26 +43,26 @@
 #  define NES_LOG_LEVEL        NES_LOG_LEVEL_INFO
 #endif
 
-#  if NES_LOG_LEVEL > NES_LOG_LEVEL_ERROR
-#    define NES_LOG_ERROR(format, ...) nes_log_printf("\033[31m[ERROR][%s:%d/%s]: \033[0m" format, __FILE__, __LINE__, __func__, ##__VA_ARGS__)
+#  if NES_LOG_LEVEL >= NES_LOG_LEVEL_ERROR
+#    define NES_LOG_ERROR(format, ...) nes_log_printf("\033[31m[ERROR][%s:%d(%s)]: \033[0m" format, __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 #  else
 #    define NES_LOG_ERROR(format, ...) do {}while(0)
 #  endif
 
-#  if NES_LOG_LEVEL > NES_LOG_LEVEL_WARN
-#    define NES_LOG_WARN(format, ...) nes_log_printf("\033[33m[WARN][%s:%d/%s]: \033[0m" format, __FILE__, __LINE__, __func__, ##__VA_ARGS__)
+#  if NES_LOG_LEVEL >= NES_LOG_LEVEL_WARN
+#    define NES_LOG_WARN(format, ...) nes_log_printf("\033[33m[WARN][%s:%d(%s)]: \033[0m" format, __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 #  else
 #    define NES_LOG_WARN(format, ...) do {}while(0)
 #  endif
 
-#  if NES_LOG_LEVEL > NES_LOG_LEVEL_INFO
-#    define NES_LOG_INFO(format, ...) nes_log_printf("\033[32m[INFO][%s:%d/%s]: \033[0m" format, __FILE__, __LINE__, __func__, ##__VA_ARGS__)
+#  if NES_LOG_LEVEL >= NES_LOG_LEVEL_INFO
+#    define NES_LOG_INFO(format, ...) nes_log_printf("\033[32m[INFO][%s:%d(%s)]: \033[0m" format, __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 #  else
 #    define NES_LOG_INFO(format, ...) do {}while(0)
 #  endif
 
-#  if NES_LOG_LEVEL > NES_LOG_LEVEL_DEBUG
-#    define NES_LOG_DEBUG(format, ...) nes_log_printf("\033[0m[DEBUG][%s:%d/%s]: \033[0m" format, __FILE__, __LINE__, __func__, ##__VA_ARGS__)
+#  if NES_LOG_LEVEL >= NES_LOG_LEVEL_DEBUG
+#    define NES_LOG_DEBUG(format, ...) nes_log_printf("\033[0m[DEBUG][%s:%d(%s)]: \033[0m" format, __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 #  else
 #    define NES_LOG_DEBUG(format, ...) do {}while(0)
 #  endif
