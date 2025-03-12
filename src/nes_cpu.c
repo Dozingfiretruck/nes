@@ -75,6 +75,11 @@ static inline uint8_t nes_read_cpu(nes_t* nes,uint16_t address){
     }
 }
 
+static inline uint16_t nes_readw_cpu(nes_t* nes,uint16_t address){
+    // 6502 BUG
+    return nes_read_cpu(nes,address) | (uint16_t)(nes_read_cpu(nes,(uint16_t)((address & (uint16_t)0xFF00)|((address + 1) & (uint16_t)0x00FF)))) << 8;
+}
+
 static inline const uint8_t* nes_get_dma_address(nes_t* nes,uint8_t data) {
     switch (data >> 5){
         case 0:
@@ -230,7 +235,7 @@ static inline uint16_t nes_zpy(nes_t* nes){
 */
 static inline uint16_t nes_izx(nes_t* nes){
     uint8_t address = nes_read_cpu(nes,nes->nes_cpu.PC++) + nes->nes_cpu.X;
-    return nes_read_cpu(nes,address)|(uint16_t)nes_read_cpu(nes,(uint8_t)(address + 1)) << 8;
+    return nes_readw_cpu(nes,address);
 }
 
 /*
@@ -238,7 +243,7 @@ static inline uint16_t nes_izx(nes_t* nes){
 */
 static inline uint16_t nes_izy(nes_t* nes){
     uint8_t value = nes_read_cpu(nes,nes->nes_cpu.PC++);
-    uint16_t address = nes_read_cpu(nes,value)|(uint16_t)nes_read_cpu(nes,(uint8_t)(value + 1)) << 8;
+    uint16_t address = nes_readw_cpu(nes,value);
     if (nes_opcode_table[nes->nes_cpu.opcode].ticks==5){
         if ((address>>8) != ((address+nes->nes_cpu.Y)>>8))nes->nes_cpu.cycles++;
     }
@@ -250,10 +255,8 @@ static inline uint16_t nes_izy(nes_t* nes){
                     that can jump to the address stored in a 16-bit pointer anywhere in memory.
 */
 static inline uint16_t nes_ind(nes_t* nes){
-    uint16_t base_address = nes_abs(nes);
-    // 6502 BUG
-    const uint16_t address = (base_address & (uint16_t)0xFF00)| ((base_address + 1) & (uint16_t)0x00FF);
-    return nes_read_cpu(nes,base_address)|(uint16_t)nes_read_cpu(nes,address) << 8;
+    uint16_t address = nes_abs(nes);
+    return nes_readw_cpu(nes,address);
 }
 
 /* 6502/6510/8500/8502 Opcode matrix: https://www.oxyron.de/html/opcodes02.html */
@@ -786,12 +789,10 @@ static inline void nes_beq(nes_t* nes){
 static inline void nes_brk(nes_t* nes){
     nes->nes_cpu.PC++;
     NES_PUSHW(nes,nes->nes_cpu.PC);
-    nes->nes_cpu.U = 1;
     nes->nes_cpu.B = 1;
     NES_PUSH(nes,nes->nes_cpu.P);
     nes->nes_cpu.I = 1;
-    // nes->nes_cpu.B = 0;
-    nes->nes_cpu.PC = nes_read_cpu(nes,NES_VERCTOR_IRQBRK)|(uint16_t)nes_read_cpu(nes,NES_VERCTOR_IRQBRK + 1) << 8;
+    nes->nes_cpu.PC = nes_readw_cpu(nes,NES_VERCTOR_IRQBRK);
 }
 
 /*
@@ -1181,7 +1182,7 @@ static inline void nes_nmi(nes_t* nes){
     nes->nes_cpu.B = 0;
     NES_PUSH(nes,nes->nes_cpu.P);
     nes->nes_cpu.I = 1;
-    nes->nes_cpu.PC = nes_read_cpu(nes,NES_VERCTOR_NMI)|(uint16_t)nes_read_cpu(nes,NES_VERCTOR_NMI + 1) << 8;
+    nes->nes_cpu.PC = nes_readw_cpu(nes,NES_VERCTOR_NMI);
     nes->nes_cpu.cycles += 7;
 }
 
@@ -1191,7 +1192,7 @@ void nes_cpu_irq(nes_t* nes){
         NES_PUSH(nes,nes->nes_cpu.P);
         // nes->nes_cpu.B = 0;
         nes->nes_cpu.I = 1;
-        nes->nes_cpu.PC = nes_read_cpu(nes,NES_VERCTOR_IRQBRK)|(uint16_t)nes_read_cpu(nes,NES_VERCTOR_IRQBRK + 1) << 8;
+        nes->nes_cpu.PC = nes_readw_cpu(nes,NES_VERCTOR_IRQBRK);
         nes->nes_cpu.cycles += 7;
     }
 }
@@ -1202,7 +1203,7 @@ void nes_cpu_reset(nes_t* nes){
     nes->nes_cpu.SP -= 3;               // S was decremented by 3 (but nothing was written to the stack)
     nes_write_cpu(nes,0x4015, 0x00);    // APU was silenced ($4015 = 0)
 
-    nes->nes_cpu.PC = nes_read_cpu(nes,NES_VERCTOR_RESET)|(uint16_t)nes_read_cpu(nes,NES_VERCTOR_RESET + 1) << 8;
+    nes->nes_cpu.PC = nes_readw_cpu(nes,NES_VERCTOR_RESET);
     nes->nes_cpu.cycles = 7;
 }
 
