@@ -181,16 +181,16 @@ static inline uint16_t nes_rel(nes_t* nes){
 */
 static inline uint16_t nes_abs(nes_t* nes){
     const uint8_t low_byte = nes_read_cpu(nes, nes->nes_cpu.PC++);
-    const uint8_t high_byte = nes_read_cpu(nes, nes->nes_cpu.PC++);
-    return (uint16_t)high_byte << 8 | low_byte;
+    const uint16_t high_byte = nes_read_cpu(nes, nes->nes_cpu.PC++) << 8;
+    return (uint16_t)high_byte | low_byte;
 }
 
 /*
     a,x:Absolute indexed:val = PEEK(arg + X)
 */
 static inline uint16_t nes_abx(nes_t* nes){
-    uint16_t base_address = nes_abs(nes);
-    uint16_t address = base_address + nes->nes_cpu.X;
+    const uint16_t base_address = nes_abs(nes);
+    const uint16_t address = base_address + nes->nes_cpu.X;
     if (nes_opcode_table[nes->nes_cpu.opcode].ticks==4){
         if ((address>>8) != (base_address>>8))nes->nes_cpu.cycles++;
     }
@@ -201,8 +201,8 @@ static inline uint16_t nes_abx(nes_t* nes){
     a,y:Absolute indexed:val = PEEK(arg + Y)
 */
 static inline uint16_t nes_aby(nes_t* nes){
-    uint16_t base_address = nes_abs(nes);
-    uint16_t address = base_address + nes->nes_cpu.Y;
+    const uint16_t base_address = nes_abs(nes);
+    const uint16_t address = base_address + nes->nes_cpu.Y;
     if (nes_opcode_table[nes->nes_cpu.opcode].ticks==4){
         if ((address>>8) != (base_address>>8))nes->nes_cpu.cycles++;
     }
@@ -213,37 +213,36 @@ static inline uint16_t nes_aby(nes_t* nes){
     d:Zero page:Fetches the value from an 8-bit address on the zero page.
 */
 static inline uint16_t nes_zp(nes_t* nes){
-    return (uint16_t)nes_read_cpu(nes,nes->nes_cpu.PC++);
+    return (uint16_t)nes_read_cpu(nes, nes->nes_cpu.PC++);
 }
 
 /*
     d,x:Zero page indexed:val = PEEK((arg + X) % 256)
 */
 static inline uint16_t nes_zpx(nes_t* nes){
-    return ((uint16_t)nes_read_cpu(nes,nes->nes_cpu.PC++) + nes->nes_cpu.X) & 0x00FF;
+    return (nes_zp(nes) + nes->nes_cpu.X) & 0x00FF;
 }
 
 /*
     d,y:Zero page indexed:val = PEEK((arg + Y) % 256)
 */
 static inline uint16_t nes_zpy(nes_t* nes){
-    return ((uint16_t)nes_read_cpu(nes,nes->nes_cpu.PC++) + nes->nes_cpu.Y) & 0x00FF;
+    return (nes_zp(nes) + nes->nes_cpu.Y) & 0x00FF;
 }
 
 /*
     (d,x):Indexed indirect:val = PEEK(PEEK((arg + X) % 256) + PEEK((arg + X + 1) % 256) * 256)
 */
 static inline uint16_t nes_izx(nes_t* nes){
-    uint8_t address = nes_read_cpu(nes,nes->nes_cpu.PC++) + nes->nes_cpu.X;
-    return nes_readw_cpu(nes,address);
+    return nes_readw_cpu(nes,nes_zp(nes) + nes->nes_cpu.X);
 }
 
 /*
     (d),y:Indexed indirect:val = PEEK(PEEK(arg) + PEEK((arg + 1) % 256) * 256 + Y)
 */
 static inline uint16_t nes_izy(nes_t* nes){
-    uint8_t value = nes_read_cpu(nes,nes->nes_cpu.PC++);
-    uint16_t address = nes_readw_cpu(nes,value);
+    const uint8_t value = nes_zp(nes);
+    const uint16_t address = nes_readw_cpu(nes,value);
     if (nes_opcode_table[nes->nes_cpu.opcode].ticks==5){
         if ((address>>8) != ((address+nes->nes_cpu.Y)>>8))nes->nes_cpu.cycles++;
     }
@@ -255,8 +254,7 @@ static inline uint16_t nes_izy(nes_t* nes){
                     that can jump to the address stored in a 16-bit pointer anywhere in memory.
 */
 static inline uint16_t nes_ind(nes_t* nes){
-    uint16_t address = nes_abs(nes);
-    return nes_readw_cpu(nes,address);
+    return nes_readw_cpu(nes,nes_abs(nes));
 }
 
 /* 6502/6510/8500/8502 Opcode matrix: https://www.oxyron.de/html/opcodes02.html */
