@@ -16,13 +16,9 @@
 
 #include "nes.h"
 
-#if (NES_USE_SRAM == 1)
-    #define SRAM_SIZE           (0x2000)
-#endif
-
 #if (NES_USE_FS == 1)
 int nes_load_file(nes_t* nes, const char* file_path ){
-    nes_header_info_t nes_header_info = {0};
+    nes_header_ines_t nes_header_info = {0};
 
     void* nes_file = nes_fopen(file_path, "rb");
     if (nes_file == NULL){
@@ -37,7 +33,7 @@ int nes_load_file(nes_t* nes, const char* file_path ){
     nes_memset(nes->nes_rom.sram, 0x00, SRAM_SIZE);
 #endif
     if (nes_fread(&nes_header_info, sizeof(nes_header_info), 1, nes_file)) {
-        if ( nes_memcmp( nes_header_info.identification, "NES\x1a", 4 )){
+        if (nes_memcmp(nes_header_info.identification, "NES\x1a", 4)){
             goto error;
         }
         if (nes_header_info.trainer){
@@ -49,27 +45,21 @@ int nes_load_file(nes_t* nes, const char* file_path ){
             nes_fseek(nes_file, TRAINER_SIZE, SEEK_CUR);
 #endif
         }
-        nes->nes_rom.prg_rom_size = ((nes_header_info.prg_rom_size_m << 8) & 0xF00) | nes_header_info.prg_rom_size_l;
-        nes->nes_rom.chr_rom_size = ((nes_header_info.chr_rom_size_m << 8) & 0xF00) | nes_header_info.chr_rom_size_l;
-        if (nes_header_info.identifier==2){
-            nes->nes_rom.mapper_number = ((nes_header_info.mapper_number_h << 8) & 0xF00) | ((nes_header_info.mapper_number_m << 4) & 0xF0) | (nes_header_info.mapper_number_l & 0x0F);
-            nes->nes_rom.prg_rom_size = ((nes_header_info.prg_rom_size_m << 8) & 0xF00) | nes_header_info.prg_rom_size_l;
-            nes->nes_rom.chr_rom_size = ((nes_header_info.chr_rom_size_m << 8) & 0xF00) | nes_header_info.chr_rom_size_l;
-        }else{
-            uint8_t idx = 4;
-            uint8_t* nes_header = (uint8_t*)&nes_header_info;
-            nes->nes_rom.mapper_number = nes_header_info.mapper_number_l & 0x0F;
-            for (idx = 4; idx < 8 && nes_header[8+idx] == 0; ++idx);
-            if (idx==8){
-                nes->nes_rom.mapper_number |= ((nes_header_info.mapper_number_m << 4) & 0xF0);
-            }
-            nes->nes_rom.prg_rom_size = nes_header_info.prg_rom_size_l;
-            nes->nes_rom.chr_rom_size = nes_header_info.chr_rom_size_l;
+        if (nes_header_info.identifier==2){ //NES 2.0
+            nes_header_nes2_t* nes2_header_info = (nes_header_nes2_t*)&nes_header_info;
+            nes->nes_rom.prg_rom_size = ((nes2_header_info->prg_rom_size_m << 8) & 0xF00) | nes2_header_info->prg_rom_size_l;
+            nes->nes_rom.chr_rom_size = ((nes2_header_info->chr_rom_size_m << 8) & 0xF00) | nes2_header_info->chr_rom_size_l;
+            nes->nes_rom.mapper_number = ((nes2_header_info->mapper_number_h << 8) & 0xF00) | ((nes2_header_info->mapper_number_m << 4) & 0xF0) | (nes2_header_info->mapper_number_l & 0x0F);
+
+        }else{  //INES
+            nes_header_ines_t* ines_header_info = (nes_header_ines_t*)&nes_header_info;
+            nes->nes_rom.prg_rom_size = ines_header_info->prg_rom_size;
+            nes->nes_rom.chr_rom_size = ines_header_info->chr_rom_size;
+            nes->nes_rom.mapper_number = ines_header_info->mapper_number_l | ines_header_info->mapper_number_h << 4;
         }
         nes->nes_rom.mirroring_type = nes_header_info.mirroring;
         nes->nes_rom.four_screen = nes_header_info.four_screen;
         nes->nes_rom.save_ram = nes_header_info.save;
-
         nes->nes_rom.prg_rom = (uint8_t*)nes_malloc(PRG_ROM_UNIT_SIZE * nes->nes_rom.prg_rom_size);
         if (nes->nes_rom.prg_rom == NULL) {
             goto error;
@@ -128,23 +118,34 @@ int nes_unload_file(nes_t* nes){
 #endif
 
 int nes_load_rom(nes_t* nes, const uint8_t* nes_rom){
-    nes_header_info_t* nes_header_info = (nes_header_info_t*)nes_rom;
+    nes_header_ines_t* nes_header_info = (nes_header_ines_t*)nes_rom;
 #if (NES_USE_SRAM == 1)
     nes->nes_rom.sram = (uint8_t*)nes_malloc(SRAM_SIZE);
 #endif
     if ( nes_memcmp( nes_header_info->identification, "NES\x1a", 4 )){
         goto error;
     }
-    uint8_t* nes_bin = (uint8_t*)nes_rom + sizeof(nes_header_info_t);
+    uint8_t* nes_bin = (uint8_t*)nes_rom + sizeof(nes_header_ines_t);
     if (nes_header_info->trainer){
 #if (NES_USE_SRAM == 1)
 #else
 #endif
         nes_bin += TRAINER_SIZE;
     }
-    nes->nes_rom.prg_rom_size = ((nes_header_info->prg_rom_size_m << 8) & 0xF00) | nes_header_info->prg_rom_size_l;
-    nes->nes_rom.chr_rom_size = ((nes_header_info->prg_rom_size_m << 8) & 0xF00) | nes_header_info->chr_rom_size_l;
-    nes->nes_rom.mapper_number = ((nes_header_info->mapper_number_h << 8) & 0xF00) | ((nes_header_info->mapper_number_m << 4) & 0xF0) | (nes_header_info->mapper_number_l & 0x0F);
+
+    if (nes_header_info->identifier==2){ //NES 2.0
+        nes_header_nes2_t* nes2_header_info = (nes_header_nes2_t*)nes_header_info;
+        nes->nes_rom.prg_rom_size = ((nes2_header_info->prg_rom_size_m << 8) & 0xF00) | nes2_header_info->prg_rom_size_l;
+        nes->nes_rom.chr_rom_size = ((nes2_header_info->chr_rom_size_m << 8) & 0xF00) | nes2_header_info->chr_rom_size_l;
+        nes->nes_rom.mapper_number = ((nes2_header_info->mapper_number_h << 8) & 0xF00) | ((nes2_header_info->mapper_number_m << 4) & 0xF0) | (nes2_header_info->mapper_number_l & 0x0F);
+
+    }else{  //INES
+        nes_header_ines_t* ines_header_info = (nes_header_ines_t*)nes_header_info;
+        nes->nes_rom.prg_rom_size = ines_header_info->prg_rom_size;
+        nes->nes_rom.chr_rom_size = ines_header_info->chr_rom_size;
+        nes->nes_rom.mapper_number = ines_header_info->mapper_number_l | ines_header_info->mapper_number_h << 4;
+    }
+
     nes->nes_rom.mirroring_type = (nes_header_info->mirroring);
     nes->nes_rom.four_screen = (nes_header_info->four_screen);
     nes->nes_rom.save_ram = (nes_header_info->save);

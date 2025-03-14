@@ -19,8 +19,8 @@
     extern "C" {
 #endif
 
-/* INES:    https://www.nesdev.org/wiki/INES */
-/* NES 2.0: https://wiki.nesdev.org/w/index.php/NES_2.0 */
+#define SRAM_SIZE               (0x2000)      /* 8K */
+
 #define TRAINER_SIZE            (0x200)     /* 512 */
 #define PRG_ROM_UNIT_SIZE       (0x4000)    /* 16K */
 #define CHR_ROM_UNIT_SIZE       (0x2000)    /* 8K */
@@ -28,6 +28,41 @@
 struct nes;
 typedef struct nes nes_t;
 
+/* INES:    https://www.nesdev.org/wiki/INES */
+typedef struct {
+    uint8_t identification[4];          /*  0-3   Constant $4E $45 $53 $1A (ASCII "NES" followed by MS-DOS end-of-file) */
+    uint8_t prg_rom_size;               /*  4     Size of PRG ROM in 16 KB units */
+    uint8_t chr_rom_size;               /*  5     Size of CHR ROM in 8 KB units (value 0 means the board uses CHR RAM) */
+    struct {
+        uint8_t mirroring:1;            /*  D0    Nametable arrangement: 0: vertical arrangement ("horizontal mirrored") (CIRAM A10 = PPU A11)
+                                                                         1: horizontal arrangement ("vertically mirrored") (CIRAM A10 = PPU A10) */
+        uint8_t save:1;                 /*  D1    Cartridge contains battery-backed PRG RAM ($6000-7FFF) or other persistent memory */
+        uint8_t trainer:1;              /*  D2    512-byte trainer at $7000-$71FF (stored before PRG data) */
+        uint8_t four_screen:1;          /*  D3    Alternative nametable layout */
+        uint8_t mapper_number_l:4;      /*  D4-7  Lower nybble of mapper number */
+    };
+    struct {
+        uint8_t unisystem:1;            /*  D0    VS Unisystem */
+        uint8_t playchoice_10:1;        /*  D1    PlayChoice-10 (8 KB of Hint Screen data stored after CHR data) */
+        uint8_t identifier:2;           /*  D2-3  If equal to 2, flags 8-15 are in NES 2.0 format */
+        uint8_t mapper_number_h:4;      /*  D4-7  Upper nybble of mapper number */
+    }; 
+    uint8_t prg_ram_size;               /*  PRG RAM size */
+    struct {
+        uint8_t tv_system:1;            /*  D0    TV system (0: NTSC; 1: PAL) */
+        uint8_t :7;
+    };
+    struct {
+        uint8_t tv_system_ex:2;         /*  D0-1  TV system (0: NTSC; 2: PAL; 1/3: dual compatible) */
+        uint8_t :2;
+        uint8_t prg_rom:1;              /*  D4  PRG RAM ($6000-$7FFF) (0: present; 1: not present) */
+        uint8_t board_conflicts:1;      /*  D5  0: Board has no bus conflicts; 1: Board has bus conflicts */
+        uint8_t :2;
+    };                                  
+    uint8_t Reserved[5];                /*  11-15 Reserved */
+} nes_header_ines_t;
+
+/* NES 2.0: https://wiki.nesdev.org/w/index.php/NES_2.0 */
 typedef struct {
     uint8_t identification[4];          /*  0-3   Identification String. Must be "NES<EOF>". */
     uint8_t prg_rom_size_l;             /*  4     PRG-ROM size LSB */
@@ -87,7 +122,7 @@ typedef struct {
         uint8_t expansion_device:6;     /*  D0-5  Default Expansion Device */
         uint8_t :2;
     };                                  /*  Default Expansion Device */
-} nes_header_info_t;
+} nes_header_nes2_t;
 
 typedef struct nes_rom_info{
     uint16_t prg_rom_size;
