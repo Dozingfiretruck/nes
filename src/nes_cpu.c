@@ -45,15 +45,15 @@ static inline void nes_write_joypad(nes_t* nes,uint8_t data){
 }
 
 static inline uint8_t nes_read_cpu(nes_t* nes,uint16_t address){
-    switch (address >> 13){
-        case 0://$0000-$1FFF 2KB internal RAM + Mirrors of $0000-$07FF
+    switch (address & 0xE000){
+        case 0x0000://$0000-$1FFF 2KB internal RAM + Mirrors of $0000-$07FF
             return nes->nes_cpu.cpu_ram[address & (uint16_t)0x07ff];
-        case 1://$2000-$3FFF NES PPU registers + Mirrors of $2000-2007 (repeats every 8 bytes)
+        case 0x2000://$2000-$3FFF NES PPU registers + Mirrors of $2000-2007 (repeats every 8 bytes)
             return nes_read_ppu_register(nes,address);
-        case 2://$4000-$5FFF NES APU and I/O registers
-            if (address == 0x4016 || address == 0x4017)
+        case 0x4000://$4000-$5FFF NES APU and I/O registers
+            if (address == 0x4016 || address == 0x4017) // I/O registers
                 return nes_read_joypad(nes, address);
-            else if (address < 0x4016){
+            else if (address < 0x4016){                 // APU registers
 #if (NES_ENABLE_SOUND == 1)
                 return nes_read_apu_register(nes, address);
 #endif
@@ -61,23 +61,22 @@ static inline uint8_t nes_read_cpu(nes_t* nes,uint16_t address){
                 NES_LOG_ERROR("nes_read address %04X not sPport\n",address);
             }
             return 0;
-        case 3://$6000-$7FFF SRAM
+        case 0x6000://$6000-$7FFF SRAM
 #if (NES_USE_SRAM == 1)
             return nes->nes_rom.sram[address & (uint16_t)0x1fff];
 #else
             return 0;
 #endif
-        case 4: case 5: case 6: case 7:
+        case 0x8000: case 0xA000: case 0xC000: case 0xE000:
             return nes->nes_cpu.prg_banks[(address >> 13)-4][address & (uint16_t)0x1fff];
         default :
             NES_LOG_ERROR("nes_read_cpu error %04X\n",address);
-            return 0;
+            return address >> 8;
     }
 }
 
 static inline uint16_t nes_readw_cpu(nes_t* nes,uint16_t address){
-    // 6502 BUG
-    return nes_read_cpu(nes,address) | (uint16_t)(nes_read_cpu(nes,(uint16_t)((address & (uint16_t)0xFF00)|((address + 1) & (uint16_t)0x00FF)))) << 8;
+    return nes_read_cpu(nes,address) | (uint16_t)(nes_read_cpu(nes,address + 1)) << 8;
 }
 
 static inline const uint8_t* nes_get_dma_address(nes_t* nes,uint8_t data) {
@@ -93,14 +92,14 @@ static inline const uint8_t* nes_get_dma_address(nes_t* nes,uint8_t data) {
 }
 
 static inline void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
-    switch (address >> 13){
-        case 0://$0000-$1FFF 2KB internal RAM + Mirrors of $0000-$07FF
+    switch (address & 0xE000){
+        case 0x0000://$0000-$1FFF 2KB internal RAM + Mirrors of $0000-$07FF
             nes->nes_cpu.cpu_ram[address & (uint16_t)0x07ff] = data;
             return;
-        case 1://$2000-$3FFF NES PPU registers + Mirrors of $2000-2007 (repeats every 8 bytes)
+        case 0x2000://$2000-$3FFF NES PPU registers + Mirrors of $2000-2007 (repeats every 8 bytes)
             nes_write_ppu_register(nes,address, data);
             return;
-        case 2://$4000-$5FFF NES APU and I/O registers
+        case 0x4000://$4000-$5FFF NES APU and I/O registers
             if (address == 0x4016)
                 nes_write_joypad(nes,data);
             else if (address == 0x4014){
@@ -124,16 +123,16 @@ static inline void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
                 NES_LOG_ERROR("nes_write address %04X not suport\n",address);
             }
             return;
-        case 3://$6000-$7FFF SRAM
+        case 0x6000://$6000-$7FFF SRAM
 #if (NES_USE_SRAM == 1)
             nes->nes_rom.sram[address & (uint16_t)0x1fff] = data;
 #endif
             return;
-        case 4: case 5: case 6: case 7: // $8000-$FFFF PRG-ROM
+        case 0x8000: case 0xA000: case 0xC000: case 0xE000: // $8000-$FFFF PRG-ROM
             nes->nes_mapper.mapper_write(nes, address, data);
             return;
         default :
-            NES_LOG_ERROR("nes_write_ppu_register error %04X %02X\n",address,data);
+            NES_LOG_ERROR("nes_write_cpu error %04X %02X\n",address,data);
             return;
     }
 }
@@ -143,10 +142,15 @@ static inline void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
 #define NES_PUSHW(nes,data)     NES_PUSH(nes, ((data) >> 8) ); NES_PUSH(nes, ((data) & 0xff))
 // 出栈
 #define NES_POP(nes)            ((nes->nes_cpu.cpu_ram + 0x100)[++nes->nes_cpu.SP])
+#define NES_POPW(nes)           ((uint16_t)NES_POP(nes)|(uint16_t)(NES_POP(nes) << 8))
 // 状态寄存器检查位
-#define NES_CHECK_N(x)          nes->nes_cpu.N = ((uint8_t)(x) & 0x80)>>7
+#define NES_CHECK_N(x)          nes->nes_cpu.N = ((uint8_t)(x) >> 7) & 0x01
 #define NES_CHECK_Z(x)          nes->nes_cpu.Z = ((uint8_t)(x) == 0)
 #define NES_CHECK_NZ(x)         NES_CHECK_N(x);NES_CHECK_Z(x)
+
+static inline void nes_dummy_read(nes_t* nes){
+    nes_read_cpu(nes,nes->nes_cpu.PC);
+}
 
 // https://www.nesdev.org/6502_cn.txt
 
@@ -182,7 +186,7 @@ static inline uint16_t nes_rel(nes_t* nes){
 static inline uint16_t nes_abs(nes_t* nes){
     const uint8_t low_byte = nes_read_cpu(nes, nes->nes_cpu.PC++);
     const uint16_t high_byte = nes_read_cpu(nes, nes->nes_cpu.PC++) << 8;
-    return (uint16_t)high_byte | low_byte;
+    return high_byte | low_byte;
 }
 
 /*
@@ -213,7 +217,8 @@ static inline uint16_t nes_aby(nes_t* nes){
     d:Zero page:Fetches the value from an 8-bit address on the zero page.
 */
 static inline uint16_t nes_zp(nes_t* nes){
-    return (uint16_t)nes_read_cpu(nes, nes->nes_cpu.PC++);
+    // return nes->nes_cpu.cpu_ram[nes->nes_cpu.PC++ & (uint16_t)0x07ff];
+    return nes_read_cpu(nes, nes->nes_cpu.PC++);
 }
 
 /*
@@ -234,15 +239,16 @@ static inline uint16_t nes_zpy(nes_t* nes){
     (d,x):Indexed indirect:val = PEEK(PEEK((arg + X) % 256) + PEEK((arg + X + 1) % 256) * 256)
 */
 static inline uint16_t nes_izx(nes_t* nes){
-    return nes_readw_cpu(nes,nes_zp(nes) + nes->nes_cpu.X);
+    const uint8_t address = (uint8_t)nes_zp(nes) + nes->nes_cpu.X;
+    return nes_read_cpu(nes,address)|(uint16_t)nes_read_cpu(nes,(uint8_t)(address + 1)) << 8;
 }
 
 /*
     (d),y:Indexed indirect:val = PEEK(PEEK(arg) + PEEK((arg + 1) % 256) * 256 + Y)
 */
 static inline uint16_t nes_izy(nes_t* nes){
-    const uint8_t value = nes_zp(nes);
-    const uint16_t address = nes_readw_cpu(nes,value);
+    const uint8_t value = (uint8_t)nes_zp(nes);
+    const uint16_t address = nes_read_cpu(nes,value)|(uint16_t)nes_read_cpu(nes,(uint8_t)(value + 1)) << 8;
     if (nes_opcode_table[nes->nes_cpu.opcode].ticks==5){
         if ((address>>8) != ((address+nes->nes_cpu.Y)>>8))nes->nes_cpu.cycles++;
     }
@@ -254,7 +260,9 @@ static inline uint16_t nes_izy(nes_t* nes){
                     that can jump to the address stored in a 16-bit pointer anywhere in memory.
 */
 static inline uint16_t nes_ind(nes_t* nes){
-    return nes_readw_cpu(nes,nes_abs(nes));
+    // 6502 BUG
+    const uint16_t address = nes_abs(nes);
+    return nes_read_cpu(nes,address) | (uint16_t)(nes_read_cpu(nes,(uint16_t)((address & (uint16_t)0xFF00)|((address + 1) & (uint16_t)0x00FF)))) << 8;
 }
 
 /* 6502/6510/8500/8502 Opcode matrix: https://www.oxyron.de/html/opcodes02.html */
@@ -377,8 +385,8 @@ static inline void nes_dec(nes_t* nes){
     *                 *  
 */
 static inline void nes_dex(nes_t* nes){
-    NES_CHECK_N(--nes->nes_cpu.X);
-    NES_CHECK_Z(nes->nes_cpu.X);
+    nes->nes_cpu.X--;
+    NES_CHECK_NZ(nes->nes_cpu.X);
 }
 
 /*
@@ -387,8 +395,8 @@ static inline void nes_dex(nes_t* nes){
     *                 *  
 */
 static inline void nes_dey(nes_t* nes){
-    NES_CHECK_N(--nes->nes_cpu.Y);
-    NES_CHECK_Z(nes->nes_cpu.Y);
+    nes->nes_cpu.Y--;
+    NES_CHECK_NZ(nes->nes_cpu.Y);
 }
 
 /*
@@ -409,8 +417,8 @@ static inline void nes_inc(nes_t* nes){
     *                 *  
 */
 static inline void nes_inx(nes_t* nes){
-    NES_CHECK_N(++nes->nes_cpu.X);
-    NES_CHECK_Z(nes->nes_cpu.X);
+    nes->nes_cpu.X++;
+    NES_CHECK_NZ(nes->nes_cpu.X);
 }
 
 /*  
@@ -419,8 +427,8 @@ static inline void nes_inx(nes_t* nes){
     *                 *  
 */
 static inline void nes_iny(nes_t* nes){
-    NES_CHECK_N(++nes->nes_cpu.Y);
-    NES_CHECK_Z(nes->nes_cpu.Y);
+    nes->nes_cpu.Y++;
+    NES_CHECK_NZ(nes->nes_cpu.Y);
 }
 
 /*
@@ -635,6 +643,7 @@ static inline void nes_txs(nes_t* nes){
     *                 *  
 */
 static inline void nes_pla(nes_t* nes){
+    nes_dummy_read(nes);
     nes->nes_cpu.A = NES_POP(nes);
     NES_CHECK_NZ(nes->nes_cpu.A);
 }
@@ -654,9 +663,9 @@ static inline void nes_pha(nes_t* nes){
     *  *        *  *  *  *
 */
 static inline void nes_plp(nes_t* nes){
+    nes_dummy_read(nes);
     nes->nes_cpu.P = NES_POP(nes);
-    nes->nes_cpu.U = 1;
-    nes->nes_cpu.B = 0;
+    // nes->nes_cpu.B = 0;
     if (!nes->nes_cpu.I){
         /* code */
     }
@@ -677,10 +686,14 @@ static inline void nes_php(nes_t* nes){
 // Jump/Flag commands:
 
 static inline void nes_branch(nes_t* nes,const uint16_t address) {
+    nes_dummy_read(nes);
     const uint16_t pc_old = nes->nes_cpu.PC;
     nes->nes_cpu.PC = address;
     nes->nes_cpu.cycles++;
-    nes->nes_cpu.cycles += ((nes->nes_cpu.PC ^ pc_old) >> 8)?1:0;
+    if ((nes->nes_cpu.PC ^ pc_old) >> 8){
+        nes_dummy_read(nes);
+        nes->nes_cpu.cycles++;
+    }
 }
 
 /*
@@ -690,9 +703,7 @@ static inline void nes_branch(nes_t* nes,const uint16_t address) {
 */
 static inline void nes_bpl(nes_t* nes){
     const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
-    if (nes->nes_cpu.N==0){
-        nes_branch(nes,address);
-    }
+    if (nes->nes_cpu.N==0) nes_branch(nes,address);
 }
 
 /*
@@ -702,9 +713,7 @@ static inline void nes_bpl(nes_t* nes){
 */
 static inline void nes_bmi(nes_t* nes){
     const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
-    if (nes->nes_cpu.N){
-        nes_branch(nes,address);
-    } 
+    if (nes->nes_cpu.N)nes_branch(nes,address);
 }
 
 /*
@@ -714,9 +723,7 @@ static inline void nes_bmi(nes_t* nes){
 */
 static inline void nes_bvc(nes_t* nes){
     const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
-    if (nes->nes_cpu.V==0){
-        nes_branch(nes,address);
-    } 
+    if (nes->nes_cpu.V==0) nes_branch(nes,address);
 }
 
 /*
@@ -726,9 +733,7 @@ static inline void nes_bvc(nes_t* nes){
 */
 static inline void nes_bvs(nes_t* nes){
     const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
-    if (nes->nes_cpu.V){
-        nes_branch(nes,address);
-    } 
+    if (nes->nes_cpu.V) nes_branch(nes,address);
 }
 
 /*
@@ -738,9 +743,7 @@ static inline void nes_bvs(nes_t* nes){
 */
 static inline void nes_bcc(nes_t* nes){
     const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
-    if (nes->nes_cpu.C==0){
-        nes_branch(nes,address);
-    } 
+    if (nes->nes_cpu.C==0) nes_branch(nes,address);
 }
 
 /*
@@ -750,9 +753,7 @@ static inline void nes_bcc(nes_t* nes){
 */
 static inline void nes_bcs(nes_t* nes){
     const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
-    if (nes->nes_cpu.C){
-        nes_branch(nes,address);
-    } 
+    if (nes->nes_cpu.C) nes_branch(nes,address);
 }
 
 /*
@@ -762,9 +763,7 @@ static inline void nes_bcs(nes_t* nes){
 */
 static inline void nes_bne(nes_t* nes){
     const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
-    if (nes->nes_cpu.Z==0){
-        nes_branch(nes,address);
-    } 
+    if (nes->nes_cpu.Z==0) nes_branch(nes,address);
 }
 
 /*
@@ -774,9 +773,7 @@ static inline void nes_bne(nes_t* nes){
 */
 static inline void nes_beq(nes_t* nes){
     const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
-    if (nes->nes_cpu.Z){
-        nes_branch(nes,address);
-    } 
+    if (nes->nes_cpu.Z) nes_branch(nes,address);
 }
 
 /*
@@ -799,6 +796,7 @@ static inline void nes_brk(nes_t* nes){
     *  *        *  *  *  *
 */
 static inline void nes_rti(nes_t* nes){
+    nes_dummy_read(nes);
     // P:=+(S)
     nes->nes_cpu.P = NES_POP(nes);
     nes->nes_cpu.U = 1;
@@ -819,6 +817,7 @@ static inline void nes_rti(nes_t* nes){
 */
 static inline void nes_jsr(nes_t* nes){
     const uint16_t address = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
+    nes_dummy_read(nes);
     NES_PUSHW(nes,nes->nes_cpu.PC-1);
     nes->nes_cpu.PC = address;
 }
@@ -833,6 +832,8 @@ static inline void nes_rts(nes_t* nes){
     const uint8_t low_byte = (nes->nes_cpu.cpu_ram + 0x100)[++nes->nes_cpu.SP];
     const uint8_t high_byte = (nes->nes_cpu.cpu_ram + 0x100)[++nes->nes_cpu.SP];
     nes->nes_cpu.PC =  (uint16_t)high_byte << 8 | low_byte;
+    nes_dummy_read(nes);
+    nes_dummy_read(nes);
     nes->nes_cpu.PC++;
 }
 
@@ -842,7 +843,7 @@ static inline void nes_rts(nes_t* nes){
 
 */
 static inline void nes_jmp(nes_t* nes){
-    nes->nes_cpu.PC=nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
+    nes->nes_cpu.PC = nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes);
 }
 
 /*
@@ -852,8 +853,8 @@ static inline void nes_jmp(nes_t* nes){
 */
 static inline void nes_bit(nes_t* nes){
     const uint8_t value = nes_read_cpu(nes,nes_opcode_table[nes->nes_cpu.opcode].addressing_mode(nes));
+    nes->nes_cpu.N = (value >> 7) & 1;
     nes->nes_cpu.V = (value >> 6) & 1;
-    NES_CHECK_N(value);
     NES_CHECK_Z(value & nes->nes_cpu.A);
 }
 
