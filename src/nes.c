@@ -78,8 +78,10 @@ static void nes_render_background_line(nes_t* nes,uint16_t scanline,nes_color_t*
     uint8_t nametable_id = (uint8_t)nes->nes_ppu.v.nametable;
     for (uint8_t tile_x = dx; tile_x < 32; tile_x++){
         const uint8_t pattern_id = nes->nes_ppu.name_table[nametable_id][tile_x + (tile_y << 5)];
-        // if (pattern_id == 0x40 || pattern_id == 0x41){
-        //     printf("scanline:%d pattern_id:0x%02x dx:%d dy:%d tile_x:%d tile_y:%d\n",scanline,pattern_id,dx,dy,tile_x,tile_y);
+        // if (pattern_id == 0x40){
+        //     uint8_t tile_x1 = (tile_x + 1) & 0x1F;
+        //     NES_LOG_DEBUG("scanline:%d pattern_id:0x%02x dx:%d dy:%d tile_x:%d tile_y:%d\n",scanline,pattern_id,dx,dy,tile_x,tile_y);
+        //     NES_LOG_DEBUG("tile_x1:%d\n",tile_x1);
         // }
         // if (scanline == 170 && tile_x == 10)
         // {
@@ -246,6 +248,38 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
 }
 
 // https://www.nesdev.org/wiki/PPU_rendering
+
+
+static void nes_background_pattern_test(nes_t* nes){
+    nes_palette_generate(nes);
+    nes_memset(nes->nes_draw_data, nes->nes_ppu.background_palette[0], sizeof(nes_color_t) * NES_DRAW_SIZE);
+
+    uint8_t nametable_id = 0;
+    for (uint8_t j = 0; j < 16 * 8; j++){
+        uint16_t p = j*NES_WIDTH;
+        uint8_t tile_y = j/8;
+        uint8_t dy = j%8;
+        int8_t m = 7;
+        for (uint8_t i = 0; i < 16; i++){
+            uint8_t tile_x = i;
+            const uint8_t pattern_id = tile_y*16 + tile_x;
+            const uint8_t* bit0_p = nes->nes_ppu.pattern_table[1 ? 4 : 0] + pattern_id * 16;
+            const uint8_t* bit1_p = bit0_p + 8;
+            const uint8_t bit0 = bit0_p[dy];
+            const uint8_t bit1 = bit1_p[dy];
+            const uint8_t attribute = nes->nes_ppu.name_table[nametable_id][960 + ((tile_y >> 2) << 3) + (tile_x >> 2)];
+            const uint8_t high_bit = ((attribute >> (((tile_y & 2) << 1) | (tile_x & 2))) & 3) << 2;
+            for (; m >= 0; m--){
+                uint8_t low_bit = ((bit0 >> m) & 0x01) | ((bit1 >> m)<<1 & 0x02);
+                uint8_t palette_index = (high_bit & 0x0c) | low_bit;
+                nes->nes_draw_data[p++] = nes->nes_ppu.background_palette[palette_index];
+            }
+            m = 7;
+        }
+    }
+    nes_draw(0, 0, NES_WIDTH-1, NES_HEIGHT-1, nes->nes_draw_data);
+    nes_frame(nes);
+}
 
 void nes_run(nes_t* nes){
     NES_LOG_DEBUG("mapper:%03d\n",nes->nes_rom.mapper_number);
