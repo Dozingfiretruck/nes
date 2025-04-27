@@ -75,6 +75,10 @@ brew install make gcc sdl2 xmake
 
 ​	克隆本仓库，直接执行 `xmake` 编译即可 
 
+​	**注意：**本项目同时支持sdl2和sdl3, 使用sdl2就在sdl/sdl2下执行`xmake`
+
+​	
+
 ## 使用说明
 
 ​	Linux或Macos下输入 `./nes xxx.nes` 加载要运行的游戏

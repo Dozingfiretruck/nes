@@ -77,6 +77,8 @@ brew install make gcc sdl2 xmake
 
 ​	clone repository，execute `xmake` directly to compile
 
+​	**Note:** This project supports both SDL2 and SDL3, use SDL2 to execute 'xmake' under SDL/SDL2
+
 ## Instructions
 
 ​	on linux or macos enter  `./nes xxx.nes` load the game to run
