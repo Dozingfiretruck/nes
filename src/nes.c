@@ -186,41 +186,45 @@ static void nes_render_sprite_line(nes_t* nes,uint16_t scanline,nes_color_t* dra
 
         const uint8_t sprite_bit0 = sprite_bit0_p[dy];
         const uint8_t sprite_bit1 = sprite_bit1_p[dy];
-
-        uint8_t p = sprite_info.x;
-        if (sprite_info.flip_h){
-            for (int8_t m = 0; m <= 7; m++){
-                const uint8_t low_bit = ((sprite_bit0 >> m) & 0x01) | ((sprite_bit1 >> m)<<1 & 0x02);
-                const uint8_t palette_index = (sprite_info.sprite_palette << 2) | low_bit;
-                if (palette_index%4 != 0){
-                    if (sprite_info.priority){
-                        if (draw_data[p] == background_color){
+#if (NES_FRAME_SKIP != 0)
+        if(nes->nes_frame_skip_count == 0)
+#endif
+        {
+            uint8_t p = sprite_info.x;
+            if (sprite_info.flip_h){
+                for (int8_t m = 0; m <= 7; m++){
+                    const uint8_t low_bit = ((sprite_bit0 >> m) & 0x01) | ((sprite_bit1 >> m)<<1 & 0x02);
+                    const uint8_t palette_index = (sprite_info.sprite_palette << 2) | low_bit;
+                    if (palette_index%4 != 0){
+                        if (sprite_info.priority){
+                            if (draw_data[p] == background_color){
+                                draw_data[p] = nes->nes_ppu.sprite_palette[palette_index];
+                            }
+                        }else{
                             draw_data[p] = nes->nes_ppu.sprite_palette[palette_index];
                         }
-                    }else{
-                        draw_data[p] = nes->nes_ppu.sprite_palette[palette_index];
                     }
+                    if (p == 255)
+                        break;
+                    p++;
                 }
-                if (p == 255)
-                    break;
-                p++;
-            }
-        }else{
-            for (int8_t m = 7; m >= 0; m--){
-                const uint8_t low_bit = ((sprite_bit0 >> m) & 0x01) | ((sprite_bit1 >> m)<<1 & 0x02);
-                const uint8_t palette_index = (sprite_info.sprite_palette << 2) | low_bit;
-                if (palette_index%4 != 0){
-                    if (sprite_info.priority){
-                        if (draw_data[p] == background_color){
+            }else{
+                for (int8_t m = 7; m >= 0; m--){
+                    const uint8_t low_bit = ((sprite_bit0 >> m) & 0x01) | ((sprite_bit1 >> m)<<1 & 0x02);
+                    const uint8_t palette_index = (sprite_info.sprite_palette << 2) | low_bit;
+                    if (palette_index%4 != 0){
+                        if (sprite_info.priority){
+                            if (draw_data[p] == background_color){
+                                draw_data[p] = nes->nes_ppu.sprite_palette[palette_index];
+                            }
+                        }else{
                             draw_data[p] = nes->nes_ppu.sprite_palette[palette_index];
                         }
-                    }else{
-                        draw_data[p] = nes->nes_ppu.sprite_palette[palette_index];
                     }
+                    if (p == 255)
+                        break;
+                    p++;
                 }
-                if (p == 255)
-                    break;
-                p++;
             }
         }
         // 检测精灵0命中
@@ -296,10 +300,19 @@ void nes_run(nes_t* nes){
     while (!nes->nes_quit){
         // NES_LOG_DEBUG("frame_cnt:%d\n",frame_cnt);
         frame_cnt++;
-        nes_palette_generate(nes);
-
+#if (NES_FRAME_SKIP != 0)
+        if(nes->nes_frame_skip_count == 0)
+#endif
+        {
+            nes_palette_generate(nes);
+        }
         if (nes->nes_ppu.MASK_b == 0){
-            nes_memset(nes->nes_draw_data, nes->nes_ppu.background_palette[0], sizeof(nes_color_t) * NES_DRAW_SIZE);
+#if (NES_FRAME_SKIP != 0)
+            if(nes->nes_frame_skip_count == 0)
+#endif
+            {
+                nes_memset(nes->nes_draw_data, nes->nes_ppu.background_palette[0], sizeof(nes_color_t) * NES_DRAW_SIZE);
+            }
         }
 #if (NES_ENABLE_SOUND==1)
         nes_apu_frame(nes);
@@ -307,11 +320,16 @@ void nes_run(nes_t* nes){
         // https://www.nesdev.org/wiki/PPU_rendering#Visible_scanlines_(0-239)
         for(scanline = 0; scanline < NES_HEIGHT; scanline++) { // 0-239 Visible frame
             if (nes->nes_ppu.MASK_b){
+#if (NES_FRAME_SKIP != 0)
+                if (nes->nes_frame_skip_count == 0)
+#endif
+                {
 #if (NES_RAM_LACK == 1)
                 nes_render_background_line(nes,scanline,nes->nes_draw_data + scanline%(NES_HEIGHT/2) * NES_WIDTH);
 #else
                 nes_render_background_line(nes,scanline,nes->nes_draw_data + scanline * NES_WIDTH);
 #endif
+                }
             }
             if (nes->nes_ppu.MASK_s){
 #if (NES_RAM_LACK == 1)
@@ -348,7 +366,10 @@ void nes_run(nes_t* nes){
             if (scanline % 66 == 65) nes_apu_frame(nes);
 #endif
 #if (NES_RAM_LACK == 1)
-            if((frame_cnt % (NES_FRAME_SKIP+1))==0){
+#if (NES_FRAME_SKIP != 0)
+            if(nes->nes_frame_skip_count == 0)
+#endif
+            {
                 if (scanline == NES_HEIGHT/2-1){
                     nes_draw(0, 0, NES_WIDTH-1, NES_HEIGHT/2-1, nes->nes_draw_data);
                 }else if(scanline == NES_HEIGHT-1){
@@ -358,7 +379,10 @@ void nes_run(nes_t* nes){
 #endif
         }
 #if (NES_RAM_LACK == 0)
-        if((frame_cnt % (NES_FRAME_SKIP+1))==0){
+#if (NES_FRAME_SKIP != 0)
+        if(nes->nes_frame_skip_count == 0)
+#endif
+        {
             nes_draw(0, 0, NES_WIDTH-1, NES_HEIGHT-1, nes->nes_draw_data);
         }
 #endif
@@ -381,6 +405,11 @@ void nes_run(nes_t* nes){
             nes->nes_ppu.v_reg = (nes->nes_ppu.v_reg & (uint16_t)0x841F) | (nes->nes_ppu.t_reg & (uint16_t)0x7BE0);
         }
         nes_frame(nes);
+#if (NES_FRAME_SKIP != 0)
+        if ( ++nes->nes_frame_skip_count > NES_FRAME_SKIP){
+            nes->nes_frame_skip_count = 0;
+        }
+#endif
     }
 }
 
