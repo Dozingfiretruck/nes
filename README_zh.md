@@ -79,6 +79,14 @@ brew install make gcc sdl2 xmake
 
 ​	
 
+## 下载地址
+
+github: https://github.com/Dozingfiretruck/nes/releases
+
+gitee: https://gitee.com/Dozingfiretruck/nes/releases
+
+
+
 ## 使用说明
 
 ​	Linux或Macos下输入 `./nes xxx.nes` 加载要运行的游戏
