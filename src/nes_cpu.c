@@ -16,14 +16,6 @@
 
 #include "nes.h"
 
-typedef struct {
-    void (*instruction)(nes_t* nes);      //instructions 
-    uint16_t (*addressing_mode)(nes_t* nes);  //addressing_mode
-    const uint8_t ticks;
-} nes_opcode_t;
-
-static const nes_opcode_t nes_opcode_table[256];
-
 static inline uint8_t nes_read_joypad(nes_t* nes,uint16_t address){
     uint8_t state = 0;
     if (address == 0x4016){
@@ -195,9 +187,13 @@ static inline uint16_t nes_abs(nes_t* nes){
 static inline uint16_t nes_abx(nes_t* nes){
     const uint16_t base_address = nes_abs(nes);
     const uint16_t address = base_address + nes->nes_cpu.X;
-    if (nes_opcode_table[nes->nes_cpu.opcode].ticks==4){
-        if ((address>>8) != (base_address>>8))nes->nes_cpu.cycles++;
-    }
+    if ((address>>8) != (base_address>>8))nes->nes_cpu.cycles++;
+    return address;
+}
+
+static inline uint16_t nes_abx2(nes_t* nes){
+    const uint16_t base_address = nes_abs(nes);
+    const uint16_t address = base_address + nes->nes_cpu.X;
     return address;
 }
 
@@ -207,9 +203,13 @@ static inline uint16_t nes_abx(nes_t* nes){
 static inline uint16_t nes_aby(nes_t* nes){
     const uint16_t base_address = nes_abs(nes);
     const uint16_t address = base_address + nes->nes_cpu.Y;
-    if (nes_opcode_table[nes->nes_cpu.opcode].ticks==4){
-        if ((address>>8) != (base_address>>8))nes->nes_cpu.cycles++;
-    }
+    if ((address>>8) != (base_address>>8))nes->nes_cpu.cycles++;
+    return address;
+}
+
+static inline uint16_t nes_aby2(nes_t* nes){
+    const uint16_t base_address = nes_abs(nes);
+    const uint16_t address = base_address + nes->nes_cpu.Y;
     return address;
 }
 
@@ -249,9 +249,13 @@ static inline uint16_t nes_izx(nes_t* nes){
 static inline uint16_t nes_izy(nes_t* nes){
     const uint8_t value = (uint8_t)nes_zp(nes);
     const uint16_t address = nes_read_cpu(nes,value)|(uint16_t)nes_read_cpu(nes,(uint8_t)(value + 1)) << 8;
-    if (nes_opcode_table[nes->nes_cpu.opcode].ticks==5){
-        if ((address>>8) != ((address+nes->nes_cpu.Y)>>8))nes->nes_cpu.cycles++;
-    }
+    if ((address>>8) != ((address+nes->nes_cpu.Y)>>8))nes->nes_cpu.cycles++;
+    return address + nes->nes_cpu.Y;
+}
+
+static inline uint16_t nes_izy2(nes_t* nes){
+    const uint8_t value = (uint8_t)nes_zp(nes);
+    const uint16_t address = nes_read_cpu(nes,value)|(uint16_t)nes_read_cpu(nes,(uint8_t)(value + 1)) << 8;
     return address + nes->nes_cpu.Y;
 }
 
@@ -384,6 +388,7 @@ static inline void nes_dec(nes_t* nes, uint16_t address){
     *                 *  
 */
 static inline void nes_dex(nes_t* nes, uint16_t address){
+    (void)address;
     nes->nes_cpu.X--;
     NES_CHECK_NZ(nes->nes_cpu.X);
 }
@@ -394,6 +399,7 @@ static inline void nes_dex(nes_t* nes, uint16_t address){
     *                 *  
 */
 static inline void nes_dey(nes_t* nes, uint16_t address){
+    (void)address;
     nes->nes_cpu.Y--;
     NES_CHECK_NZ(nes->nes_cpu.Y);
 }
@@ -405,7 +411,7 @@ static inline void nes_dey(nes_t* nes, uint16_t address){
 */
 static inline void nes_inc(nes_t* nes, uint16_t address){
     uint8_t data = nes_read_cpu(nes, address)+1;
-    nes_write_cpu(nes,address,data);
+    nes_write_cpu(nes, address, data);
     NES_CHECK_NZ(data);
 }
 
@@ -415,6 +421,7 @@ static inline void nes_inc(nes_t* nes, uint16_t address){
     *                 *  
 */
 static inline void nes_inx(nes_t* nes, uint16_t address){
+    (void)address;
     nes->nes_cpu.X++;
     NES_CHECK_NZ(nes->nes_cpu.X);
 }
@@ -425,6 +432,7 @@ static inline void nes_inx(nes_t* nes, uint16_t address){
     *                 *  
 */
 static inline void nes_iny(nes_t* nes, uint16_t address){
+    (void)address;
     nes->nes_cpu.Y++;
     NES_CHECK_NZ(nes->nes_cpu.Y);
 }
@@ -578,6 +586,7 @@ static inline void nes_sty(nes_t* nes, uint16_t address){
     *                 *  
 */
 static inline void nes_tax(nes_t* nes, uint16_t address){
+    (void)address;
     nes->nes_cpu.X = nes->nes_cpu.A;
     NES_CHECK_NZ(nes->nes_cpu.X);
 }
@@ -588,6 +597,7 @@ static inline void nes_tax(nes_t* nes, uint16_t address){
     *                 *  
 */
 static inline void nes_txa(nes_t* nes, uint16_t address){
+    (void)address;
     nes->nes_cpu.A = nes->nes_cpu.X;
     NES_CHECK_NZ(nes->nes_cpu.A);
 }
@@ -598,6 +608,7 @@ static inline void nes_txa(nes_t* nes, uint16_t address){
     *                 *  
 */
 static inline void nes_tay(nes_t* nes, uint16_t address){
+    (void)address;
     nes->nes_cpu.Y = nes->nes_cpu.A;
     NES_CHECK_NZ(nes->nes_cpu.Y);
 }
@@ -608,6 +619,7 @@ static inline void nes_tay(nes_t* nes, uint16_t address){
     *                 *  
 */
 static inline void nes_tya(nes_t* nes, uint16_t address){
+    (void)address;
     nes->nes_cpu.A = nes->nes_cpu.Y;
     NES_CHECK_NZ(nes->nes_cpu.A);
 }
@@ -618,6 +630,7 @@ static inline void nes_tya(nes_t* nes, uint16_t address){
     *                 *  
 */
 static inline void nes_tsx(nes_t* nes, uint16_t address){
+    (void)address;
     nes->nes_cpu.X = nes->nes_cpu.SP;
     NES_CHECK_NZ(nes->nes_cpu.X);
 }
@@ -628,6 +641,7 @@ static inline void nes_tsx(nes_t* nes, uint16_t address){
 
 */
 static inline void nes_txs(nes_t* nes, uint16_t address){
+    (void)address;
     nes->nes_cpu.SP = nes->nes_cpu.X;
 }
 
@@ -637,6 +651,7 @@ static inline void nes_txs(nes_t* nes, uint16_t address){
     *                 *  
 */
 static inline void nes_pla(nes_t* nes, uint16_t address){
+    (void)address;
     nes_dummy_read(nes);
     nes->nes_cpu.A = NES_POP(nes);
     NES_CHECK_NZ(nes->nes_cpu.A);
@@ -648,6 +663,7 @@ static inline void nes_pla(nes_t* nes, uint16_t address){
 
 */
 static inline void nes_pha(nes_t* nes, uint16_t address){
+    (void)address;
     NES_PUSH(nes,nes->nes_cpu.A);
 }
 
@@ -657,6 +673,7 @@ static inline void nes_pha(nes_t* nes, uint16_t address){
     *  *        *  *  *  *
 */
 static inline void nes_plp(nes_t* nes, uint16_t address){
+    (void)address;
     nes_dummy_read(nes);
     nes->nes_cpu.P = NES_POP(nes);
     // nes->nes_cpu.B = 0;
@@ -671,6 +688,7 @@ static inline void nes_plp(nes_t* nes, uint16_t address){
 
 */
 static inline void nes_php(nes_t* nes, uint16_t address){
+    (void)address;
     nes->nes_cpu.U = 1;
     nes->nes_cpu.B = 1;
     NES_PUSH(nes,nes->nes_cpu.P);
@@ -768,6 +786,7 @@ static inline void nes_beq(nes_t* nes, uint16_t address){
              1     1
 */
 static inline void nes_brk(nes_t* nes, uint16_t address){
+    (void)address;
     nes->nes_cpu.PC++;
     NES_PUSHW(nes,nes->nes_cpu.PC);
     nes->nes_cpu.B = 1;
@@ -782,6 +801,7 @@ static inline void nes_brk(nes_t* nes, uint16_t address){
     *  *        *  *  *  *
 */
 static inline void nes_rti(nes_t* nes, uint16_t address){
+    (void)address;
     nes_dummy_read(nes);
     // P:=+(S)
     nes->nes_cpu.P = NES_POP(nes);
@@ -814,6 +834,7 @@ static inline void nes_jsr(nes_t* nes, uint16_t address){
 
 */
 static inline void nes_rts(nes_t* nes, uint16_t address){
+    (void)address;
     const uint8_t low_byte = (nes->nes_cpu.cpu_ram + 0x100)[++nes->nes_cpu.SP];
     const uint8_t high_byte = (nes->nes_cpu.cpu_ram + 0x100)[++nes->nes_cpu.SP];
     nes->nes_cpu.PC =  (uint16_t)high_byte << 8 | low_byte;
@@ -849,6 +870,7 @@ static inline void nes_bit(nes_t* nes, uint16_t address){
                          0
 */
 static inline void nes_clc(nes_t* nes, uint16_t address){
+    (void)address;
     nes->nes_cpu.C=0;
 }
 
@@ -858,6 +880,7 @@ static inline void nes_clc(nes_t* nes, uint16_t address){
                          1
 */
 static inline void nes_sec(nes_t* nes, uint16_t address){
+    (void)address;
     nes->nes_cpu.C=1;
 }
 
@@ -867,6 +890,7 @@ static inline void nes_sec(nes_t* nes, uint16_t address){
                 0         
 */
 static inline void nes_cld(nes_t* nes, uint16_t address){
+    (void)address;
     nes->nes_cpu.D=0;
 }
 
@@ -876,6 +900,7 @@ static inline void nes_cld(nes_t* nes, uint16_t address){
                 1         
 */
 static inline void nes_sed(nes_t* nes, uint16_t address){
+    (void)address;
     nes->nes_cpu.D=1;
 }
 
@@ -885,6 +910,7 @@ static inline void nes_sed(nes_t* nes, uint16_t address){
                    0      
 */
 static inline void nes_cli(nes_t* nes, uint16_t address){
+    (void)address;
     nes->nes_cpu.I=0;
     // irq_counter
 }
@@ -895,6 +921,7 @@ static inline void nes_cli(nes_t* nes, uint16_t address){
                    1      
 */
 static inline void nes_sei(nes_t* nes, uint16_t address){
+    (void)address;
     nes->nes_cpu.I=1;
 }
 
@@ -904,6 +931,7 @@ static inline void nes_sei(nes_t* nes, uint16_t address){
        0                  
 */
 static inline void nes_clv(nes_t* nes, uint16_t address){
+    (void)address;
     nes->nes_cpu.V=0;
 }
 
@@ -913,7 +941,8 @@ static inline void nes_clv(nes_t* nes, uint16_t address){
 
 */
 static inline void nes_nop(nes_t* nes, uint16_t address){
-    
+    (void)nes;
+    (void)address;
 }
 
 /* Illegal opcodes: */
@@ -1061,7 +1090,8 @@ static inline void nes_anc(nes_t* nes, uint16_t address){
     *                 *  *
 */
 static inline void nes_alr(nes_t* nes, uint16_t address){
-
+    (void)nes;
+    (void)address;
 }
 
 /*
@@ -1107,7 +1137,8 @@ static inline void nes_axs(nes_t* nes, uint16_t address){
 
 */
 static inline void nes_ahx(nes_t* nes, uint16_t address){
-
+    (void)nes;
+    (void)address;
 }
 
 /*
@@ -1116,7 +1147,8 @@ static inline void nes_ahx(nes_t* nes, uint16_t address){
 
 */
 static inline void nes_shy(nes_t* nes, uint16_t address){
-
+    (void)nes;
+    (void)address;
 }
 
 /*
@@ -1125,7 +1157,8 @@ static inline void nes_shy(nes_t* nes, uint16_t address){
 
 */
 static inline void nes_shx(nes_t* nes, uint16_t address){
-
+    (void)nes;
+    (void)address;
 }
 
 /*
@@ -1134,7 +1167,8 @@ static inline void nes_shx(nes_t* nes, uint16_t address){
 
 */
 static inline void nes_tas(nes_t* nes, uint16_t address){
-
+    (void)nes;
+    (void)address;
 }
 
 /*
@@ -1143,7 +1177,8 @@ static inline void nes_tas(nes_t* nes, uint16_t address){
     *                 *  
 */
 static inline void nes_las(nes_t* nes, uint16_t address){
-
+    (void)nes;
+    (void)address;
 }
 
 /*
@@ -1241,8 +1276,6 @@ void nes_opcode(nes_t* nes,uint16_t ticks){
         // cycles_old = nes->nes_cpu.cycles;
 #endif
         nes->nes_cpu.opcode = nes_read_cpu(nes,nes->nes_cpu.PC++);
-        // nes_opcode_table[nes->nes_cpu.opcode].instruction(nes);
-
         // https://www.nesdev.org/wiki/CPU_unofficial_opcodes
         // https://www.oxyron.de/html/opcodes02.html
         switch (nes->nes_cpu.opcode){
@@ -1265,7 +1298,7 @@ void nes_opcode(nes_t* nes,uint16_t ticks){
         case 0x10:{nes_bpl(nes, nes_rel(nes));nes->nes_cpu.cycles += 2;break;}// BPL REL     2*
         case 0x11:{nes_ora(nes, nes_izy(nes));nes->nes_cpu.cycles += 2;break;}// ORA IZY     5*
         case 0x12:{                                                    break;}// KIL         0
-        case 0x13:{nes_slo(nes, nes_izy(nes));nes->nes_cpu.cycles += 8;break;}// SLO IZY     8
+        case 0x13:{nes_slo(nes, nes_izy2(nes));nes->nes_cpu.cycles += 8;break;}// SLO IZY     8
         case 0x14:{nes_nop(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;}// NOP ZPX     4
         case 0x15:{nes_ora(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;}// ORA ZPX     4
         case 0x16:{nes_asl(nes, nes_zpx(nes));nes->nes_cpu.cycles += 6;break;}// ASL ZPX     6
@@ -1273,11 +1306,11 @@ void nes_opcode(nes_t* nes,uint16_t ticks){
         case 0x18:{nes_clc(nes, 0);           nes->nes_cpu.cycles += 2;break;}// CLC         2
         case 0x19:{nes_ora(nes, nes_aby(nes));nes->nes_cpu.cycles += 4;break;}// ORA ABY     4*
         case 0x1A:{nes_nop(nes, 0);           nes->nes_cpu.cycles += 2;break;}// NOP         2
-        case 0x1B:{nes_slo(nes, nes_aby(nes));nes->nes_cpu.cycles += 7;break;}// SLO ABY     7
+        case 0x1B:{nes_slo(nes, nes_aby2(nes));nes->nes_cpu.cycles += 7;break;}// SLO ABY     7
         case 0x1C:{nes_nop(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;}// NOP ABX     4*
         case 0x1D:{nes_ora(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;}// ORA ABX     4*
-        case 0x1E:{nes_asl(nes, nes_abx(nes));nes->nes_cpu.cycles += 7;break;}// ASL ABX     7
-        case 0x1F:{nes_slo(nes, nes_abx(nes));nes->nes_cpu.cycles += 7;break;}// SLO ABX     7
+        case 0x1E:{nes_asl(nes, nes_abx2(nes));nes->nes_cpu.cycles += 7;break;}// ASL ABX     7
+        case 0x1F:{nes_slo(nes, nes_abx2(nes));nes->nes_cpu.cycles += 7;break;}// SLO ABX     7
         case 0x20:{nes_jsr(nes, nes_abs(nes));nes->nes_cpu.cycles += 6;break;}// JSR ABS     6
         case 0x21:{nes_and(nes, nes_izx(nes));nes->nes_cpu.cycles += 6;break;}// AND IZX     6
         case 0x22:{                                                    break;}// KIL         0
@@ -1297,7 +1330,7 @@ void nes_opcode(nes_t* nes,uint16_t ticks){
         case 0x30:{nes_bmi(nes, nes_rel(nes));nes->nes_cpu.cycles += 2;break;}// BMI REL     2*
         case 0x31:{nes_and(nes, nes_izy(nes));nes->nes_cpu.cycles += 5;break;}// AND IZY     5*
         case 0x32:{                                                    break;}// KIL         0
-        case 0x33:{nes_rla(nes, nes_izy(nes));nes->nes_cpu.cycles += 8;break;}// RLA IZY     8
+        case 0x33:{nes_rla(nes, nes_izy2(nes));nes->nes_cpu.cycles += 8;break;}// RLA IZY     8
         case 0x34:{nes_nop(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;}// NOP ZPX     4
         case 0x35:{nes_and(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;}// AND ZPX     4
         case 0x36:{nes_rol(nes, nes_zpx(nes));nes->nes_cpu.cycles += 6;break;}// ROL ZPX     6
@@ -1305,204 +1338,203 @@ void nes_opcode(nes_t* nes,uint16_t ticks){
         case 0x38:{nes_sec(nes, 0);           nes->nes_cpu.cycles += 2;break;}// SEC         2
         case 0x39:{nes_and(nes, nes_aby(nes));nes->nes_cpu.cycles += 4;break;}// AND ABY     4*
         case 0x3A:{nes_nop(nes, 0);           nes->nes_cpu.cycles += 2;break;}// NOP         2
-        case 0x3B:{nes_rla(nes, nes_aby(nes));nes->nes_cpu.cycles += 7;break;}// RLA ABY     7
+        case 0x3B:{nes_rla(nes, nes_aby2(nes));nes->nes_cpu.cycles += 7;break;}// RLA ABY     7
         case 0x3C:{nes_nop(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;}// NOP ABX     4*
         case 0x3D:{nes_and(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;}// AND ABX     4*
-        case 0x3E:{nes_rol(nes, nes_abx(nes));nes->nes_cpu.cycles += 7;break;}// ROL ABX     7
-        case 0x3F:{nes_rla(nes, nes_abx(nes));nes->nes_cpu.cycles += 7;break;}// RLA ABX     7
+        case 0x3E:{nes_rol(nes, nes_abx2(nes));nes->nes_cpu.cycles += 7;break;}// ROL ABX     7
+        case 0x3F:{nes_rla(nes, nes_abx2(nes));nes->nes_cpu.cycles += 7;break;}// RLA ABX     7
         case 0x40:{nes_rti(nes, 0);           nes->nes_cpu.cycles += 6;break;}// RTI         6
         case 0x41:{nes_eor(nes, nes_izx(nes));nes->nes_cpu.cycles += 6;break;}// EOR IZX     6
         case 0x42:{                                                    break;}// KIL         0
-        case 0x43:{nes_sre(nes, nes_izx(nes));nes->nes_cpu.cycles += 8;break;} // SRE IZX     8
-        case 0x44:{nes_nop(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} // NOP ZP      3
-        case 0x45:{nes_eor(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} // EOR ZP      3
-        case 0x46:{nes_lsr(nes, nes_zp(nes)); nes->nes_cpu.cycles += 5;break;} // LSR ZP      5
-        case 0x47:{nes_sre(nes, nes_zp(nes)); nes->nes_cpu.cycles += 5;break;} // SRE ZP      5
-        case 0x48:{nes_pha(nes, 0);           nes->nes_cpu.cycles += 3;break;} // PHA         3
-        case 0x49:{nes_eor(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} // EOR IMM     2
-        case 0x4A:{nes_lsr(nes, 0);           nes->nes_cpu.cycles += 2;break;} // LSR         2
-        case 0x4B:{nes_alr(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} // ALR IMM     2
-        case 0x4C:{nes_jmp(nes, nes_abs(nes));nes->nes_cpu.cycles += 3;break;} // JMP ABS     3
-        case 0x4D:{nes_eor(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} // EOR ABS     4
-        case 0x4E:{nes_lsr(nes, nes_abs(nes));nes->nes_cpu.cycles += 6;break;} // LSR ABS     6
-        case 0x4F:{nes_sre(nes, nes_abs(nes));nes->nes_cpu.cycles += 6;break;} // SRE ABS     6
-        case 0x50:{nes_bvc(nes, nes_rel(nes));nes->nes_cpu.cycles += 2;break;} // BVC REL     2*
-        case 0x51:{nes_eor(nes, nes_izy(nes));nes->nes_cpu.cycles += 5;break;} // EOR IZY     5*
-        case 0x52:{                                                    break;} // KIL         0
-        case 0x53:{nes_sre(nes, nes_izy(nes));nes->nes_cpu.cycles += 8;break;} // SRE IZY     8
-        case 0x54:{nes_nop(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} // NOP ZPX     4
-        case 0x55:{nes_eor(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} // EOR ZPX     4
-        case 0x56:{nes_lsr(nes, nes_zpx(nes));nes->nes_cpu.cycles += 6;break;} // LSR ZPX     6
-        case 0x57:{nes_sre(nes, nes_zpx(nes));nes->nes_cpu.cycles += 6;break;} // SRE ZPX     6
-        case 0x58:{nes_cli(nes, 0);           nes->nes_cpu.cycles += 2;break;} // CLI         2
-        case 0x59:{nes_eor(nes, nes_aby(nes));nes->nes_cpu.cycles += 4;break;} // EOR ABY     4*
-        case 0x5A:{nes_nop(nes, 0);           nes->nes_cpu.cycles += 2;break;} // NOP         2
-        case 0x5B:{nes_sre(nes, nes_aby(nes));nes->nes_cpu.cycles += 7;break;} // SRE ABY     7
-        case 0x5C:{nes_nop(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;} // NOP ABX     4*
-        case 0x5D:{nes_eor(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;} // EOR ABX     4*
-        case 0x5E:{nes_lsr(nes, nes_abx(nes));nes->nes_cpu.cycles += 7;break;} // LSR ABX     7
-        case 0x5F:{nes_sre(nes, nes_abx(nes));nes->nes_cpu.cycles += 7;break;} // SRE ABX     7
-        case 0x60:{nes_rts(nes, 0);           nes->nes_cpu.cycles += 6;break;} // RTS         6
-        case 0x61:{nes_adc(nes, nes_izx(nes));nes->nes_cpu.cycles += 6;break;} // ADC IZX     6
-        case 0x62:{                                                    break;} // KIL         0
-
-        case 0x63:{nes_rra(nes, nes_izx(nes));nes->nes_cpu.cycles += 8;break;} // RRA IZX     8
-        case 0x64:{nes_nop(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} // NOP ZP      3
-        case 0x65:{nes_adc(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} // ADC ZP      3
-        case 0x66:{nes_ror(nes, nes_zp(nes)); nes->nes_cpu.cycles += 5;break;} // ROR ZP      5
-        case 0x67:{nes_rra(nes, nes_zp(nes)); nes->nes_cpu.cycles += 5;break;} // RRA ZP      5
-        case 0x68:{nes_pla(nes, 0);           nes->nes_cpu.cycles += 4;break;} // PLA         4
-        case 0x69:{nes_adc(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} // ADC IMM     2
-        case 0x6A:{nes_ror(nes, 0);           nes->nes_cpu.cycles += 2;break;} // ROR         2
-        case 0x6B:{nes_arr(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} // ARR IMM     2
-        case 0x6C:{nes_jmp(nes, nes_ind(nes));nes->nes_cpu.cycles += 5;break;} // JMP IND     5
-        case 0x6D:{nes_adc(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} // ADC ABS     4
-        case 0x6E:{nes_ror(nes, nes_abs(nes));nes->nes_cpu.cycles += 6;break;} // ROR ABS     6
-        case 0x6F:{nes_rra(nes, nes_abs(nes));nes->nes_cpu.cycles += 6;break;} // RRA ABS     6
-        case 0x70:{nes_bvs(nes, nes_rel(nes));nes->nes_cpu.cycles += 2;break;} // BVS REL     2*
-        case 0x71:{nes_adc(nes, nes_izy(nes));nes->nes_cpu.cycles += 5;break;} // ADC IZY     5*
-        case 0x72:{                                                    break;} // KIL         0
-        case 0x73:{nes_rra(nes, nes_izy(nes));nes->nes_cpu.cycles += 8;break;} // RRA IZY     8
-        case 0x74:{nes_nop(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} // NOP ZPX     4
-        case 0x75:{nes_adc(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} // ADC ZPX     4
-        case 0x76:{nes_ror(nes, nes_zpx(nes));nes->nes_cpu.cycles += 6;break;} // ROR ZPX     6
-        case 0x77:{nes_rra(nes, nes_zpx(nes));nes->nes_cpu.cycles += 6;break;} // RRA ZPX     6
-        case 0x78:{nes_sei(nes, 0);           nes->nes_cpu.cycles += 2;break;} // SEI         2
-        case 0x79:{nes_adc(nes, nes_aby(nes));nes->nes_cpu.cycles += 4;break;} // ADC ABY     4*
-        case 0x7A:{nes_nop(nes, 0);           nes->nes_cpu.cycles += 2;break;} // NOP         2
-        case 0x7B:{nes_rra(nes, nes_aby(nes));nes->nes_cpu.cycles += 7;break;} // RRA ABY     7
-        case 0x7C:{nes_nop(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;} // NOP ABX     4*
-        case 0x7D:{nes_adc(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;} // ADC ABX     4*
-        case 0x7E:{nes_ror(nes, nes_abx(nes));nes->nes_cpu.cycles += 7;break;} // ROR ABX     7
-        case 0x7F:{nes_rra(nes, nes_abx(nes));nes->nes_cpu.cycles += 7;break;} // RRA ABX     7
-        case 0x80:{nes_nop(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} // NOP IMM     2
-        case 0x81:{nes_sta(nes, nes_izx(nes));nes->nes_cpu.cycles += 6;break;} // STA IZX     6
-        case 0x82:{nes_nop(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} // NOP IMM     2
-        case 0x83:{nes_sax(nes, nes_izx(nes));nes->nes_cpu.cycles += 6;break;} // SAX IZX     6
-        case 0x84:{nes_sty(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} // STY ZP      3
-        case 0x85:{nes_sta(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} // STA ZP      3
-        case 0x86:{nes_stx(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} // STX ZP      3
-        case 0x87:{nes_sax(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} // SAX ZP      3
-        case 0x88:{nes_dey(nes, 0);           nes->nes_cpu.cycles += 2;break;} // DEY         2
-        case 0x89:{nes_nop(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} // NOP IMM     2
-        case 0x8A:{nes_txa(nes, 0);           nes->nes_cpu.cycles += 2;break;} // TXA         2
-        case 0x8B:{nes_xaa(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} // XAA IMM     2
-        case 0x8C:{nes_sty(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} // STY ABS     4
-        case 0x8D:{nes_sta(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} // STA ABS     4
-        case 0x8E:{nes_stx(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} // STX ABS     4
-        case 0x8F:{nes_sax(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} // SAX ABS     4
-        case 0x90:{nes_bcc(nes, nes_rel(nes));nes->nes_cpu.cycles += 2;break;} // BCC REL     2*
-        case 0x91:{nes_sta(nes, nes_izy(nes));nes->nes_cpu.cycles += 6;break;} // STA IZY     6
-        case 0x92:{                                                    break;} // KIL         0
-        case 0x93:{nes_ahx(nes, nes_izy(nes));nes->nes_cpu.cycles += 6;break;} // AHX IZY     6
-        case 0x94:{nes_sty(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} // STY ZPX     4
-        case 0x95:{nes_sta(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} // STA ZPX     4
-        case 0x96:{nes_stx(nes, nes_zpy(nes));nes->nes_cpu.cycles += 4;break;} // STX ZPY     4
-        case 0x97:{nes_sax(nes, nes_zpy(nes));nes->nes_cpu.cycles += 4;break;} // SAX ZPY     4
-        case 0x98:{nes_tya(nes, 0);           nes->nes_cpu.cycles += 2;break;} // TYA         2
-        case 0x99:{nes_sta(nes, nes_aby(nes));nes->nes_cpu.cycles += 5;break;} // STA ABY     5
-        case 0x9A:{nes_txs(nes, 0);           nes->nes_cpu.cycles += 2;break;} // TXS         2
-        case 0x9B:{nes_tas(nes, nes_aby(nes));nes->nes_cpu.cycles += 5;break;} // TAS ABY     5
-        case 0x9C:{nes_shy(nes, nes_abx(nes));nes->nes_cpu.cycles += 5;break;} // SHY ABX     5
-        case 0x9D:{nes_sta(nes, nes_abx(nes));nes->nes_cpu.cycles += 5;break;} // STA ABX     5
-        case 0x9E:{nes_shx(nes, nes_aby(nes));nes->nes_cpu.cycles += 5;break;} // SHX ABY     5
-        case 0x9F:{nes_ahx(nes, nes_aby(nes));nes->nes_cpu.cycles += 5;break;} // AHX ABY     5
-        case 0xA0:{nes_ldy(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} // LDY IMM     2
-        case 0xA1:{nes_lda(nes, nes_izx(nes));nes->nes_cpu.cycles += 6;break;} // LDA IZX     6
-        case 0xA2:{nes_ldx(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} // LDX IMM     2
-        case 0xA3:{nes_lax(nes, nes_izx(nes));nes->nes_cpu.cycles += 6;break;} // LAX IZX     6
-        case 0xA4:{nes_ldy(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} // LDY ZP      3
-        case 0xA5:{nes_lda(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} // LDA ZP      3
-        case 0xA6:{nes_ldx(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} // LDX ZP      3
-        case 0xA7:{nes_lax(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} // LAX ZP      3
-        case 0xA8:{nes_tay(nes, 0);           nes->nes_cpu.cycles += 2;break;} // TAY         2
-        case 0xA9:{nes_lda(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} // LDA IMM     2
-        case 0xAA:{nes_tax(nes, 0);           nes->nes_cpu.cycles += 2;break;} // TAX         2
-        case 0xAB:{nes_lax(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} // LAX IMM     2
-        case 0xAC:{nes_ldy(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} // LDY ABS     4
-        case 0xAD:{nes_lda(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} // LDA ABS     4
-        case 0xAE:{nes_ldx(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} // LDX ABS     4
-        case 0xAF:{nes_lax(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} // LAX ABS     4
-        case 0xB0:{nes_bcs(nes, nes_rel(nes));nes->nes_cpu.cycles += 2;break;} // BCS REL     2*
-        case 0xB1:{nes_lda(nes, nes_izy(nes));nes->nes_cpu.cycles += 5;break;} // LDA IZY     5*
-        case 0xB2:{                                                    break;} // KIL         0
-        case 0xB3:{nes_lax(nes, nes_izy(nes));nes->nes_cpu.cycles += 5;break;} // LAX IZY     5*
-        case 0xB4:{nes_ldy(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} // LDY ZPX     4
-        case 0xB5:{nes_lda(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} // LDA ZPX     4
-        case 0xB6:{nes_ldx(nes, nes_zpy(nes));nes->nes_cpu.cycles += 4;break;} // LDX ZPY     4
-        case 0xB7:{nes_lax(nes, nes_zpy(nes));nes->nes_cpu.cycles += 4;break;} // LAX ZPY     4
-        case 0xB8:{nes_clv(nes, 0);           nes->nes_cpu.cycles += 2;break;} // CLV         2
-        case 0xB9:{nes_lda(nes, nes_aby(nes));nes->nes_cpu.cycles += 4;break;} // LDA ABY     4*
-        case 0xBA:{nes_tsx(nes, 0);           nes->nes_cpu.cycles += 2;break;} // TSX         2
-        case 0xBB:{nes_las(nes, nes_aby(nes));nes->nes_cpu.cycles += 4;break;} // LAS ABY     4*
-        case 0xBC:{nes_ldy(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;} // LDY ABX     4*
-        case 0xBD:{nes_lda(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;} // LDA ABX     4*
-        case 0xBE:{nes_ldx(nes, nes_aby(nes));nes->nes_cpu.cycles += 4;break;} // LDX ABY     4*
-        case 0xBF:{nes_lax(nes, nes_aby(nes));nes->nes_cpu.cycles += 4;break;} // LAX ABY     4*
-        case 0xC0:{nes_cpy(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} // CPY IMM     2
-        case 0xC1:{nes_cmp(nes, nes_izx(nes));nes->nes_cpu.cycles += 6;break;} // CMP IZX     6
-        case 0xC2:{nes_nop(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} // NOP IMM     2
-        case 0xC3:{nes_dcp(nes, nes_izx(nes));nes->nes_cpu.cycles += 8;break;} // DCP IZX     8
-        case 0xC4:{nes_cpy(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} // CPY ZP      3
-        case 0xC5:{nes_cmp(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} // CMP ZP      3
-        case 0xC6:{nes_dec(nes, nes_zp(nes)); nes->nes_cpu.cycles += 5;break;} // DEC ZP      5
-        case 0xC7:{nes_dcp(nes, nes_zp(nes)); nes->nes_cpu.cycles += 5;break;} // DCP ZP      5
-        case 0xC8:{nes_iny(nes, 0);           nes->nes_cpu.cycles += 2;break;} // INY         2
-        case 0xC9:{nes_cmp(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} // CMP IMM     2
-        case 0xCA:{nes_dex(nes, 0);           nes->nes_cpu.cycles += 2;break;} // DEX         2
-        case 0xCB:{nes_axs(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} // AXS IMM     2
-        case 0xCC:{nes_cpy(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} // CPY ABS     4
-        case 0xCD:{nes_cmp(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} // CMP ABS     4
-        case 0xCE:{nes_dec(nes, nes_abs(nes));nes->nes_cpu.cycles += 6;break;} // DEC ABS     6
-        case 0xCF:{nes_dcp(nes, nes_abs(nes));nes->nes_cpu.cycles += 6;break;} // DCP ABS     6
-        case 0xD0:{nes_bne(nes, nes_rel(nes));nes->nes_cpu.cycles += 2;break;} // BNE REL     2*
-        case 0xD1:{nes_cmp(nes, nes_izy(nes));nes->nes_cpu.cycles += 5;break;} // CMP IZY     5*
-        case 0xD2:{                                                    break;} // KIL         0
-        case 0xD3:{nes_dcp(nes, nes_izy(nes));nes->nes_cpu.cycles += 8;break;} // DCP IZY     8
-        case 0xD4:{nes_nop(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} // NOP ZPX     4
-        case 0xD5:{nes_cmp(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} // CMP ZPX     4
-        case 0xD6:{nes_dec(nes, nes_zpx(nes));nes->nes_cpu.cycles += 6;break;} // DEC ZPX     6
-        case 0xD7:{nes_dcp(nes, nes_zpx(nes));nes->nes_cpu.cycles += 6;break;} // DCP ZPX     6
-        case 0xD8:{nes_cld(nes, 0);           nes->nes_cpu.cycles += 2;break;} // CLD         2
-        case 0xD9:{nes_cmp(nes, nes_aby(nes));nes->nes_cpu.cycles += 4;break;} // CMP ABY     4*
-        case 0xDA:{nes_nop(nes, 0);           nes->nes_cpu.cycles += 2;break;} // NOP         2
-        case 0xDB:{nes_dcp(nes, nes_aby(nes));nes->nes_cpu.cycles += 7;break;} // DCP ABY     7
-        case 0xDC:{nes_nop(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;} // NOP ABX     4*
-        case 0xDD:{nes_cmp(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;} // CMP ABX     4*
-        case 0xDE:{nes_dec(nes, nes_abx(nes));nes->nes_cpu.cycles += 7;break;} // DEC ABX     7
-        case 0xDF:{nes_dcp(nes, nes_abx(nes));nes->nes_cpu.cycles += 7;break;} // DCP ABX     7
-        case 0xE0:{nes_cpx(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} // CPX IMM     2
-        case 0xE1:{nes_sbc(nes, nes_izx(nes));nes->nes_cpu.cycles += 6;break;} // SBC IZX     6
-        case 0xE2:{nes_nop(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} // NOP IMM     2
-        case 0xE3:{nes_isc(nes, nes_izx(nes));nes->nes_cpu.cycles += 8;break;} // ISC IZX     8
-        case 0xE4:{nes_cpx(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} // CPX ZP      3
-        case 0xE5:{nes_sbc(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} // SBC ZP      3
-        case 0xE6:{nes_inc(nes, nes_zp(nes)); nes->nes_cpu.cycles += 5;break;} // INC ZP      5
-        case 0xE7:{nes_isc(nes, nes_zp(nes)); nes->nes_cpu.cycles += 5;break;} // ISC ZP      5
-        case 0xE8:{nes_inx(nes, 0);           nes->nes_cpu.cycles += 2;break;} // INX         2
-        case 0xE9:{nes_sbc(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} // SBC IMM     2
-        case 0xEA:{nes_nop(nes, 0);           nes->nes_cpu.cycles += 2;break;} // NOP         2
-        case 0xEB:{nes_sbc(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} // SBC IMM     2
-        case 0xEC:{nes_cpx(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} // CPX ABS     4
-        case 0xED:{nes_sbc(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} // SBC ABS     4
-        case 0xEE:{nes_inc(nes, nes_abs(nes));nes->nes_cpu.cycles += 6;break;} // INC ABS     6
-        case 0xEF:{nes_isc(nes, nes_abs(nes));nes->nes_cpu.cycles += 6;break;} // ISC ABS     6
-        case 0xF0:{nes_beq(nes, nes_rel(nes));nes->nes_cpu.cycles += 2;break;} // BEQ REL     2*
-        case 0xF1:{nes_sbc(nes, nes_izy(nes));nes->nes_cpu.cycles += 5;break;} // SBC IZY     5*
-        case 0xF2:{                                                    break;} // KIL         0
-        case 0xF3:{nes_isc(nes, nes_izy(nes));nes->nes_cpu.cycles += 8;break;} // ISC IZY     8
-        case 0xF4:{nes_nop(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} // NOP ZPX     4
-        case 0xF5:{nes_sbc(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} // SBC ZPX     4
-        case 0xF6:{nes_inc(nes, nes_zpx(nes));nes->nes_cpu.cycles += 6;break;} // INC ZPX     6
-        case 0xF7:{nes_isc(nes, nes_zpx(nes));nes->nes_cpu.cycles += 6;break;} // ISC ZPX     6
-        case 0xF8:{nes_sed(nes, 0);           nes->nes_cpu.cycles += 2;break;} // SED         2
-        case 0xF9:{nes_sbc(nes, nes_aby(nes));nes->nes_cpu.cycles += 4;break;} // SBC ABY     4*
-        case 0xFA:{nes_nop(nes, 0);           nes->nes_cpu.cycles += 2;break;} // NOP         2
-        case 0xFB:{nes_isc(nes, nes_aby(nes));nes->nes_cpu.cycles += 7;break;} // ISC ABY     7
-        case 0xFC:{nes_nop(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;} // NOP ABX     4*
-        case 0xFD:{nes_sbc(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;} // SBC ABX     4*
-        case 0xFE:{nes_inc(nes, nes_abx(nes));nes->nes_cpu.cycles += 7;break;} // INC ABX     7
-        case 0xFF:{nes_isc(nes, nes_abx(nes));nes->nes_cpu.cycles += 7;break;} // ISC ABX     7
+        case 0x43:{nes_sre(nes, nes_izx(nes));nes->nes_cpu.cycles += 8;break;} //SRE IZX     8
+        case 0x44:{nes_nop(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} //NOP ZP      3
+        case 0x45:{nes_eor(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} //EOR ZP      3
+        case 0x46:{nes_lsr(nes, nes_zp(nes)); nes->nes_cpu.cycles += 5;break;} //LSR ZP      5
+        case 0x47:{nes_sre(nes, nes_zp(nes)); nes->nes_cpu.cycles += 5;break;} //SRE ZP      5
+        case 0x48:{nes_pha(nes, 0);           nes->nes_cpu.cycles += 3;break;} //PHA         3
+        case 0x49:{nes_eor(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} //EOR IMM     2
+        case 0x4A:{nes_lsr(nes, 0);           nes->nes_cpu.cycles += 2;break;} //LSR         2
+        case 0x4B:{nes_alr(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} //ALR IMM     2
+        case 0x4C:{nes_jmp(nes, nes_abs(nes));nes->nes_cpu.cycles += 3;break;} //JMP ABS     3
+        case 0x4D:{nes_eor(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} //EOR ABS     4
+        case 0x4E:{nes_lsr(nes, nes_abs(nes));nes->nes_cpu.cycles += 6;break;} //LSR ABS     6
+        case 0x4F:{nes_sre(nes, nes_abs(nes));nes->nes_cpu.cycles += 6;break;} //SRE ABS     6
+        case 0x50:{nes_bvc(nes, nes_rel(nes));nes->nes_cpu.cycles += 2;break;} //BVC REL     2*
+        case 0x51:{nes_eor(nes, nes_izy(nes));nes->nes_cpu.cycles += 5;break;} //EOR IZY     5*
+        case 0x52:{                                                    break;} //KIL         0
+        case 0x53:{nes_sre(nes, nes_izy2(nes));nes->nes_cpu.cycles += 8;break;} //SRE IZY     8
+        case 0x54:{nes_nop(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} //NOP ZPX     4
+        case 0x55:{nes_eor(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} //EOR ZPX     4
+        case 0x56:{nes_lsr(nes, nes_zpx(nes));nes->nes_cpu.cycles += 6;break;} //LSR ZPX     6
+        case 0x57:{nes_sre(nes, nes_zpx(nes));nes->nes_cpu.cycles += 6;break;} //SRE ZPX     6
+        case 0x58:{nes_cli(nes, 0);           nes->nes_cpu.cycles += 2;break;} //CLI         2
+        case 0x59:{nes_eor(nes, nes_aby(nes));nes->nes_cpu.cycles += 4;break;} //EOR ABY     4*
+        case 0x5A:{nes_nop(nes, 0);           nes->nes_cpu.cycles += 2;break;} //NOP         2
+        case 0x5B:{nes_sre(nes, nes_aby2(nes));nes->nes_cpu.cycles += 7;break;} //SRE ABY     7
+        case 0x5C:{nes_nop(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;} //NOP ABX     4*
+        case 0x5D:{nes_eor(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;} //EOR ABX     4*
+        case 0x5E:{nes_lsr(nes, nes_abx2(nes));nes->nes_cpu.cycles += 7;break;} //LSR ABX     7
+        case 0x5F:{nes_sre(nes, nes_abx2(nes));nes->nes_cpu.cycles += 7;break;} //SRE ABX     7
+        case 0x60:{nes_rts(nes, 0);           nes->nes_cpu.cycles += 6;break;} //RTS         6
+        case 0x61:{nes_adc(nes, nes_izx(nes));nes->nes_cpu.cycles += 6;break;} //ADC IZX     6
+        case 0x62:{                                                    break;} //KIL         0
+        case 0x63:{nes_rra(nes, nes_izx(nes));nes->nes_cpu.cycles += 8;break;} //RRA IZX     8
+        case 0x64:{nes_nop(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} //NOP ZP      3
+        case 0x65:{nes_adc(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} //ADC ZP      3
+        case 0x66:{nes_ror(nes, nes_zp(nes)); nes->nes_cpu.cycles += 5;break;} //ROR ZP      5
+        case 0x67:{nes_rra(nes, nes_zp(nes)); nes->nes_cpu.cycles += 5;break;} //RRA ZP      5
+        case 0x68:{nes_pla(nes, 0);           nes->nes_cpu.cycles += 4;break;} //PLA         4
+        case 0x69:{nes_adc(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} //ADC IMM     2
+        case 0x6A:{nes_ror(nes, 0);           nes->nes_cpu.cycles += 2;break;} //ROR         2
+        case 0x6B:{nes_arr(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} //ARR IMM     2
+        case 0x6C:{nes_jmp(nes, nes_ind(nes));nes->nes_cpu.cycles += 5;break;} //JMP IND     5
+        case 0x6D:{nes_adc(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} //ADC ABS     4
+        case 0x6E:{nes_ror(nes, nes_abs(nes));nes->nes_cpu.cycles += 6;break;} //ROR ABS     6
+        case 0x6F:{nes_rra(nes, nes_abs(nes));nes->nes_cpu.cycles += 6;break;} //RRA ABS     6
+        case 0x70:{nes_bvs(nes, nes_rel(nes));nes->nes_cpu.cycles += 2;break;} //BVS REL     2*
+        case 0x71:{nes_adc(nes, nes_izy(nes));nes->nes_cpu.cycles += 5;break;} //ADC IZY     5*
+        case 0x72:{                                                    break;} //KIL         0
+        case 0x73:{nes_rra(nes, nes_izy2(nes));nes->nes_cpu.cycles += 8;break;} //RRA IZY     8
+        case 0x74:{nes_nop(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} //NOP ZPX     4
+        case 0x75:{nes_adc(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} //ADC ZPX     4
+        case 0x76:{nes_ror(nes, nes_zpx(nes));nes->nes_cpu.cycles += 6;break;} //ROR ZPX     6
+        case 0x77:{nes_rra(nes, nes_zpx(nes));nes->nes_cpu.cycles += 6;break;} //RRA ZPX     6
+        case 0x78:{nes_sei(nes, 0);           nes->nes_cpu.cycles += 2;break;} //SEI         2
+        case 0x79:{nes_adc(nes, nes_aby(nes));nes->nes_cpu.cycles += 4;break;} //ADC ABY     4*
+        case 0x7A:{nes_nop(nes, 0);           nes->nes_cpu.cycles += 2;break;} //NOP         2
+        case 0x7B:{nes_rra(nes, nes_aby2(nes));nes->nes_cpu.cycles += 7;break;} //RRA ABY     7
+        case 0x7C:{nes_nop(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;} //NOP ABX     4*
+        case 0x7D:{nes_adc(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;} //ADC ABX     4*
+        case 0x7E:{nes_ror(nes, nes_abx2(nes));nes->nes_cpu.cycles += 7;break;} //ROR ABX     7
+        case 0x7F:{nes_rra(nes, nes_abx2(nes));nes->nes_cpu.cycles += 7;break;} //RRA ABX     7
+        case 0x80:{nes_nop(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} //NOP IMM     2
+        case 0x81:{nes_sta(nes, nes_izx(nes));nes->nes_cpu.cycles += 6;break;} //STA IZX     6
+        case 0x82:{nes_nop(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} //NOP IMM     2
+        case 0x83:{nes_sax(nes, nes_izx(nes));nes->nes_cpu.cycles += 6;break;} //SAX IZX     6
+        case 0x84:{nes_sty(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} //STY ZP      3
+        case 0x85:{nes_sta(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} //STA ZP      3
+        case 0x86:{nes_stx(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} //STX ZP      3
+        case 0x87:{nes_sax(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} //SAX ZP      3
+        case 0x88:{nes_dey(nes, 0);           nes->nes_cpu.cycles += 2;break;} //DEY         2
+        case 0x89:{nes_nop(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} //NOP IMM     2
+        case 0x8A:{nes_txa(nes, 0);           nes->nes_cpu.cycles += 2;break;} //TXA         2
+        case 0x8B:{nes_xaa(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} //XAA IMM     2
+        case 0x8C:{nes_sty(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} //STY ABS     4
+        case 0x8D:{nes_sta(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} //STA ABS     4
+        case 0x8E:{nes_stx(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} //STX ABS     4
+        case 0x8F:{nes_sax(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} //SAX ABS     4
+        case 0x90:{nes_bcc(nes, nes_rel(nes));nes->nes_cpu.cycles += 2;break;} //BCC REL     2*
+        case 0x91:{nes_sta(nes, nes_izy2(nes));nes->nes_cpu.cycles += 6;break;} //STA IZY     6
+        case 0x92:{                                                    break;} //KIL         0
+        case 0x93:{nes_ahx(nes, nes_izy2(nes));nes->nes_cpu.cycles += 6;break;} //AHX IZY     6
+        case 0x94:{nes_sty(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} //STY ZPX     4
+        case 0x95:{nes_sta(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} //STA ZPX     4
+        case 0x96:{nes_stx(nes, nes_zpy(nes));nes->nes_cpu.cycles += 4;break;} //STX ZPY     4
+        case 0x97:{nes_sax(nes, nes_zpy(nes));nes->nes_cpu.cycles += 4;break;} //SAX ZPY     4
+        case 0x98:{nes_tya(nes, 0);           nes->nes_cpu.cycles += 2;break;} //TYA         2
+        case 0x99:{nes_sta(nes, nes_aby2(nes));nes->nes_cpu.cycles += 5;break;} //STA ABY     5
+        case 0x9A:{nes_txs(nes, 0);           nes->nes_cpu.cycles += 2;break;} //TXS         2
+        case 0x9B:{nes_tas(nes, nes_aby2(nes));nes->nes_cpu.cycles += 5;break;} //TAS ABY     5
+        case 0x9C:{nes_shy(nes, nes_abx2(nes));nes->nes_cpu.cycles += 5;break;} //SHY ABX     5
+        case 0x9D:{nes_sta(nes, nes_abx2(nes));nes->nes_cpu.cycles += 5;break;} //STA ABX     5
+        case 0x9E:{nes_shx(nes, nes_aby2(nes));nes->nes_cpu.cycles += 5;break;} //SHX ABY     5
+        case 0x9F:{nes_ahx(nes, nes_aby2(nes));nes->nes_cpu.cycles += 5;break;} //AHX ABY     5
+        case 0xA0:{nes_ldy(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} //LDY IMM     2
+        case 0xA1:{nes_lda(nes, nes_izx(nes));nes->nes_cpu.cycles += 6;break;} //LDA IZX     6
+        case 0xA2:{nes_ldx(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} //LDX IMM     2
+        case 0xA3:{nes_lax(nes, nes_izx(nes));nes->nes_cpu.cycles += 6;break;} //LAX IZX     6
+        case 0xA4:{nes_ldy(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} //LDY ZP      3
+        case 0xA5:{nes_lda(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} //LDA ZP      3
+        case 0xA6:{nes_ldx(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} //LDX ZP      3
+        case 0xA7:{nes_lax(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} //LAX ZP      3
+        case 0xA8:{nes_tay(nes, 0);           nes->nes_cpu.cycles += 2;break;} //TAY         2
+        case 0xA9:{nes_lda(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} //LDA IMM     2
+        case 0xAA:{nes_tax(nes, 0);           nes->nes_cpu.cycles += 2;break;} //TAX         2
+        case 0xAB:{nes_lax(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} //LAX IMM     2
+        case 0xAC:{nes_ldy(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} //LDY ABS     4
+        case 0xAD:{nes_lda(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} //LDA ABS     4
+        case 0xAE:{nes_ldx(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} //LDX ABS     4
+        case 0xAF:{nes_lax(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} //LAX ABS     4
+        case 0xB0:{nes_bcs(nes, nes_rel(nes));nes->nes_cpu.cycles += 2;break;} //BCS REL     2*
+        case 0xB1:{nes_lda(nes, nes_izy(nes));nes->nes_cpu.cycles += 5;break;} //LDA IZY     5*
+        case 0xB2:{                                                    break;} //KIL         0
+        case 0xB3:{nes_lax(nes, nes_izy(nes));nes->nes_cpu.cycles += 5;break;} //LAX IZY     5*
+        case 0xB4:{nes_ldy(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} //LDY ZPX     4
+        case 0xB5:{nes_lda(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} //LDA ZPX     4
+        case 0xB6:{nes_ldx(nes, nes_zpy(nes));nes->nes_cpu.cycles += 4;break;} //LDX ZPY     4
+        case 0xB7:{nes_lax(nes, nes_zpy(nes));nes->nes_cpu.cycles += 4;break;} //LAX ZPY     4
+        case 0xB8:{nes_clv(nes, 0);           nes->nes_cpu.cycles += 2;break;} //CLV         2
+        case 0xB9:{nes_lda(nes, nes_aby(nes));nes->nes_cpu.cycles += 4;break;} //LDA ABY     4*
+        case 0xBA:{nes_tsx(nes, 0);           nes->nes_cpu.cycles += 2;break;} //TSX         2
+        case 0xBB:{nes_las(nes, nes_aby(nes));nes->nes_cpu.cycles += 4;break;} //LAS ABY     4*
+        case 0xBC:{nes_ldy(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;} //LDY ABX     4*
+        case 0xBD:{nes_lda(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;} //LDA ABX     4*
+        case 0xBE:{nes_ldx(nes, nes_aby(nes));nes->nes_cpu.cycles += 4;break;} //LDX ABY     4*
+        case 0xBF:{nes_lax(nes, nes_aby(nes));nes->nes_cpu.cycles += 4;break;} //LAX ABY     4*
+        case 0xC0:{nes_cpy(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} //CPY IMM     2
+        case 0xC1:{nes_cmp(nes, nes_izx(nes));nes->nes_cpu.cycles += 6;break;} //CMP IZX     6
+        case 0xC2:{nes_nop(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} //NOP IMM     2
+        case 0xC3:{nes_dcp(nes, nes_izx(nes));nes->nes_cpu.cycles += 8;break;} //DCP IZX     8
+        case 0xC4:{nes_cpy(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} //CPY ZP      3
+        case 0xC5:{nes_cmp(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} //CMP ZP      3
+        case 0xC6:{nes_dec(nes, nes_zp(nes)); nes->nes_cpu.cycles += 5;break;} //DEC ZP      5
+        case 0xC7:{nes_dcp(nes, nes_zp(nes)); nes->nes_cpu.cycles += 5;break;} //DCP ZP      5
+        case 0xC8:{nes_iny(nes, 0);           nes->nes_cpu.cycles += 2;break;} //INY         2
+        case 0xC9:{nes_cmp(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} //CMP IMM     2
+        case 0xCA:{nes_dex(nes, 0);           nes->nes_cpu.cycles += 2;break;} //DEX         2
+        case 0xCB:{nes_axs(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} //AXS IMM     2
+        case 0xCC:{nes_cpy(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} //CPY ABS     4
+        case 0xCD:{nes_cmp(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} //CMP ABS     4
+        case 0xCE:{nes_dec(nes, nes_abs(nes));nes->nes_cpu.cycles += 6;break;} //DEC ABS     6
+        case 0xCF:{nes_dcp(nes, nes_abs(nes));nes->nes_cpu.cycles += 6;break;} //DCP ABS     6
+        case 0xD0:{nes_bne(nes, nes_rel(nes));nes->nes_cpu.cycles += 2;break;} //BNE REL     2*
+        case 0xD1:{nes_cmp(nes, nes_izy(nes));nes->nes_cpu.cycles += 5;break;} //CMP IZY     5*
+        case 0xD2:{                                                    break;} //KIL         0
+        case 0xD3:{nes_dcp(nes, nes_izy2(nes));nes->nes_cpu.cycles += 8;break;} //DCP IZY     8
+        case 0xD4:{nes_nop(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} //NOP ZPX     4
+        case 0xD5:{nes_cmp(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} //CMP ZPX     4
+        case 0xD6:{nes_dec(nes, nes_zpx(nes));nes->nes_cpu.cycles += 6;break;} //DEC ZPX     6
+        case 0xD7:{nes_dcp(nes, nes_zpx(nes));nes->nes_cpu.cycles += 6;break;} //DCP ZPX     6
+        case 0xD8:{nes_cld(nes, 0);           nes->nes_cpu.cycles += 2;break;} //CLD         2
+        case 0xD9:{nes_cmp(nes, nes_aby(nes));nes->nes_cpu.cycles += 4;break;} //CMP ABY     4*
+        case 0xDA:{nes_nop(nes, 0);           nes->nes_cpu.cycles += 2;break;} //NOP         2
+        case 0xDB:{nes_dcp(nes, nes_aby2(nes));nes->nes_cpu.cycles += 7;break;} //DCP ABY     7
+        case 0xDC:{nes_nop(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;} //NOP ABX     4*
+        case 0xDD:{nes_cmp(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;} //CMP ABX     4*
+        case 0xDE:{nes_dec(nes, nes_abx2(nes));nes->nes_cpu.cycles += 7;break;} //DEC ABX     7
+        case 0xDF:{nes_dcp(nes, nes_abx2(nes));nes->nes_cpu.cycles += 7;break;} //DCP ABX     7
+        case 0xE0:{nes_cpx(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} //CPX IMM     2
+        case 0xE1:{nes_sbc(nes, nes_izx(nes));nes->nes_cpu.cycles += 6;break;} //SBC IZX     6
+        case 0xE2:{nes_nop(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} //NOP IMM     2
+        case 0xE3:{nes_isc(nes, nes_izx(nes));nes->nes_cpu.cycles += 8;break;} //ISC IZX     8
+        case 0xE4:{nes_cpx(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} //CPX ZP      3
+        case 0xE5:{nes_sbc(nes, nes_zp(nes)); nes->nes_cpu.cycles += 3;break;} //SBC ZP      3
+        case 0xE6:{nes_inc(nes, nes_zp(nes)); nes->nes_cpu.cycles += 5;break;} //INC ZP      5
+        case 0xE7:{nes_isc(nes, nes_zp(nes)); nes->nes_cpu.cycles += 5;break;} //ISC ZP      5
+        case 0xE8:{nes_inx(nes, 0);           nes->nes_cpu.cycles += 2;break;} //INX         2
+        case 0xE9:{nes_sbc(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} //SBC IMM     2
+        case 0xEA:{nes_nop(nes, 0);           nes->nes_cpu.cycles += 2;break;} //NOP         2
+        case 0xEB:{nes_sbc(nes, nes_imm(nes));nes->nes_cpu.cycles += 2;break;} //SBC IMM     2
+        case 0xEC:{nes_cpx(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} //CPX ABS     4
+        case 0xED:{nes_sbc(nes, nes_abs(nes));nes->nes_cpu.cycles += 4;break;} //SBC ABS     4
+        case 0xEE:{nes_inc(nes, nes_abs(nes));nes->nes_cpu.cycles += 6;break;} //INC ABS     6
+        case 0xEF:{nes_isc(nes, nes_abs(nes));nes->nes_cpu.cycles += 6;break;} //ISC ABS     6
+        case 0xF0:{nes_beq(nes, nes_rel(nes));nes->nes_cpu.cycles += 2;break;} //BEQ REL     2*
+        case 0xF1:{nes_sbc(nes, nes_izy(nes));nes->nes_cpu.cycles += 5;break;} //SBC IZY     5*
+        case 0xF2:{                                                    break;} //KIL         0
+        case 0xF3:{nes_isc(nes, nes_izy2(nes));nes->nes_cpu.cycles += 8;break;} //ISC IZY     8
+        case 0xF4:{nes_nop(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} //NOP ZPX     4
+        case 0xF5:{nes_sbc(nes, nes_zpx(nes));nes->nes_cpu.cycles += 4;break;} //SBC ZPX     4
+        case 0xF6:{nes_inc(nes, nes_zpx(nes));nes->nes_cpu.cycles += 6;break;} //INC ZPX     6
+        case 0xF7:{nes_isc(nes, nes_zpx(nes));nes->nes_cpu.cycles += 6;break;} //ISC ZPX     6
+        case 0xF8:{nes_sed(nes, 0);           nes->nes_cpu.cycles += 2;break;} //SED         2
+        case 0xF9:{nes_sbc(nes, nes_aby(nes));nes->nes_cpu.cycles += 4;break;} //SBC ABY     4*
+        case 0xFA:{nes_nop(nes, 0);           nes->nes_cpu.cycles += 2;break;} //NOP         2
+        case 0xFB:{nes_isc(nes, nes_aby2(nes));nes->nes_cpu.cycles += 7;break;} //ISC ABY     7
+        case 0xFC:{nes_nop(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;} //NOP ABX     4*
+        case 0xFD:{nes_sbc(nes, nes_abx(nes));nes->nes_cpu.cycles += 4;break;} //SBC ABX     4*
+        case 0xFE:{nes_inc(nes, nes_abx2(nes));nes->nes_cpu.cycles += 7;break;} //INC ABX     7
+        case 0xFF:{nes_isc(nes, nes_abx2(nes));nes->nes_cpu.cycles += 7;break;} //ISC ABX     7
         default:
             break;
         }
