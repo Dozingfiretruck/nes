@@ -1,5 +1,5 @@
 set_project("nes")
-set_xmakever("2.9.8")
+set_xmakever("3.0.0")
 add_rules("mode.debug", "mode.release")
 
 if is_mode("debug") then
