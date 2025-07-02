@@ -154,6 +154,12 @@ gitee: https://gitee.com/Dozingfiretruck/nes/releases
 
 ![Crazy Climber](./docs/CrazyClimber(J).png)
 
+## Discussion group
+
+​	**Non-technical support, only for the purpose of interest exchange.**
+
+![Communication](./docs/Communication.png)
+
 ## Literature reference
 
 https://www.nesdev.org/
