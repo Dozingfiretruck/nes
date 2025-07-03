@@ -50,7 +50,7 @@ static inline uint8_t nes_read_cpu(nes_t* nes,uint16_t address){
                 return nes_read_apu_register(nes, address);
 #endif
             }else{
-                NES_LOG_ERROR("nes_read address %04X not sPport\n",address);
+                NES_LOG_DEBUG("nes_read address %04X not support \n",address);
             }
             return 0;
         case 0x6000://$6000-$7FFF SRAM
@@ -62,7 +62,7 @@ static inline uint8_t nes_read_cpu(nes_t* nes,uint16_t address){
         case 0x8000: case 0xA000: case 0xC000: case 0xE000:
             return nes->nes_cpu.prg_banks[(address >> 13)-4][address & (uint16_t)0x1fff];
         default :
-            NES_LOG_ERROR("nes_read_cpu error %04X\n",address);
+            NES_LOG_DEBUG("nes_read_cpu error %04X\n",address);
             return address >> 8;
     }
 }
@@ -78,7 +78,7 @@ static inline uint8_t* nes_get_dma_address(nes_t* nes,uint8_t data) {
         case 4: case 5: case 6: case 7:// 高一位为1, [$8000, $10000) PRG-ROM
             return nes->nes_cpu.prg_banks[(data >> 4)&0x03] + ((uint16_t)(data & 0x0f) << 8);
         default:
-            NES_LOG_ERROR("nes_get_dma_address error %02X\n",data);
+            NES_LOG_DEBUG("nes_get_dma_address error %02X\n",data);
             return NULL;
     }
 }
@@ -112,7 +112,7 @@ static inline void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
                 nes_write_apu_register(nes, address,data);
 #endif
             }else{
-                NES_LOG_ERROR("nes_write address %04X not suport\n",address);
+                NES_LOG_DEBUG("nes_write address %04X not support\n",address);
             }
             return;
         case 0x6000://$6000-$7FFF SRAM
@@ -124,7 +124,7 @@ static inline void nes_write_cpu(nes_t* nes,uint16_t address, uint8_t data){
             nes->nes_mapper.mapper_write(nes, address, data);
             return;
         default :
-            NES_LOG_ERROR("nes_write_cpu error %04X %02X\n",address,data);
+            NES_LOG_DEBUG("nes_write_cpu error %04X %02X\n",address,data);
             return;
     }
 }

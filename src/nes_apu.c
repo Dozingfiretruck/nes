@@ -476,7 +476,7 @@ void nes_write_apu_register(nes_t* nes,uint16_t address,uint8_t data){
             }
             break;
         default:
-            NES_LOG_ERROR("nes_write apu %04X %02X\n",address,data);
+            NES_LOG_DEBUG("nes_write apu %04X %02X\n",address,data);
             break;
     }
 }

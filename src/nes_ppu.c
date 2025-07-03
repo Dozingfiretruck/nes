@@ -62,7 +62,7 @@ uint8_t nes_read_ppu_register(nes_t* nes,uint16_t address){
             nes->nes_ppu.v_reg += (uint16_t)((nes->nes_ppu.CTRL_I) ? 32 : 1);
             break;
         default : // ($2000 $2001 $2003 $2005 $2006)
-            // NES_LOG_ERROR("nes_read_ppu_register error %04X\n",address);
+            // NES_LOG_DEBUG("nes_read_ppu_register error %04X\n",address);
             // break;
             return nes->nes_ppu.oam_addr;
     }
@@ -126,7 +126,7 @@ void nes_write_ppu_register(nes_t* nes,uint16_t address, uint8_t data){
             nes->nes_ppu.v_reg += (uint16_t)((nes->nes_ppu.CTRL_I) ? 32 : 1);
             break;
         default :
-            NES_LOG_ERROR("nes_write_ppu_register error %04X %02X\n",address,data);
+            NES_LOG_DEBUG("nes_write_ppu_register error %04X %02X\n",address,data);
             break;
     }
 }
