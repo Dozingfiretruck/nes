@@ -75,7 +75,7 @@ int nes_load_mapper(nes_t* nes){
         NES_CASE_LOAD_MAPPER(1);
         NES_CASE_LOAD_MAPPER(2);
         NES_CASE_LOAD_MAPPER(3);
-        NES_CASE_LOAD_MAPPER(4);
+        // NES_CASE_LOAD_MAPPER(4);
         NES_CASE_LOAD_MAPPER(7);
         NES_CASE_LOAD_MAPPER(94);
         NES_CASE_LOAD_MAPPER(117);
