@@ -50,6 +50,15 @@ void nes_load_chrrom_1k(nes_t* nes,uint8_t des, uint8_t src) {
 }
 
 /*
+    load 4k CHR-ROM
+*/
+void nes_load_chrrom_4k(nes_t* nes,uint8_t des, uint8_t src) {
+    for (size_t i = 0; i < 4; i++){
+        nes->nes_ppu.pattern_table[des + i] = nes->nes_rom.chr_rom + 1024 * (src * 4 + i);
+    }
+}
+
+/*
     load 8k CHR-ROM
 */
 void nes_load_chrrom_8k(nes_t* nes,uint8_t des, uint8_t src) {
@@ -63,6 +72,7 @@ void nes_load_chrrom_8k(nes_t* nes,uint8_t des, uint8_t src) {
 int nes_load_mapper(nes_t* nes){
     switch (nes->nes_rom.mapper_number){
         NES_CASE_LOAD_MAPPER(0);
+        // NES_CASE_LOAD_MAPPER(1);
         NES_CASE_LOAD_MAPPER(2);
         NES_CASE_LOAD_MAPPER(3);
         // NES_CASE_LOAD_MAPPER(4);

@@ -23,14 +23,14 @@
 #define NES_PPU_OAM_SIZE        0x100       /*  256B */
 
 typedef enum {
-    NES_MIRROR_FOUR_SCREEN  ,
-    NES_MIRROR_HORIZONTAL   ,
-    NES_MIRROR_VERTICAL     ,
     NES_MIRROR_ONE_SCREEN0  ,
     NES_MIRROR_ONE_SCREEN1  ,
+    NES_MIRROR_VERTICAL     ,
+    NES_MIRROR_HORIZONTAL   ,
+    NES_MIRROR_FOUR_SCREEN  ,
     NES_MIRROR_MAPPER       ,
     NES_MIRROR_COUNT        ,
-    NES_MIRROR_AUTO        ,
+    NES_MIRROR_AUTO         ,
 }nes_mirror_type_t;
 
 struct nes;
@@ -133,7 +133,7 @@ typedef struct nes_ppu{
 		}t;
         uint16_t t_reg;                     /*  Temporary VRAM address (15 bits); can also be thought of as the address of the top left onscreen tile. */
     };
-    uint8_t ppu_vram[4][NES_PPU_VRAM_SIZE/4];
+    uint8_t ppu_vram[4][NES_PPU_VRAM_SIZE/4];   // 4K: 0x1000 = 0x400 * 4 
     union {
         sprite_info_t sprite_info[NES_PPU_OAM_SIZE/4];
         uint8_t oam_data[NES_PPU_OAM_SIZE]; /*  OAM data read/write 

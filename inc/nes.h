@@ -55,6 +55,7 @@ typedef struct nes{
 #if (NES_FRAME_SKIP != 0)
     uint8_t nes_frame_skip_count;
 #endif
+    uint16_t scanline;
     nes_rom_info_t nes_rom;
     nes_cpu_t nes_cpu;
     nes_ppu_t nes_ppu;

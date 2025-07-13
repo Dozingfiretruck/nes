@@ -39,13 +39,12 @@ typedef struct {
     uint8_t P:3;
     uint8_t :3;
 }bank_select_t;
+
 static void nes_mapper_write(nes_t* nes, uint16_t address, uint8_t date) {
     (void)address;
     const bank_select_t* bank_select = (bank_select_t*)&date;
     nes_load_prgrom_16k(nes, 0, bank_select->P);
 }
-
-
 
 int nes_mapper94_init(nes_t* nes){
     nes->nes_mapper.mapper_init = nes_mapper_init;

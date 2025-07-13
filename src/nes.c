@@ -295,7 +295,6 @@ void nes_run(nes_t* nes){
 
     nes_cpu_reset(nes);
     uint64_t frame_cnt = 0;
-    uint16_t scanline = 0;
 
     while (!nes->nes_quit){
         // NES_LOG_DEBUG("frame_cnt:%d\n",frame_cnt);
@@ -318,24 +317,24 @@ void nes_run(nes_t* nes){
         nes_apu_frame(nes);
 #endif
         // https://www.nesdev.org/wiki/PPU_rendering#Visible_scanlines_(0-239)
-        for(scanline = 0; scanline < NES_HEIGHT; scanline++) { // 0-239 Visible frame
+        for(nes->scanline = 0; nes->scanline < NES_HEIGHT; nes->scanline++) { // 0-239 Visible frame
             if (nes->nes_ppu.MASK_b){
 #if (NES_FRAME_SKIP != 0)
                 if (nes->nes_frame_skip_count == 0)
 #endif
                 {
 #if (NES_RAM_LACK == 1)
-                nes_render_background_line(nes,scanline,nes->nes_draw_data + scanline%(NES_HEIGHT/2) * NES_WIDTH);
+                nes_render_background_line(nes, nes->scanline, nes->nes_draw_data + nes->scanline%(NES_HEIGHT/2) * NES_WIDTH);
 #else
-                nes_render_background_line(nes,scanline,nes->nes_draw_data + scanline * NES_WIDTH);
+                nes_render_background_line(nes, nes->scanline, nes->nes_draw_data + nes->scanline * NES_WIDTH);
 #endif
                 }
             }
             if (nes->nes_ppu.MASK_s){
 #if (NES_RAM_LACK == 1)
-                nes_render_sprite_line(nes,scanline,nes->nes_draw_data + scanline%(NES_HEIGHT/2) * NES_WIDTH);
+                nes_render_sprite_line(nes, nes->scanline,nes->nes_draw_data + nes->scanline%(NES_HEIGHT/2) * NES_WIDTH);
 #else
-                nes_render_sprite_line(nes,scanline,nes->nes_draw_data + scanline * NES_WIDTH);
+                nes_render_sprite_line(nes, nes-> scanline,nes->nes_draw_data + nes->scanline * NES_WIDTH);
 #endif
             }
             nes_opcode(nes,85); // ppu cycles: 85*3=255
@@ -363,16 +362,16 @@ void nes_run(nes_t* nes){
             }
             nes_opcode(nes,NES_PPU_CPU_CLOCKS-85);
 #if (NES_ENABLE_SOUND==1)
-            if (scanline % 66 == 65) nes_apu_frame(nes);
+            if (nes->scanline % 66 == 65) nes_apu_frame(nes);
 #endif
 #if (NES_RAM_LACK == 1)
 #if (NES_FRAME_SKIP != 0)
             if(nes->nes_frame_skip_count == 0)
 #endif
             {
-                if (scanline == NES_HEIGHT/2-1){
+                if (nes->scanline == NES_HEIGHT/2-1){
                     nes_draw(0, 0, NES_WIDTH-1, NES_HEIGHT/2-1, nes->nes_draw_data);
-                }else if(scanline == NES_HEIGHT-1){
+                }else if(nes->scanline == NES_HEIGHT-1){
                     nes_draw(0, NES_HEIGHT/2, NES_WIDTH-1, NES_HEIGHT-1, nes->nes_draw_data);
                 }
             }
