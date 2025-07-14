@@ -53,8 +53,8 @@ static void nes_mapper_init(nes_t* nes){
     mapper_register.shift = 0x10;
 }
 
-static inline void nes_mapper_write_control(nes_t* nes) {
-    mapper_register.control_byte = mapper_register.shift;
+static inline void nes_mapper_write_control(nes_t* nes, uint8_t data) {
+    mapper_register.control_byte = data;
     nes_ppu_screen_mirrors(nes, mapper_register.control.M);
 }
 /*
@@ -118,7 +118,7 @@ static inline void nes_mapper_write_prgbank(nes_t* nes) {
 static inline void nes_mapper_write_register(nes_t* nes, uint16_t address) {
     switch ((address & 0x7FFF) >> 13){
     case 0:
-        nes_mapper_write_control(nes);
+        nes_mapper_write_control(nes, mapper_register.shift);
         break;
     case 1:
         nes_mapper_write_chrbank0(nes);
