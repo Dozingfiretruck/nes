@@ -252,8 +252,7 @@ static inline uint16_t nes_aby2(nes_t* nes){
     d:Zero page:Fetches the value from an 8-bit address on the zero page.
 */
 static inline uint16_t nes_zp(nes_t* nes){
-    // return nes->nes_cpu.cpu_ram[nes->nes_cpu.PC++ & (uint16_t)0x07ff];
-    return nes_read_cpu(nes, nes->nes_cpu.PC++);
+    return nes->nes_cpu.cpu_ram[ ++nes->nes_cpu.PC & (uint16_t)0x07ff];
 }
 
 /*
@@ -715,7 +714,9 @@ static inline void nes_plp(nes_t* nes, const uint16_t address){
     (void)address;
     nes_dummy_read(nes);
     nes->nes_cpu.P = NES_POP(nes);
-    // NES_B_CLR;
+    NES_U_SET;
+    NES_B_CLR;
+
     if (!nes->nes_cpu.I){
         /* code */
     }
@@ -831,6 +832,7 @@ static inline void nes_brk(nes_t* nes, const uint16_t address){
     NES_B_SET;
     NES_PUSH(nes,nes->nes_cpu.P);
     NES_I_SET;
+    NES_D_SET;
     nes->nes_cpu.PC = nes_readw_cpu(nes, NES_VERCTOR_IRQBRK);
 }
 
