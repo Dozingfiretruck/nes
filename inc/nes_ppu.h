@@ -23,14 +23,14 @@
 #define NES_PPU_OAM_SIZE        0x100       /*  256B */
 
 typedef enum {
+    NES_MIRROR_FOUR_SCREEN  ,
+    NES_MIRROR_HORIZONTAL   ,
+    NES_MIRROR_VERTICAL     ,
     NES_MIRROR_ONE_SCREEN0  ,
     NES_MIRROR_ONE_SCREEN1  ,
-    NES_MIRROR_VERTICAL     ,
-    NES_MIRROR_HORIZONTAL   ,
-    NES_MIRROR_FOUR_SCREEN  ,
     NES_MIRROR_MAPPER       ,
     NES_MIRROR_COUNT        ,
-    NES_MIRROR_AUTO         ,
+    NES_MIRROR_AUTO        ,
 }nes_mirror_type_t;
 
 struct nes;
