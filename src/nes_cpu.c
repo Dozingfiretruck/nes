@@ -252,7 +252,8 @@ static inline uint16_t nes_aby2(nes_t* nes){
     d:Zero page:Fetches the value from an 8-bit address on the zero page.
 */
 static inline uint16_t nes_zp(nes_t* nes){
-    return nes->nes_cpu.cpu_ram[ ++nes->nes_cpu.PC & (uint16_t)0x07ff];
+    // return nes->nes_cpu.cpu_ram[ nes->nes_cpu.PC++ & (uint16_t)0x07ff];
+    return nes_read_cpu(nes, nes->nes_cpu.PC++);
 }
 
 /*
@@ -307,6 +308,7 @@ static inline uint16_t nes_ind(nes_t* nes){
 /* Logical and arithmetic commands: */
 
 /* 
+    https://www.nesdev.org/wiki/Instruction_reference#ORA
     A :=A or {adr}
     N  V  U  B  D  I  Z  C
     *                 *
@@ -317,6 +319,7 @@ static inline void nes_ora(nes_t* nes, const uint16_t address){
 }
 
 /* 
+    https://www.nesdev.org/wiki/Instruction_reference#AND
     A := A & {adr}
     N  V  U  B  D  I  Z  C
     *                 *
@@ -327,6 +330,7 @@ static inline void nes_and(nes_t* nes, const uint16_t address){
 }
 
 /* 
+    https://www.nesdev.org/wiki/Instruction_reference#EOR
     A := A exor {adr}
     N  V  U  B  D  I  Z  C
     *                 *
@@ -337,6 +341,7 @@ static inline void nes_eor(nes_t* nes, const uint16_t address){
 }
 
 /* 
+    https://www.nesdev.org/wiki/Instruction_reference#ADC
     A:=A+{adr}
     N  V  U  B  D  I  Z  C
     *  *              *  *
@@ -355,6 +360,7 @@ static inline void nes_adc(nes_t* nes, const uint16_t address){
 }
 
 /* 
+    https://www.nesdev.org/wiki/Instruction_reference#SBC
     A:=A-{adr}
     N  V  U  B  D  I  Z  C
     *  *              *  *
@@ -373,6 +379,7 @@ static inline void nes_sbc(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#CMP
     A-{adr}
     N  V  U  B  D  I  Z  C
     *                 *  *
@@ -384,6 +391,7 @@ static inline void nes_cmp(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#CPX
     X-{adr}
     N  V  U  B  D  I  Z  C
     *                 *  *
@@ -395,6 +403,7 @@ static inline void nes_cpx(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#CPY
     Y-{adr}
     N  V  U  B  D  I  Z  C
     *                 *  *
@@ -406,6 +415,7 @@ static inline void nes_cpy(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#DEC
     {adr}:={adr}-1
     N  V  U  B  D  I  Z  C
     *                 *  
@@ -417,6 +427,7 @@ static inline void nes_dec(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#DEX
     X:=X-1
     N  V  U  B  D  I  Z  C
     *                 *  
@@ -428,6 +439,7 @@ static inline void nes_dex(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#DEY
     Y:=Y-1
     N  V  U  B  D  I  Z  C
     *                 *  
@@ -439,6 +451,7 @@ static inline void nes_dey(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#INC
     {adr}:={adr}+1
     N  V  U  B  D  I  Z  C
     *                 *  
@@ -450,6 +463,7 @@ static inline void nes_inc(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#INX
     X:=X+1
     N  V  U  B  D  I  Z  C
     *                 *  
@@ -461,6 +475,7 @@ static inline void nes_inx(nes_t* nes, const uint16_t address){
 }
 
 /*  
+    https://www.nesdev.org/wiki/Instruction_reference#INY
     Y:=Y+1
     N  V  U  B  D  I  Z  C
     *                 *  
@@ -472,6 +487,7 @@ static inline void nes_iny(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#ASL
     {adr}:={adr}*2
     N  V  U  B  D  I  Z  C
     *                 *  *
@@ -492,6 +508,7 @@ static inline void nes_asla(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#ROL
     {adr}:={adr}*2+C
     N  V  U  B  D  I  Z  C
     *                 *  *
@@ -516,6 +533,7 @@ static inline void nes_rola(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#LSR
     {adr}:={adr}/2
     N  V  U  B  D  I  Z  C
     *                 *  *
@@ -536,6 +554,7 @@ static inline void nes_lsra(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#ROR
     {adr}:={adr}/2+C*128
     N  V  U  B  D  I  Z  C
     *                 *  *
@@ -562,6 +581,7 @@ static inline void nes_rora(nes_t* nes, const uint16_t address){
 /* Move commands: */
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#LDA
     A:={adr}
     N  V  U  B  D  I  Z  C
     *                 *  
@@ -572,6 +592,7 @@ static inline void nes_lda(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#STA
     {adr}:=A
     N  V  U  B  D  I  Z  C
 
@@ -581,6 +602,7 @@ static inline void nes_sta(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#LDX
     X:={adr}
     N  V  U  B  D  I  Z  C
     *                 *  
@@ -591,6 +613,7 @@ static inline void nes_ldx(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#STX
     {adr}:=X
     N  V  U  B  D  I  Z  C
 
@@ -600,6 +623,7 @@ static inline void nes_stx(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#LDY
     Y:={adr}
     N  V  U  B  D  I  Z  C
     *                 *  
@@ -610,6 +634,7 @@ static inline void nes_ldy(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#STY
     {adr}:=Y
     N  V  U  B  D  I  Z  C
 
@@ -619,6 +644,7 @@ static inline void nes_sty(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#TAX
     X:=A
     N  V  U  B  D  I  Z  C
     *                 *  
@@ -630,6 +656,7 @@ static inline void nes_tax(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#TXA
     A:=X
     N  V  U  B  D  I  Z  C
     *                 *  
@@ -641,6 +668,7 @@ static inline void nes_txa(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#TAY
     Y:=A
     N  V  U  B  D  I  Z  C
     *                 *  
@@ -652,6 +680,7 @@ static inline void nes_tay(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#TYA
     A:=Y
     N  V  U  B  D  I  Z  C
     *                 *  
@@ -663,6 +692,7 @@ static inline void nes_tya(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#TAY
     X:=S
     N  V  U  B  D  I  Z  C
     *                 *  
@@ -674,6 +704,7 @@ static inline void nes_tsx(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#TXS
     S:=X
     N  V  U  B  D  I  Z  C
 
@@ -684,6 +715,7 @@ static inline void nes_txs(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#PLA
     A:=+(S)
     N  V  U  B  D  I  Z  C
     *                 *  
@@ -696,6 +728,7 @@ static inline void nes_pla(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#PHA
     (S)-:=A
     N  V  U  B  D  I  Z  C
 
@@ -706,6 +739,7 @@ static inline void nes_pha(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#PLP
     P:=+(S)
     N  V  U  B  D  I  Z  C
     *  *        *  *  *  *
@@ -723,13 +757,14 @@ static inline void nes_plp(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#PHP
     (S)-:=P
     N  V  U  B  D  I  Z  C
 
 */
 static inline void nes_php(nes_t* nes, const uint16_t address){
     (void)address;
-    NES_N_SET;
+    NES_U_SET;
     NES_B_SET;
     NES_PUSH(nes,nes->nes_cpu.P);
     // NES_B_CLR;
@@ -749,6 +784,7 @@ static inline void nes_branch(nes_t* nes,const uint16_t address) {
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#BPL
     branch on N=0
     N  V  U  B  D  I  Z  C
 
@@ -758,6 +794,7 @@ static inline void nes_bpl(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#BMI
     branch on N=1
     N  V  U  B  D  I  Z  C
 
@@ -767,6 +804,7 @@ static inline void nes_bmi(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#BVC
     branch on V=0
     N  V  U  B  D  I  Z  C
 
@@ -776,6 +814,7 @@ static inline void nes_bvc(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#BVS
     branch on V=1
     N  V  U  B  D  I  Z  C
 
@@ -785,6 +824,7 @@ static inline void nes_bvs(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#BCC
     branch on C=0
     N  V  U  B  D  I  Z  C
 
@@ -794,6 +834,7 @@ static inline void nes_bcc(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#BCS
     branch on C=1
     N  V  U  B  D  I  Z  C
 
@@ -803,6 +844,7 @@ static inline void nes_bcs(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#BNE
     branch on Z=0
     N  V  U  B  D  I  Z  C
 
@@ -812,6 +854,7 @@ static inline void nes_bne(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#BEQ
     branch on Z=1
     N  V  U  B  D  I  Z  C
 
@@ -821,6 +864,7 @@ static inline void nes_beq(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#BRK
     (S)-:=PC,P PC:=($FFFE)
     N  V  U  B  D  I  Z  C
              1     1
@@ -837,6 +881,7 @@ static inline void nes_brk(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#RTI
     P,PC:=+(S)
     N  V  U  B  D  I  Z  C
     *  *        *  *  *  *
@@ -846,7 +891,7 @@ static inline void nes_rti(nes_t* nes, const uint16_t address){
     nes_dummy_read(nes);
     // P:=+(S)
     nes->nes_cpu.P = NES_POP(nes);
-    // NES_N_SET;
+    // NES_U_SET;
     // NES_B_SET;
     // PC:=+(S)
     const uint8_t low_byte = (nes->nes_cpu.cpu_ram + 0x100)[++nes->nes_cpu.SP];
@@ -858,6 +903,7 @@ static inline void nes_rti(nes_t* nes, const uint16_t address){
 
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#JSR
     (S)-:=PC PC:={adr}
     N  V  U  B  D  I  Z  C
 
@@ -870,6 +916,7 @@ static inline void nes_jsr(nes_t* nes, const uint16_t address){
 
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#RTS
     PC:=+(S)
     N  V  U  B  D  I  Z  C
 
@@ -885,6 +932,7 @@ static inline void nes_rts(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#JMP
     PC:={adr}
     N  V  U  B  D  I  Z  C
 
@@ -894,6 +942,7 @@ static inline void nes_jmp(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#BIT
     N:=b7 V:=b6 Z:=A&{adr}
     N  V  U  B  D  I  Z  C
     *  *              *  
@@ -906,6 +955,7 @@ static inline void nes_bit(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#CLC
     C:=0
     N  V  U  B  D  I  Z  C
                          0
@@ -916,6 +966,7 @@ static inline void nes_clc(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#SEC
     C:=1
     N  V  U  B  D  I  Z  C
                          1
@@ -926,6 +977,7 @@ static inline void nes_sec(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#CLD
     D:=0
     N  V  U  B  D  I  Z  C
                 0         
@@ -936,6 +988,7 @@ static inline void nes_cld(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#SED
     D:=1
     N  V  U  B  D  I  Z  C
                 1         
@@ -946,6 +999,7 @@ static inline void nes_sed(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#CLI
     I:=0
     N  V  U  B  D  I  Z  C
                    0      
@@ -957,6 +1011,7 @@ static inline void nes_cli(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#SEI
     I:=1
     N  V  U  B  D  I  Z  C
                    1      
@@ -967,6 +1022,7 @@ static inline void nes_sei(nes_t* nes, const uint16_t address){
 }
 
 /*
+    https://www.nesdev.org/wiki/Instruction_reference#CLV
     V:=0
     N  V  U  B  D  I  Z  C
        0                  
@@ -977,7 +1033,7 @@ static inline void nes_clv(nes_t* nes, const uint16_t address){
 }
 
 /*
-    
+    https://www.nesdev.org/wiki/Instruction_reference#NOP
     N  V  U  B  D  I  Z  C
 
 */
