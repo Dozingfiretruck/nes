@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2025 Dozingfiretruck
+ * Copyright 2023-2025 PeakRacing
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@
 
 #define NES_NAME                "NES"
 
-#define NES_URL                 "https://github.com/Dozingfiretruck/nes"
+#define NES_URL                 "https://github.com/PeakRacing/nes"
 
 #define NES_WIDTH               256
 #define NES_HEIGHT              240

@@ -40,7 +40,7 @@ RUN mkdir /home/$USERNAME/work
 
 WORKDIR /home/$USERNAME/work
 
-RUN git clone https://gitee.com/Dozingfiretruck/nes && cd nes && xmake
+RUN git clone https://gitee.com/PeakRacing/nes && cd nes && xmake
 
 
 ###########################################

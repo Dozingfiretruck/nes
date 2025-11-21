@@ -22,8 +22,8 @@ jobs:
             tag_name: ${{ github.ref }}
             name: Release ${{ github.ref }}
             body: |
-              [CHANGELOG](https://github.com/Dozingfiretruck/nes/blob/master/docs/CHANGELOG.md#Changelog)
-              [更新日志](https://github.com/Dozingfiretruck/nes/blob/master/docs/CHANGELOG.md#更新日志)
+              [CHANGELOG](https://github.com/PeakRacing/nes/blob/master/docs/CHANGELOG.md#Changelog)
+              [更新日志](https://github.com/PeakRacing/nes/blob/master/docs/CHANGELOG.md#更新日志)
             draft: false
             prerelease: false
 

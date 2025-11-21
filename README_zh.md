@@ -6,13 +6,13 @@
 
 [![Pull Requests Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)[![first-timers-only Friendly](https://img.shields.io/badge/first--timers--only-friendly-blue.svg)](http://www.firsttimersonly.com/)
 
-![github license](https://img.shields.io/github/license/Dozingfiretruck/nes)[![Latest Release](https://img.shields.io/github/v/release/Dozingfiretruck/nes?label=Release&logo=github)](https://github.com/Dozingfiretruck/nes/releases/latest)![Windows](https://github.com/Dozingfiretruck/nes/actions/workflows/windows.yml/badge.svg?branch=master)![Linux](https://github.com/Dozingfiretruck/nes/actions/workflows/linux.yml/badge.svg?branch=master)![Macos](https://github.com/Dozingfiretruck/nes/actions/workflows/macos.yml/badge.svg?branch=master)
+![github license](https://img.shields.io/github/license/PeakRacing/nes)[![Latest Release](https://img.shields.io/github/v/release/PeakRacing/nes?label=Release&logo=github)](https://github.com/PeakRacing/nes/releases/latest)![Windows](https://github.com/PeakRacing/nes/actions/workflows/windows.yml/badge.svg?branch=master)![Linux](https://github.com/PeakRacing/nes/actions/workflows/linux.yml/badge.svg?branch=master)![Macos](https://github.com/PeakRacing/nes/actions/workflows/macos.yml/badge.svg?branch=master)
 
 
 
-github: [Dozingfiretruck/nes: A NES emulator in C (github.com)](https://github.com/Dozingfiretruck/nes) (推荐)
+github: [PeakRacing/nes: A NES emulator in C (github.com)](https://github.com/PeakRacing/nes) (推荐)
 
-gitee: [nes: c语言实现的nes模拟器 (gitee.com)](https://gitee.com/Dozingfiretruck/nes) (由于同步问题可能导致更新不及时)
+gitee: [nes: c语言实现的nes模拟器 (gitee.com)](https://gitee.com/PeakRacing/nes) (由于同步问题可能导致更新不及时)
 
 ## 介绍
 ​	C语言实现的nes模拟器，要求C语言标准: **C11** 以上
@@ -81,9 +81,9 @@ brew install make gcc sdl2 xmake
 
 ## 下载地址
 
-github: https://github.com/Dozingfiretruck/nes/releases
+github: https://github.com/PeakRacing/nes/releases
 
-gitee: https://gitee.com/Dozingfiretruck/nes/releases
+gitee: https://gitee.com/PeakRacing/nes/releases
 
 
 
